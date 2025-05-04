@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Informes</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin: 1em 0;
+    }
+
+    .tab-btn {
+      padding: 0.8em 1.5em;
+      margin: 0 0.5em;
+      border: none;
+      background-color: #d0e4ff;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .tab-btn.active {
+      background-color: #4285f4;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .info-box {
+      background-color: #f4faff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Panel de Informes</h1>
+    </div>
+
+    <form class="form">
+      <label for="grupo-select">Selecciona un grupo:</label>
+      <select id="grupo-select" onchange="cargarInformes()">
+        <option value="">-- Elegir grupo --</option>
+      </select>
+    </form>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
+      <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
+      <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
+    </div>
+
+    <div id="individual" class="tab-content active">
+      <div class="info-box" id="informe-individual">
+        <!-- Aquí aparecerán los datos individuales -->
+        <p>Selecciona un alumno del grupo para ver su informe.</p>
+      </div>
+    </div>
+
+    <div id="general" class="tab-content">
+      <div class="info-box" id="informe-general">
+        <!-- Aquí aparecerá el informe del grupo -->
+        <p>Resumen de desempeño del grupo.</p>
+      </div>
+    </div>
+
+    <div id="graficas" class="tab-content">
+      <div class="info-box" id="informe-graficas">
+        <!-- Aquí aparecerán las gráficas -->
+        <p>Gráficas de rendimiento (por implementar).</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function mostrarTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+    }
+
+    function cargarGrupos() {
+      const select = document.getElementById("grupo-select");
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
+        }
+      }
+    }
+
+    function cargarInformes() {
+      const grupoKey = document.getElementById("grupo-select").value;
+      if (!grupoKey) return;
+
+      const grupo = JSON.parse(localStorage.getItem(grupoKey));
+      
+      // Informe individual: muestra lista de alumnos para seleccionar
+      const individualDiv = document.getElementById("informe-individual");
+      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
+      grupo.alumnos.forEach(nombre => {
+        const btn = document.createElement("button");
+        btn.textContent = nombre;
+        btn.className = "btn";
+        btn.onclick = () => {
+          individualDiv.innerHTML = `<h3>${nombre}</h3><p>Informe del alumno (por implementar).</p>`;
+        };
+        individualDiv.appendChild(btn);
+      });
+
+      // Informe general (placeholder)
+      document.getElementById("informe-general").innerHTML = `
+        <h3>Grupo: ${grupo.curso}</h3>
+        <p>Total de alumnos: ${grupo.alumnos.length}</p>
+        <p>Contenido general del grupo (por implementar).</p>
+      `;
+
+      // Gráficas (placeholder)
+      document.getElementById("informe-graficas").innerHTML = `
+        <p>Gráficas basadas en los datos del grupo (por implementar).</p>
+      `;
+    }
+
+    window.onload = cargarGrupos;
+  </script>
+</body>
+</html>
+
