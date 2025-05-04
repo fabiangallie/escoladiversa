@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pregunta 1</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="drag.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">¿Con quién te gusta jugar en el recreo?</h1>
+    </div>
+
+    <div id="instruccion" class="centrado">
+      <p>Arrastra hasta 5 compañeros/as a la caja, por orden de preferencia.</p>
+    </div>
+
+    <div class="drag-area">
+      <div class="nombres" id="lista-nombres">
+        <!-- Aquí se cargarán los nombres -->
+      </div>
+      <div class="caja-seleccion" id="caja">
+        <h3>Tu selección</h3>
+        <ul id="seleccionados"></ul>
+      </div>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="guardarYContinuar()">Siguiente</button>
+    </div>
+  </div>
+
+  <script src="drag.js"></script>
+</body>
+</html>
