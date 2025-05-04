@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pregunta 4</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="drag.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>¿Con quién no te gusta trabajar en clase?</h1>
+
+    <p>Arrastra de 0 a 5 compañeros al cuadro de abajo por orden de preferencia. No es obligatorio seleccionar cinco. Puedes dejarlo vacío o elegir hasta cinco.</p>
+
+    <div class="drag-area">
+      <div class="nombres" id="lista-nombres"></div>
+      <ul class="caja-seleccion" id="seleccionados"></ul>
+    </div>
+
+    <div class="botones">
+      <button onclick="window.location.href='pregunta3.html'">Atrás</button>
+      <button onclick="guardarYFinalizar()">Siguiente</button>
+    </div>
+  </div>
+
+  <script src="drag.js"></script>
+  <script>
+    function guardarYFinalizar() {
+      const seleccionados = Array.from(document.getElementById("seleccionados").children).map(li =>
+        li.textContent.trim()
+      );
+
+      localStorage.setItem("respuesta4", JSON.stringify(seleccionados));
+
+      // Aquí se podrían enviar los datos a un servidor
+      window.location.href = "gracias.html";
+    }
+  </script>
+</body>
+</html>
