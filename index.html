@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sociograma Escola Diversa</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <img src="corazon.png" alt="Corazón multicolor" class="logo" />
+
+    <div class="title-box">
+      <h1 class="title-grande" id="main-title">Escola Diversa</h1>
+      <h2 class="title-secundario" id="subtitle">Sociograma</h2>
+    </div>
+
+    <div class="language-selection">
+      <div class="button-group">
+        <a href="seleccion.html?lang=es" class="btn" onclick="setLanguage('es')">Castellano</a>
+        <a href="seleccion.html?lang=gl" class="btn" onclick="setLanguage('gl')">Galego</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      es: {
+        title: "Escola Diversa",
+        subtitle: "Sociograma",
+        btn1: "Castellano",
+        btn2: "Galego"
+      },
+      gl: {
+        title: "Escola Diversa",
+        subtitle: "Sociograma",
+        btn1: "Castelán",
+        btn2: "Galego"
+      }
+    };
+
+    function setLanguage(lang) {
+      localStorage.setItem("idioma", lang);
+    }
+
+    // Aplicar idioma si ya fue seleccionado
+    document.addEventListener("DOMContentLoaded", () => {
+      const lang = localStorage.getItem("idioma") || "es";
+      document.documentElement.lang = lang;
+      document.getElementById("main-title").textContent = translations[lang].title;
+      document.getElementById("subtitle").textContent = translations[lang].subtitle;
+
+      const buttons = document.querySelectorAll(".btn");
+      if (buttons.length >= 2) {
+        buttons[0].textContent = translations[lang].btn1;
+        buttons[1].textContent = translations[lang].btn2;
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+

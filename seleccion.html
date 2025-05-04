@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selecciona un perfil</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const lang = params.get('lang') || 'es';
+
+      const texts = {
+        es: {
+          title: '¿Quién eres?',
+          teacher: 'Profesorado',
+          student: 'Alumnado'
+        },
+        gl: {
+          title: 'Quen es?',
+          teacher: 'Profesorado',
+          student: 'Alumnado'
+        }
+      };
+
+      const content = texts[lang];
+
+      document.getElementById('title').textContent = content.title;
+      document.getElementById('btn-teacher').textContent = content.teacher;
+      document.getElementById('btn-student').textContent = content.student;
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box">
+      <h1 class="title-grande" id="title"></h1>
+    </div>
+
+    <div class="button-group">
+      <a href="acceso_profesor.html?lang=es" class="btn" id="btn-teacher"></a>
+      <a href="acceso_alumno.html?lang=es" class="btn" id="btn-student"></a>
+    </div>
+  </div>
+</body>
+</html>
