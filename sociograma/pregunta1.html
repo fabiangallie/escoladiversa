@@ -3,35 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pregunta 1</title>
+  <title>Sociograma - Pregunta 1</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="drag.css" />
+  <style>
+    .instrucciones {
+      margin-bottom: 15px;
+    }
+
+    .grid-nombres {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .nombre {
+      padding: 10px;
+      background-color: #e6f7ff;
+      border: 1px solid #0074D9;
+      border-radius: 5px;
+      text-align: center;
+      cursor: grab;
+    }
+
+    .zona-eleccion {
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .puesto {
+      width: 100px;
+      height: 80px;
+      background-color: white;
+      border: 2px dashed #ccc;
+      text-align: center;
+      line-height: 80px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .btn-siguiente {
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">¿Con quién te gusta jugar en el recreo?</h1>
+      <h1 class="title-grande">Pregunta 1</h1>
+      <h2 class="title-secundario">¿Con quién te gusta jugar en el recreo?</h2>
     </div>
 
-    <div id="instruccion" class="centrado">
-      <p>Arrastra hasta 5 compañeros/as a la caja, por orden de preferencia.</p>
+    <p class="instrucciones">Arrastra hasta 5 compañeros a las cajas de abajo, en orden de preferencia. Puedes arrastrar menos si lo prefieres.</p>
+
+    <div class="grid-nombres" id="nombres-lista">
+      <!-- Se llenará dinámicamente con los nombres -->
     </div>
 
-    <div class="drag-area">
-      <div class="nombres" id="lista-nombres">
-        <!-- Aquí se cargarán los nombres -->
-      </div>
-      <div class="caja-seleccion" id="caja">
-        <h3>Tu selección</h3>
-        <ul id="seleccionados"></ul>
-      </div>
+    <div class="zona-eleccion" id="zona-eleccion">
+      <div class="puesto" data-pos="1">1º</div>
+      <div class="puesto" data-pos="2">2º</div>
+      <div class="puesto" data-pos="3">3º</div>
+      <div class="puesto" data-pos="4">4º</div>
+      <div class="puesto" data-pos="5">5º</div>
     </div>
 
-    <div class="centrado">
-      <button class="btn" onclick="guardarYContinuar()">Siguiente</button>
-    </div>
+    <button class="btn btn-siguiente" onclick="siguiente()">Siguiente</button>
   </div>
 
-  <script src="drag.js"></script>
+  <script>
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo")) || [];
+    const lista = document.getElementById("nombres-lista");
+
+    nombres.forEach(nombre => {
+      const div = document.createElement("div");
+      div.textContent = nombre;
+      div.className = "nombre";
+      div.draggable = true;
+      div.id = `nombre-${nombre}`;
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", e.target.id);
+      });
+      lista.appendChild(div);
+    });
+
+    document.querySelectorAll(".puesto").forEach(caja => {
+      caja.addEventListener("dragover", e => e.preventDefault());
+      caja.addEventListener("drop", e => {
+        const id = e.dataTransfer.getData("text/plain");
+        const dragged = document.getElementById(id);
+
+        // Si ya hay alguien en esta caja, lo devolvemos
+        if (caja.firstChild && caja.firstChild !== caja) {
+          lista.appendChild(caja.firstChild);
+        }
+
+        // Si ya estaba en otra caja, liberarla
+        const otherBox = dragged.parentElement;
+        if (otherBox.classList.contains("puesto")) {
+          otherBox.textContent = otherBox.dataset.pos + "º";
+        }
+
+        dragged.style.display = "block";
+        caja.textContent = '';
+        caja.appendChild(dragged);
+      });
+    });
+
+    function siguiente() {
+      const resultados = {};
+      document.querySelectorAll(".puesto").forEach(caja => {
+        const nombre = caja.querySelector(".nombre");
+        resultados[caja.dataset.pos] = nombre ? nombre.textContent : null;
+      });
+      localStorage.setItem("respuesta1", JSON.stringify(resultados));
+      window.location.href = "pregunta2.html";
+    }
+  </script>
 </body>
 </html>
+
