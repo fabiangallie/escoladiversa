@@ -1,61 +1,85 @@
+/* Estilos generales */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f3f7fa;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
   margin: 0;
   padding: 0;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
-  padding: 2rem;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin-top: 2rem;
-  border-radius: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
+/* Cuadro de título azul */
 .title-box {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.title-box.azul {
-  background-color: #007acc;
+  background-color: #0074D9;
   color: white;
-  padding: 1rem;
-  border-radius: 1rem;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .title-grande {
-  font-size: 2rem;
   margin: 0;
+  font-size: 2rem;
 }
 
-.consignas {
-  margin-bottom: 2rem;
+.title-secundario {
+  margin-top: 10px;
+  font-size: 1.2rem;
 }
 
-.consignas ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
+/* Formulario y botones */
+.form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+select,
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .btn {
-  background-color: #007acc;
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #0074D9;
   color: white;
-  padding: 0.75rem 2rem;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
-.btn:hover {
-  background-color: #005e99;
+.btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-.centrado {
-  text-align: center;
+/* Lista formateada para las consignas */
+ul {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+  list-style-type: disc;
 }
+
+ul li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
