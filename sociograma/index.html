@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bienvenido al Sociograma</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">¡Bienvenido/a, <span id="nombre-nino"></span>!</h1>
+    </div>
+
+    <div class="consignas">
+      <h2>Antes de comenzar, ten en cuenta lo siguiente:</h2>
+      <ul>
+        <li>Este test es confidencial y no hay respuestas buenas ni malas.</li>
+        <li>Responde sinceramente para ayudarnos a entender mejor cómo te sientes en el aula.</li>
+        <li>Para cada pregunta, puedes arrastrar entre 0 y 5 compañeros/as a la caja.</li>
+        <li>Puedes arrastrar uno, dos, tres… hasta cinco, o incluso ninguno si lo prefieres.</li>
+        <li>Organiza los nombres arrastrados por orden de preferencia.</li>
+      </ul>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="siguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <script>
+    // Simulación de nombre del niño obtenido en paso anterior
+    const nombre = localStorage.getItem('nombreNino') || 'Nombre';
+    document.getElementById('nombre-nino').textContent = nombre;
+
+    function siguiente() {
+      window.location.href = "pregunta1.html";
+    }
+  </script>
+</body>
+</html>
