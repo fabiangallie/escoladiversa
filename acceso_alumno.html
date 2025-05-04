@@ -44,16 +44,13 @@
           option.textContent = grupo;
           grupoSelect.appendChild(option);
         }
-      })
-      .catch(error => {
-        console.error("Error al cargar grupos:", error);
       });
 
     grupoSelect.addEventListener("change", () => {
       const grupo = grupoSelect.value;
       nombreSelect.innerHTML = "";
 
-      if (!grupo || !grupos[grupo]) {
+      if (!grupo) {
         nombreSelect.disabled = true;
         comenzarBtn.disabled = true;
         return;
@@ -67,7 +64,6 @@
       });
 
       nombreSelect.disabled = false;
-      comenzarBtn.disabled = true;
     });
 
     nombreSelect.addEventListener("change", () => {
@@ -78,16 +74,17 @@
       const grupo = grupoSelect.value;
       const nombre = nombreSelect.value;
 
-      // Guardamos datos en localStorage
+      // Guardamos la selección y la lista completa de nombres del grupo
       localStorage.setItem("grupoSeleccionado", grupo);
       localStorage.setItem("nombreAlumno", nombre);
+      localStorage.setItem("nombresGrupo", JSON.stringify(grupos[grupo]));
 
-      // Redirigimos al sociograma
       window.location.href = "sociograma/index.html";
     });
   </script>
 </body>
 </html>
+
 
 
 
