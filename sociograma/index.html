@@ -3,39 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bienvenido al Sociograma</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Bienvenido al Test Sociométrico</title>
+  <link rel="stylesheet" href="../style.css" />
 </head>
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">¡Bienvenido/a, <span id="nombre-nino"></span>!</h1>
+      <h1 class="title-grande">Bienvenido/a, <span id="nombre-alumno"></span></h1>
+      <h2 class="title-secundario">Vamos a comenzar el test sociométrico</h2>
     </div>
 
-    <div class="consignas">
-      <h2>Antes de comenzar, ten en cuenta lo siguiente:</h2>
+    <div class="form">
+      <p>Este test tiene 4 preguntas. En cada una, podrás arrastrar de 0 a 5 compañeros/as a una caja en orden de preferencia.</p>
+      <p>No es obligatorio arrastrar 5. Puedes seleccionar 0, 1, 2, 3, 4 o 5 personas.</p>
+
       <ul>
-        <li>Este test es confidencial y no hay respuestas buenas ni malas.</li>
-        <li>Responde sinceramente para ayudarnos a entender mejor cómo te sientes en el aula.</li>
-        <li>Para cada pregunta, puedes arrastrar entre 0 y 5 compañeros/as a la caja.</li>
-        <li>Puedes arrastrar uno, dos, tres… hasta cinco, o incluso ninguno si lo prefieres.</li>
-        <li>Organiza los nombres arrastrados por orden de preferencia.</li>
+        <li>Lee bien cada pregunta antes de responder.</li>
+        <li>Ordena tus elecciones arrastrándolas según tu preferencia (1º, 2º, etc.).</li>
+        <li>Solo tú verás tus respuestas.</li>
+        <li>No hay respuestas correctas o incorrectas. Solo queremos conocer cómo te sientes.</li>
       </ul>
-    </div>
 
-    <div class="centrado">
-      <button class="btn" onclick="siguiente()">Siguiente</button>
+      <button class="btn" onclick="empezarTest()">Siguiente</button>
     </div>
   </div>
 
   <script>
-    // Simulación de nombre del niño obtenido en paso anterior
-    const nombre = localStorage.getItem('nombreNino') || 'Nombre';
-    document.getElementById('nombre-nino').textContent = nombre;
+    // Mostrar nombre del alumno desde localStorage
+    const nombre = localStorage.getItem("nombreAlumno");
+    document.getElementById("nombre-alumno").textContent = nombre || "[nombre no disponible]";
 
-    function siguiente() {
+    function empezarTest() {
+      // Ir a la primera pregunta
       window.location.href = "pregunta1.html";
     }
   </script>
 </body>
 </html>
+
