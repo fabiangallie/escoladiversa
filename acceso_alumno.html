@@ -3,65 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Acceso Alumno</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    select, button {
-      margin: 1rem;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-  </style>
+  <title>Acceso Alumnado</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Accede al Sociograma</h1>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Alumnado</h1>
+      <h2 class="title-secundario">Selecciona tu grupo y tu nombre</h2>
+    </div>
 
-  <label for="cursoAlumno">Selecciona tu curso:</label><br />
-  <select id="cursoAlumno">
-    <option value="">--Selecciona--</option>
-    <option value="1A">1ºA</option>
-    <option value="1B">1ºB</option>
-    <option value="2A">2ºA</option>
-    <!-- Añade más cursos según sea necesario -->
-  </select>
-  <br /><br />
+    <div class="form">
+      <label for="grupo">Grupo:</label>
+      <select id="grupo">
+        <option value="">Selecciona un grupo</option>
+      </select>
 
-  <label for="nombreAlumno">Selecciona tu nombre:</label><br />
-  <select id="nombreAlumno">
-    <option value="">--Selecciona--</option>
-    <option value="Lucas">Lucas</option>
-    <option value="Ana">Ana</option>
-    <option value="María">María</option>
-    <!-- Aquí se debería rellenar dinámicamente según el curso -->
-  </select>
+      <label for="nombre">Nombre:</label>
+      <select id="nombre" disabled>
+        <option value="">Primero elige un grupo</option>
+      </select>
 
-  <br /><br />
-  <button onclick="accederSociograma()">Siguiente</button>
+      <button id="comenzar" class="btn" disabled>Comenzar test</button>
+    </div>
+  </div>
 
   <script>
-    function accederSociograma() {
-      const nombre = document.getElementById("nombreAlumno").value;
-      const curso = document.getElementById("cursoAlumno").value;
+    const grupoSelect = document.getElementById("grupo");
+    const nombreSelect = document.getElementById("nombre");
+    const comenzarBtn = document.getElementById("comenzar");
+    let grupos = {};
 
-      if (!nombre || !curso) {
-        alert("Por favor, selecciona tu curso y tu nombre.");
+    // Cargar grupos desde JSON
+    fetch("grupos.json")
+      .then(response => response.json())
+      .then(data => {
+        grupos = data;
+        for (const grupo in grupos) {
+          const option = document.createElement("option");
+          option.value = grupo;
+          option.textContent = grupo;
+          grupoSelect.appendChild(option);
+        }
+      });
+
+    grupoSelect.addEventListener("change", () => {
+      const grupo = grupoSelect.value;
+      nombreSelect.innerHTML = "";
+
+      if (!grupo) {
+        nombreSelect.disabled = true;
+        comenzarBtn.disabled = true;
         return;
       }
 
-      localStorage.setItem("nombreAlumno", nombre);
-      localStorage.setItem("cursoAlumno", curso);
+      grupos[grupo].forEach(nombre => {
+        const option = document.createElement("option");
+        option.value = nombre;
+        option.textContent = nombre;
+        nombreSelect.appendChild(option);
+      });
 
-      // Redirige al sociograma
+      nombreSelect.disabled = false;
+    });
+
+    nombreSelect.addEventListener("change", () => {
+      comenzarBtn.disabled = !nombreSelect.value;
+    });
+
+    comenzarBtn.addEventListener("click", () => {
+      const grupo = grupoSelect.value;
+      const nombre = nombreSelect.value;
+      localStorage.setItem("grupoSeleccionado", grupo);
+      localStorage.setItem("nombreAlumno", nombre);
       window.location.href = "sociograma/index.html";
-    }
+    });
   </script>
 </body>
 </html>
+
 
 
 
