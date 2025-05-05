@@ -46,7 +46,6 @@
       justify-content: center;
       flex-direction: column;
       background-color: #fff;
-      cursor: pointer;
     }
 
     .casilla span {
@@ -67,7 +66,7 @@
       <h2 class="title-secundario">¿Con quién te gusta trabajar en grupo?</h2>
     </div>
 
-    <div class="nombres-container" id="nombres">
+    <div class="nombres-container" id="nombres" ondragover="event.preventDefault()" ondrop="handleDropBack(event)">
       <!-- Aquí se cargarán los nombres -->
     </div>
 
@@ -90,6 +89,11 @@
     const contenedor = document.getElementById("nombres");
 
     nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
+    });
+
+    function crearItem(nombre) {
       const item = document.createElement("div");
       item.className = "nombre-item";
       item.textContent = nombre;
@@ -101,46 +105,55 @@
       img.alt = "icono";
 
       item.prepend(img);
-      contenedor.appendChild(item);
-    });
 
-    // Arrastrar y soltar
-    let draggedItem = null;
+      item.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", nombre);
+      });
 
-    document.addEventListener("dragstart", e => {
-      if (e.target.classList.contains("nombre-item")) {
-        draggedItem = e.target;
-      }
-    });
+      return item;
+    }
 
     document.querySelectorAll(".casilla").forEach(casilla => {
       casilla.addEventListener("dragover", e => e.preventDefault());
 
       casilla.addEventListener("drop", e => {
         e.preventDefault();
-        if (draggedItem) {
-          // Evita duplicados
-          document.querySelectorAll(".casilla").forEach(c => {
-            if (c.contains(draggedItem)) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
-          });
+        const nombre = e.dataTransfer.getData("text/plain");
+        if (!nombre) return;
 
-          casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
-          casilla.appendChild(draggedItem);
-        }
-      });
+        // Verifica si ya está en otra casilla
+        document.querySelectorAll(".casilla").forEach(c => {
+          const n = c.querySelector(".nombre-item");
+          if (n && n.dataset.nombre === nombre) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        });
 
-      // Vaciar casilla si se hace clic
-      casilla.addEventListener("click", () => {
-        const hijo = casilla.querySelector(".nombre-item");
-        if (hijo) {
-          contenedor.appendChild(hijo);
-          casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
-        }
+        const nuevoItem = crearItem(nombre);
+        casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
+        casilla.appendChild(nuevoItem);
       });
     });
 
+    function handleDropBack(e) {
+      e.preventDefault();
+      const nombre = e.dataTransfer.getData("text/plain");
+      if (!nombre) return;
+
+      // Elimina si estaba en una casilla
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        if (n && n.dataset.nombre === nombre) {
+          c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        }
+      });
+
+      // Solo lo añade si no está ya en la lista
+      const yaEsta = [...contenedor.children].some(n => n.dataset.nombre === nombre);
+      if (!yaEsta) {
+        contenedor.appendChild(crearItem(nombre));
+      }
+    }
+
     function siguiente() {
-      // Guarda las elecciones y pasa a la siguiente pregunta
       const elecciones = [];
       document.querySelectorAll(".casilla").forEach(c => {
         const n = c.querySelector(".nombre-item");
@@ -152,6 +165,7 @@
   </script>
 </body>
 </html>
+
 
 
 
