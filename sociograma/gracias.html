@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>¡Gracias!</title>
   <link rel="stylesheet" href="style.css" />
-</head>
-  <script src="enviar.js"></script>
-<script>
-  recopilarDatosSociograma();
-</script>
+  <style>
+    .container {
+      text-align: center;
+      padding: 40px;
+    }
 
+    .title-box {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .mensaje-final {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .emoji {
+      font-size: 3rem;
+    }
+  </style>
+</head>
 <body>
   <div class="container">
-    <h1>¡Gracias por responder!</h1>
-    <p>Has terminado el test. Muy bien hecho.</p>
-    <div style="font-size: 4rem;">😊</div>
+    <div class="title-box">
+      <h1 class="title-grande">¡Muchas gracias!</h1>
+    </div>
+    <p class="mensaje-final">Has terminado el sociograma. ¡Gracias por tu colaboración!</p>
+    <div class="emoji">🎉😊</div>
   </div>
 </body>
 </html>
+
