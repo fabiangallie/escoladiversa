@@ -13,15 +13,15 @@
     </div>
 
     <div class="zona-nombres" id="zona-nombres">
-      <!-- Aquí se cargarán los nombres como elementos arrastrables -->
+      <!-- Aquí irán los nombres como tarjetas arrastrables -->
     </div>
 
     <div class="zona-destino" id="zona-destino">
-      <div class="caja" data-posicion="1"><span>1º</span></div>
-      <div class="caja" data-posicion="2"><span>2º</span></div>
-      <div class="caja" data-posicion="3"><span>3º</span></div>
-      <div class="caja" data-posicion="4"><span>4º</span></div>
-      <div class="caja" data-posicion="5"><span>5º</span></div>
+      <div class="caja" data-pos="1"><span>1º</span></div>
+      <div class="caja" data-pos="2"><span>2º</span></div>
+      <div class="caja" data-pos="3"><span>3º</span></div>
+      <div class="caja" data-pos="4"><span>4º</span></div>
+      <div class="caja" data-pos="5"><span>5º</span></div>
     </div>
 
     <div class="centrado">
@@ -32,44 +32,57 @@
 
   <script>
     const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
-    const nombreAlumno = localStorage.getItem("nombreAlumno");
+    const alumno = localStorage.getItem("nombreAlumno");
 
     const zonaNombres = document.getElementById("zona-nombres");
-    const zonaDestino = document.getElementById("zona-destino");
+    const cajas = document.querySelectorAll(".caja");
 
+    // Crear elementos drag & drop
     function crearElemento(nombre) {
-      const div = document.createElement("div");
-      div.className = "nombre";
-      div.textContent = nombre;
-      div.setAttribute("draggable", "true");
-      div.addEventListener("dragstart", e => {
+      const el = document.createElement("div");
+      el.className = "nombre";
+      el.textContent = nombre;
+      el.setAttribute("draggable", "true");
+
+      el.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", nombre);
       });
-      return div;
+
+      return el;
     }
 
-    // Mostrar nombres (excluyendo al alumno)
-    nombres
-      .filter(n => n !== nombreAlumno)
-      .forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
+    // Cargar nombres (menos el propio alumno)
+    nombres.filter(n => n !== alumno).forEach(nombre => {
+      zonaNombres.appendChild(crearElemento(nombre));
+    });
 
-    // Permitir soltar en cada caja
-    document.querySelectorAll(".caja").forEach(caja => {
+    // Drag & Drop en las cajas
+    cajas.forEach(caja => {
       caja.addEventListener("dragover", e => e.preventDefault());
 
       caja.addEventListener("drop", e => {
         e.preventDefault();
         const nombre = e.dataTransfer.getData("text/plain");
 
-        // Verifica si ya está en alguna caja
-        if ([...zonaDestino.querySelectorAll(".nombre")].some(el => el.textContent === nombre)) return;
+        // Evitar duplicados
+        if ([...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre)) return;
 
-        // Elimina si estaba en la zona de nombres (para evitar duplicados)
-        [...zonaNombres.children].forEach(el => {
-          if (el.textContent === nombre) el.remove();
-        });
+        // Mover nombre desde zona nombres a caja
+        const existente = [...zonaNombres.children].find(n => n.textContent === nombre);
+        if (existente) existente.remove();
 
+        // Añadir a la caja
+        caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
         caja.appendChild(crearElemento(nombre));
+      });
+
+      // Permitir eliminar para corregir
+      caja.addEventListener("click", () => {
+        const nombreEl = caja.querySelector(".nombre");
+        if (nombreEl) {
+          zonaNombres.appendChild(crearElemento(nombreEl.textContent));
+          caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
+        }
       });
     });
 
@@ -79,7 +92,7 @@
 
     function siguiente() {
       const seleccion = [];
-      document.querySelectorAll(".caja").forEach(caja => {
+      cajas.forEach(caja => {
         const nombre = caja.querySelector(".nombre")?.textContent || "";
         seleccion.push(nombre);
       });
@@ -90,6 +103,7 @@
   </script>
 </body>
 </html>
+
 
 
 
