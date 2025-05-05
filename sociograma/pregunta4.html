@@ -19,7 +19,7 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       background-color: #f0f0f0;
-      cursor: grab;
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -63,12 +63,10 @@
   <div class="container">
     <div class="title-box azul">
       <h1 class="title-grande">Pregunta 4</h1>
-      <h2 class="title-secundario">¿Con quién no te gusta trabajar en clase?</h2>
+      <h2 class="title-secundario">¿Con quién te sientes cómodo/a hablando de tus cosas?</h2>
     </div>
 
-    <div class="nombres-container" id="nombres" ondragover="event.preventDefault()" ondrop="handleDropBack(event)">
-      <!-- Aquí se cargarán los nombres -->
-    </div>
+    <div class="nombres-container" id="nombres"></div>
 
     <div class="drop-zona" id="zona-eleccion">
       <div class="casilla" data-pos="1"><span>1º</span></div>
@@ -79,8 +77,7 @@
     </div>
 
     <div class="centrado">
-      <button class="btn" onclick="anterior()">Atrás</button>
-      <button class="btn" onclick="siguiente()">Siguiente</button>
+      <button class="btn" onclick="siguiente()">Finalizar</button>
     </div>
   </div>
 
@@ -96,47 +93,22 @@
     function crearItem(nombre) {
       const item = document.createElement("div");
       item.className = "nombre-item";
-      item.textContent = nombre;
-      item.draggable = true;
       item.dataset.nombre = nombre;
 
       const img = document.createElement("img");
       img.src = "silueta1.png";
       img.alt = "icono";
+      item.appendChild(img);
 
-      item.prepend(img);
+      const texto = document.createTextNode(nombre);
+      item.appendChild(texto);
 
-      item.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", nombre);
-      });
-
+      item.addEventListener("click", () => moverACasilla(nombre));
       return item;
     }
 
-    document.querySelectorAll(".casilla").forEach(casilla => {
-      casilla.addEventListener("dragover", e => e.preventDefault());
-
-      casilla.addEventListener("drop", e => {
-        e.preventDefault();
-        const nombre = e.dataTransfer.getData("text/plain");
-        if (!nombre) return;
-
-        document.querySelectorAll(".casilla").forEach(c => {
-          const n = c.querySelector(".nombre-item");
-          if (n && n.dataset.nombre === nombre) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
-        });
-
-        const nuevoItem = crearItem(nombre);
-        casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
-        casilla.appendChild(nuevoItem);
-      });
-    });
-
-    function handleDropBack(e) {
-      e.preventDefault();
-      const nombre = e.dataTransfer.getData("text/plain");
-      if (!nombre) return;
-
+    function moverACasilla(nombre) {
+      // Eliminar si está en otra casilla
       document.querySelectorAll(".casilla").forEach(c => {
         const n = c.querySelector(".nombre-item");
         if (n && n.dataset.nombre === nombre) {
@@ -144,10 +116,20 @@
         }
       });
 
-      const yaEsta = [...contenedor.children].some(n => n.dataset.nombre === nombre);
-      if (!yaEsta) {
-        contenedor.appendChild(crearItem(nombre));
-      }
+      // Buscar primera casilla vacía
+      const libre = [...document.querySelectorAll(".casilla")]
+        .find(c => !c.querySelector(".nombre-item"));
+
+      if (!libre) return;
+
+      const nuevo = crearItem(nombre);
+      libre.innerHTML = `<span>${libre.dataset.pos}º</span>`;
+      libre.appendChild(nuevo);
+
+      // Eliminar de lista de nombres
+      const original = [...contenedor.children]
+        .find(n => n.dataset.nombre === nombre);
+      if (original) original.remove();
     }
 
     function siguiente() {
@@ -159,13 +141,10 @@
       localStorage.setItem("respuesta4", JSON.stringify(elecciones));
       window.location.href = "gracias.html";
     }
-
-    function anterior() {
-      window.location.href = "pregunta3.html";
-    }
   </script>
 </body>
 </html>
+
 
 
 
