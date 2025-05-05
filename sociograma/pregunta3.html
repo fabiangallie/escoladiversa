@@ -13,7 +13,7 @@
     </div>
 
     <div class="zona-nombres" id="zona-nombres">
-      <!-- Aquí irán los nombres como tarjetas arrastrables -->
+      <!-- Nombres arrastrables se insertarán aquí -->
     </div>
 
     <div class="zona-destino" id="zona-destino">
@@ -37,7 +37,6 @@
     const zonaNombres = document.getElementById("zona-nombres");
     const cajas = document.querySelectorAll(".caja");
 
-    // Crear elementos drag & drop
     function crearElemento(nombre) {
       const el = document.createElement("div");
       el.className = "nombre";
@@ -51,12 +50,10 @@
       return el;
     }
 
-    // Cargar nombres (menos el propio alumno)
-    nombres.filter(n => n !== alumno).forEach(nombre => {
-      zonaNombres.appendChild(crearElemento(nombre));
-    });
+    // Cargar nombres (menos el alumno)
+    const disponibles = nombres.filter(n => n !== alumno);
+    disponibles.forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
 
-    // Drag & Drop en las cajas
     cajas.forEach(caja => {
       caja.addEventListener("dragover", e => e.preventDefault());
 
@@ -65,18 +62,20 @@
         const nombre = e.dataTransfer.getData("text/plain");
 
         // Evitar duplicados
-        if ([...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre)) return;
+        const yaElegido = [...document.querySelectorAll(".caja .nombre")]
+          .some(n => n.textContent === nombre);
+        if (yaElegido) return;
 
-        // Mover nombre desde zona nombres a caja
-        const existente = [...zonaNombres.children].find(n => n.textContent === nombre);
-        if (existente) existente.remove();
+        // Mover desde zona-nombres
+        const elem = [...zonaNombres.children].find(n => n.textContent === nombre);
+        if (elem) elem.remove();
 
-        // Añadir a la caja
+        // Añadir al destino
         caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
         caja.appendChild(crearElemento(nombre));
       });
 
-      // Permitir eliminar para corregir
+      // Permitir quitar si se hace clic
       caja.addEventListener("click", () => {
         const nombreEl = caja.querySelector(".nombre");
         if (nombreEl) {
@@ -96,13 +95,13 @@
         const nombre = caja.querySelector(".nombre")?.textContent || "";
         seleccion.push(nombre);
       });
-
       localStorage.setItem("pregunta3", JSON.stringify(seleccion));
       window.location.href = "pregunta4.html";
     }
   </script>
 </body>
 </html>
+
 
 
 
