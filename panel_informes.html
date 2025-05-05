@@ -6,70 +6,182 @@
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin: 1em 0;
     }
 
-    .title-box {
-      background-color: #0074D9;
-      color: white;
-      padding: 20px;
+    .tab-btn {
+      padding: 0.8em 1.5em;
+      margin: 0 0.5em;
+      border: none;
+      background-color: #d0e4ff;
+      cursor: pointer;
       border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
+      font-weight: bold;
+    }
+
+    .tab-btn.active {
+      background-color: #4285f4;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .info-box {
+      background-color: #f4faff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1em;
+      margin-top: 1em;
     }
 
     .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      background-color: #0074D9;
+      background-color: #4285f4;
       color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
+      padding: 0.5em 1em;
+      margin: 0.5em;
+      border-radius: 8px;
       cursor: pointer;
+      border: none;
     }
 
     .btn:hover {
-      background-color: #005fa3;
+      background-color: #357ae8;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title-box">
+    <div class="title-box azul">
       <h1 class="title-grande">Panel de Informes</h1>
-      <p class="title-secundario">Visualización de resultados y descargas</p>
     </div>
 
-    <button class="btn" onclick="verGrafico()">Ver Sociograma Interactivo</button>
-    <button class="btn" onclick="descargarInformeAula()">Descargar Informe de Aula (PDF)</button>
-    <button class="btn" onclick="descargarInformeIndividual()">Descargar Informe Individual (PDF)</button>
-    <button class="btn" onclick="descargarExcel()">Descargar Datos en Excel</button>
+    <form class="form">
+      <label for="grupo-select">Selecciona un grupo:</label>
+      <select id="grupo-select" onchange="cargarInformes()">
+        <option value="">-- Elegir grupo --</option>
+      </select>
+    </form>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
+      <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
+      <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
+    </div>
+
+    <div id="individual" class="tab-content active">
+      <div class="info-box" id="informe-individual">
+        <p>Selecciona un alumno del grupo para ver su informe.</p>
+      </div>
+      <button class="btn" id="generar-pdf-individual">Generar Informe PDF</button>
+    </div>
+
+    <div id="general" class="tab-content">
+      <div class="info-box" id="informe-general">
+        <p>Resumen de desempeño del grupo.</p>
+        <button class="btn" id="generar-pdf-grupo">Generar Informe del Grupo PDF</button>
+      </div>
+    </div>
+
+    <div id="graficas" class="tab-content">
+      <div class="info-box" id="informe-graficas">
+        <p>Gráficas de rendimiento (por implementar).</p>
+      </div>
+    </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    function verGrafico() {
-      window.location.href = "sociograma.html";
+    function mostrarTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
     }
 
-    function descargarInformeAula() {
-      window.location.href = "descargas/informe_aula.pdf";
+    function cargarGrupos() {
+      const select = document.getElementById("grupo-select");
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
+        }
+      }
     }
 
-    function descargarInformeIndividual() {
-      window.location.href = "descargas/informe_individual.pdf";
+    function cargarInformes() {
+      const grupoKey = document.getElementById("grupo-select").value;
+      if (!grupoKey) return;
+
+      const grupo = JSON.parse(localStorage.getItem(grupoKey));
+      
+      // Informe individual: muestra lista de alumnos para seleccionar
+      const individualDiv = document.getElementById("informe-individual");
+      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
+      grupo.alumnos.forEach(nombre => {
+        const btn = document.createElement("button");
+        btn.textContent = nombre;
+        btn.className = "btn";
+        btn.onclick = () => {
+          individualDiv.innerHTML = `<h3>${nombre}</h3><p>Informe del alumno (por implementar).</p>`;
+        };
+        individualDiv.appendChild(btn);
+      });
+
+      // Informe general (placeholder)
+      document.getElementById("informe-general").innerHTML = `
+        <h3>Grupo: ${grupo.curso}</h3>
+        <p>Total de alumnos: ${grupo.alumnos.length}</p>
+        <p>Contenido general del grupo (por implementar).</p>
+      `;
+
+      // Gráficas (placeholder)
+      document.getElementById("informe-graficas").innerHTML = `
+        <p>Gráficas basadas en los datos del grupo (por implementar).</p>
+      `;
     }
 
-    function descargarExcel() {
-      window.location.href = "descargas/resultados_sociometricos.xlsx";
-    }
+    // Función para generar PDF del informe individual
+    document.getElementById('generar-pdf-individual').addEventListener('click', function() {
+      const nombreAlumno = document.querySelector('#informe-individual h3').textContent;
+      if (!nombreAlumno) return alert('Selecciona un alumno para generar su informe.');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(`Informe Individual de ${nombreAlumno}`, 20, 20);
+      doc.text(`Datos de comportamiento (por implementar)`, 20, 30);
+      doc.save(`informe_individual_${nombreAlumno}.pdf`);
+    });
+
+    // Función para generar PDF del informe general
+    document.getElementById('generar-pdf-grupo').addEventListener('click', function() {
+      const grupoKey = document.getElementById("grupo-select").value;
+      if (!grupoKey) return alert('Selecciona un grupo para generar el informe.');
+
+      const grupo = JSON.parse(localStorage.getItem(grupoKey));
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(`Informe del Grupo: ${grupo.curso}`, 20, 20);
+      doc.text(`Total de alumnos: ${grupo.alumnos.length}`, 20, 30);
+      doc.text(`Descripción sociométrica del grupo (por implementar)`, 20, 40);
+      doc.save(`informe_grupo_${grupo.curso}.pdf`);
+    });
+
+    window.onload = cargarGrupos;
   </script>
 </body>
 </html>
+
 
 
