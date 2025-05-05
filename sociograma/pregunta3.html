@@ -9,45 +9,87 @@
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">Pregunta 3</h1>
-      <h2 class="title-secundario">¿Con quién te gustaría sentarte en clase?</h2>
+      <h1 class="title-grande">¿Con quién te gusta trabajar en clase?</h1>
     </div>
 
-    <div class="zona-arriba" id="zona-nombres">
-      <!-- Aquí se cargarán los nombres -->
+    <div class="zona-nombres" id="zona-nombres">
+      <!-- Aquí se cargarán los nombres como elementos arrastrables -->
     </div>
 
-    <div class="zona-abajo" id="zona-destino">
-      <div class="orden-box" data-orden="1"></div>
-      <div class="orden-box" data-orden="2"></div>
-      <div class="orden-box" data-orden="3"></div>
-      <div class="orden-box" data-orden="4"></div>
-      <div class="orden-box" data-orden="5"></div>
+    <div class="zona-destino" id="zona-destino">
+      <div class="caja" data-posicion="1"><span>1º</span></div>
+      <div class="caja" data-posicion="2"><span>2º</span></div>
+      <div class="caja" data-posicion="3"><span>3º</span></div>
+      <div class="caja" data-posicion="4"><span>4º</span></div>
+      <div class="caja" data-posicion="5"><span>5º</span></div>
     </div>
 
-    <div class="centrado botones">
-      <button onclick="atras()">Atrás</button>
-      <button onclick="siguiente()">Siguiente</button>
+    <div class="centrado">
+      <button class="btn" onclick="atras()">Atrás</button>
+      <button class="btn" onclick="siguiente()">Siguiente</button>
     </div>
   </div>
 
-  <script src="drag.js"></script>
-  <script src="pregunta.js"></script>
   <script>
-    const preguntaActual = 3;
-    cargarNombres(preguntaActual);
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
+    const nombreAlumno = localStorage.getItem("nombreAlumno");
+
+    const zonaNombres = document.getElementById("zona-nombres");
+    const zonaDestino = document.getElementById("zona-destino");
+
+    function crearElemento(nombre) {
+      const div = document.createElement("div");
+      div.className = "nombre";
+      div.textContent = nombre;
+      div.setAttribute("draggable", "true");
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", nombre);
+      });
+      return div;
+    }
+
+    // Mostrar nombres (excluyendo al alumno)
+    nombres
+      .filter(n => n !== nombreAlumno)
+      .forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
+
+    // Permitir soltar en cada caja
+    document.querySelectorAll(".caja").forEach(caja => {
+      caja.addEventListener("dragover", e => e.preventDefault());
+
+      caja.addEventListener("drop", e => {
+        e.preventDefault();
+        const nombre = e.dataTransfer.getData("text/plain");
+
+        // Verifica si ya está en alguna caja
+        if ([...zonaDestino.querySelectorAll(".nombre")].some(el => el.textContent === nombre)) return;
+
+        // Elimina si estaba en la zona de nombres (para evitar duplicados)
+        [...zonaNombres.children].forEach(el => {
+          if (el.textContent === nombre) el.remove();
+        });
+
+        caja.appendChild(crearElemento(nombre));
+      });
+    });
 
     function atras() {
-      guardarRespuestas(preguntaActual);
       window.location.href = "pregunta2.html";
     }
 
     function siguiente() {
-      guardarRespuestas(preguntaActual);
+      const seleccion = [];
+      document.querySelectorAll(".caja").forEach(caja => {
+        const nombre = caja.querySelector(".nombre")?.textContent || "";
+        seleccion.push(nombre);
+      });
+
+      localStorage.setItem("pregunta3", JSON.stringify(seleccion));
       window.location.href = "pregunta4.html";
     }
   </script>
 </body>
 </html>
+
 
 
