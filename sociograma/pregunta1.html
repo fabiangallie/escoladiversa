@@ -4,141 +4,133 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pregunta 1</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    .alumnos-container {
-      display: flex;
-      flex-wrap: wrap;
+    .alumnos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     .alumno {
-      padding: 5px 10px;
-      background-color: #eef;
-      border: 1px solid #88a;
-      border-radius: 5px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #f9f9f9;
       cursor: grab;
     }
 
-    .caja-eleccion {
-      border: 2px dashed #aaa;
-      padding: 10px;
-      min-height: 80px;
+    .alumno img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .zona-seleccion {
       display: flex;
-      gap: 10px;
       justify-content: center;
-      flex-wrap: wrap;
+      gap: 20px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
-    .caja-eleccion .posicion {
-      width: 60px;
-      height: 60px;
-      border: 1px solid #888;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background-color: #fdfdfd;
-      font-weight: bold;
-      position: relative;
+    .slot {
+      border: 2px dashed #aaa;
+      border-radius: 8px;
+      width: 100px;
+      height: 100px;
+      text-align: center;
+      line-height: 1.2;
+      padding: 5px;
+      background-color: #fff;
     }
 
-    .caja-eleccion .posicion.dragover {
-      background-color: #ddf;
-    }
-
-    .caja-eleccion .nombre-alumno {
-      font-weight: normal;
-      font-size: 14px;
-      margin-top: 5px;
+    .slot h3 {
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">¿Con quién te gusta jugar en el recreo?</h1>
-      <p>Arrastra hasta 5 compañeros por orden de preferencia (puedes dejar posiciones vacías si lo prefieres).</p>
+      <h1 class="title-grande">Pregunta 1</h1>
+      <h2 class="title-secundario">Hola, <span id="nombre-nino"></span></h2>
+      <p>¿A qué compañeros/as escogerías para trabajar en equipo?</p>
     </div>
 
-    <div class="alumnos-container" id="alumnos-container">
-      <!-- Alumnos disponibles -->
+    <div class="alumnos-grid" id="lista-alumnos">
+      <!-- Aquí se insertarán los compañeros con JS -->
     </div>
 
-    <div class="caja-eleccion" id="caja-eleccion">
-      <!-- Espacios numerados -->
+    <div class="zona-seleccion">
+      <div class="slot" data-pos="1"><h3>1º</h3></div>
+      <div class="slot" data-pos="2"><h3>2º</h3></div>
+      <div class="slot" data-pos="3"><h3>3º</h3></div>
+      <div class="slot" data-pos="4"><h3>4º</h3></div>
+      <div class="slot" data-pos="5"><h3>5º</h3></div>
     </div>
 
-    <div style="text-align: center;">
-      <button onclick="location.href='pregunta2.html'" class="btn">Siguiente</button>
+    <div class="centrado">
+      <button class="btn" onclick="atras()">Atrás</button>
+      <button class="btn" onclick="siguiente()">Siguiente</button>
     </div>
   </div>
 
   <script>
-    const alumnosContainer = document.getElementById("alumnos-container");
-    const cajaEleccion = document.getElementById("caja-eleccion");
+    const nombre = localStorage.getItem("nombreAlumno") || "Nombre";
+    const grupo = localStorage.getItem("grupoSeleccionado");
+    document.getElementById("nombre-nino").textContent = nombre;
 
-    const nombresGrupo = JSON.parse(localStorage.getItem("nombresGrupo")) || [];
+    const alumnosContainer = document.getElementById("lista-alumnos");
+    const slots = document.querySelectorAll(".slot");
 
-    // Crear tarjetas de alumnos
-    nombresGrupo.forEach(nombre => {
-      const div = document.createElement("div");
-      div.classList.add("alumno");
-      div.textContent = nombre;
-      div.draggable = true;
-      div.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", nombre);
+    fetch("../grupos.json")
+      .then(res => res.json())
+      .then(data => {
+        const alumnos = data[grupo].filter(n => n !== nombre);
+        alumnos.forEach(nombre => {
+          const div = document.createElement("div");
+          div.className = "alumno";
+          div.draggable = true;
+          div.innerHTML = `<img src="silueta1.png" alt="avatar"><br>${nombre}`;
+          div.dataset.nombre = nombre;
+          div.addEventListener("dragstart", dragStart);
+          alumnosContainer.appendChild(div);
+        });
       });
-      alumnosContainer.appendChild(div);
+
+    function dragStart(e) {
+      e.dataTransfer.setData("text/plain", e.target.dataset.nombre);
+    }
+
+    slots.forEach(slot => {
+      slot.addEventListener("dragover", e => e.preventDefault());
+      slot.addEventListener("drop", e => {
+        e.preventDefault();
+        const nombre = e.dataTransfer.getData("text/plain");
+        if (slot.textContent.includes(nombre)) return;
+
+        const existing = Array.from(slots).find(s => s.textContent.includes(nombre));
+        if (existing) existing.innerHTML = `<h3>${existing.dataset.pos}º</h3>`; // vaciar si estaba
+
+        slot.innerHTML = `<h3>${slot.dataset.pos}º</h3>${nombre}`;
+      });
     });
 
-    // Crear posiciones de elección
-    for (let i = 1; i <= 5; i++) {
-      const slot = document.createElement("div");
-      slot.classList.add("posicion");
-      slot.dataset.index = i;
-      slot.textContent = `${i}º`;
+    function atras() {
+      window.location.href = "bienvenida.html";
+    }
 
-      slot.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        slot.classList.add("dragover");
-      });
-
-      slot.addEventListener("dragleave", () => {
-        slot.classList.remove("dragover");
-      });
-
-      slot.addEventListener("drop", (e) => {
-        e.preventDefault();
-        slot.classList.remove("dragover");
-
-        const nombre = e.dataTransfer.getData("text/plain");
-
-        // Evitar duplicados
-        const existentes = cajaEleccion.querySelectorAll(".nombre-alumno");
-        for (let nodo of existentes) {
-          if (nodo.textContent === nombre) return;
-        }
-
-        // Añadir nombre dentro del slot
-        const nombreDiv = document.createElement("div");
-        nombreDiv.className = "nombre-alumno";
-        nombreDiv.textContent = nombre;
-
-        // Eliminar nombre anterior si hay
-        const anterior = slot.querySelector(".nombre-alumno");
-        if (anterior) anterior.remove();
-
-        slot.appendChild(nombreDiv);
-      });
-
-      cajaEleccion.appendChild(slot);
+    function siguiente() {
+      // Guardar selección y continuar
+      const seleccion = Array.from(slots).map(slot => slot.textContent.replace(/\dº/, "").trim()).filter(Boolean);
+      localStorage.setItem("respuesta1", JSON.stringify(seleccion));
+      window.location.href = "pregunta2.html";
     }
   </script>
 </body>
 </html>
+
 
 
