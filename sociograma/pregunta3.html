@@ -9,11 +9,12 @@
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">¿Con quién te gusta trabajar en clase?</h1>
+      <h1 class="title-grande">Pregunta 3</h1>
+      <h2 class="title-secundario">¿Con quién te gusta trabajar en clase?</h2>
     </div>
 
     <div class="zona-nombres" id="zona-nombres">
-      <!-- Nombres arrastrables se insertarán aquí -->
+      <!-- Nombres disponibles -->
     </div>
 
     <div class="zona-destino" id="zona-destino">
@@ -50,7 +51,7 @@
       return el;
     }
 
-    // Cargar nombres (menos el alumno)
+    // Cargar nombres excepto el alumno
     const disponibles = nombres.filter(n => n !== alumno);
     disponibles.forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
 
@@ -61,25 +62,23 @@
         e.preventDefault();
         const nombre = e.dataTransfer.getData("text/plain");
 
-        // Evitar duplicados
-        const yaElegido = [...document.querySelectorAll(".caja .nombre")]
-          .some(n => n.textContent === nombre);
-        if (yaElegido) return;
+        // Si ya está en otra caja, no permitir duplicados
+        const yaUsado = [...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre);
+        if (yaUsado) return;
 
-        // Mover desde zona-nombres
-        const elem = [...zonaNombres.children].find(n => n.textContent === nombre);
-        if (elem) elem.remove();
+        // Quitar de la zona-nombres si existe ahí
+        const item = [...zonaNombres.children].find(n => n.textContent === nombre);
+        if (item) item.remove();
 
-        // Añadir al destino
         caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
         caja.appendChild(crearElemento(nombre));
       });
 
-      // Permitir quitar si se hace clic
+      // Clic para devolver
       caja.addEventListener("click", () => {
-        const nombreEl = caja.querySelector(".nombre");
-        if (nombreEl) {
-          zonaNombres.appendChild(crearElemento(nombreEl.textContent));
+        const el = caja.querySelector(".nombre");
+        if (el) {
+          zonaNombres.appendChild(crearElemento(el.textContent));
           caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
         }
       });
