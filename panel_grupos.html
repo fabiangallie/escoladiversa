@@ -3,236 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestión de Grupos</title>
+  <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1em;
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    .tab-btn {
-      padding: 0.8em 1.5em;
-      margin: 0 0.5em;
-      border: none;
-      background-color: #d0e4ff;
-      cursor: pointer;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    .tab-btn.active {
-      background-color: #4285f4;
+
+    .title-box {
+      background-color: #0074D9;
       color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .alumnos-lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-      padding: 0;
-      list-style: none;
-    }
-    .alumnos-lista li {
-      background-color: #f0f8ff;
-      padding: 0.5em;
+      padding: 20px;
       border-radius: 8px;
+      margin-bottom: 20px;
       text-align: center;
-      font-weight: bold;
     }
-    .edit-alumnos-container {
-      max-height: 250px;
-      overflow-y: auto;
-      margin-top: 0.5em;
-      margin-bottom: 1em;
-      border: 1px solid #ccc;
-      padding: 0.5em;
-      border-radius: 8px;
-    }
-    .btn-eliminar {
-      margin-left: 5px;
-      color: red;
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: #0074D9;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
-      font-weight: bold;
+    }
+
+    .btn:hover {
+      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title-box azul">
-      <h1 class="title-grande">Gestión de Grupos</h1>
+    <div class="title-box">
+      <h1 class="title-grande">Panel de Informes</h1>
+      <p class="title-secundario">Visualización de resultados y descargas</p>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="mostrarTab('crear')">Crear grupo</button>
-      <button class="tab-btn" onclick="mostrarTab('editar')">Editar grupo</button>
-    </div>
-
-    <!-- Crear grupo -->
-    <div id="crear" class="tab-content active">
-      <form class="form" id="grupo-form">
-        <label for="curso">Curso:</label>
-        <input type="text" id="curso" required />
-        <label for="fecha">Fecha:</label>
-        <input type="date" id="fecha" required />
-        <label for="alumno">Nombre del alumno:</label>
-        <input type="text" id="alumno" />
-        <button type="button" class="btn" onclick="añadirAlumno()">Añadir alumno</button>
-        <button type="submit" class="btn">Guardar grupo</button>
-      </form>
-      <ul class="alumnos-lista" id="lista-alumnos"></ul>
-    </div>
-
-    <!-- Editar grupo -->
-    <div id="editar" class="tab-content">
-      <form class="form">
-        <label for="grupo-select">Selecciona un grupo:</label>
-        <select id="grupo-select" onchange="cargarGrupoSeleccionado()">
-          <option value="">-- Elegir grupo --</option>
-        </select>
-      </form>
-      <div id="grupo-editable" style="margin-top: 1em;"></div>
-    </div>
+    <button class="btn" onclick="verGrafico()">Ver Sociograma Interactivo</button>
+    <button class="btn" onclick="descargarInformeAula()">Descargar Informe de Aula (PDF)</button>
+    <button class="btn" onclick="descargarInformeIndividual()">Descargar Informe Individual (PDF)</button>
+    <button class="btn" onclick="descargarExcel()">Descargar Datos en Excel</button>
   </div>
 
   <script>
-    let alumnos = [];
-
-    function mostrarTab(id) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
-      if (id === 'editar') cargarGruposGuardados();
+    function verGrafico() {
+      window.location.href = "sociograma.html";
     }
 
-    function añadirAlumno() {
-      const input = document.getElementById("alumno");
-      const nombre = input.value.trim();
-      if (nombre) {
-        alumnos.push(nombre);
-        input.value = "";
-        actualizarListaAlumnos();
-      }
+    function descargarInformeAula() {
+      window.location.href = "descargas/informe_aula.pdf";
     }
 
-    function actualizarListaAlumnos() {
-      const lista = document.getElementById("lista-alumnos");
-      lista.innerHTML = "";
-      alumnos.forEach(nombre => {
-        const li = document.createElement("li");
-        li.textContent = nombre;
-        lista.appendChild(li);
-      });
+    function descargarInformeIndividual() {
+      window.location.href = "descargas/informe_individual.pdf";
     }
 
-    document.getElementById("grupo-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const curso = document.getElementById("curso").value.trim();
-      const fecha = document.getElementById("fecha").value;
-      if (!curso || !fecha || alumnos.length === 0) {
-        alert("Completa todos los campos y añade al menos un alumno.");
-        return;
-      }
-      const clave = `${curso} - ${fecha}`;
-      const grupo = { curso, fecha, alumnos };
-      localStorage.setItem(clave, JSON.stringify(grupo));
-      alert("Grupo guardado correctamente.");
-      this.reset();
-      alumnos = [];
-      actualizarListaAlumnos();
-    });
-
-    function cargarGruposGuardados() {
-      const select = document.getElementById("grupo-select");
-      select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
-      for (let i = 0; i < localStorage.length; i++) {
-        const clave = localStorage.key(i);
-        if (clave.includes(" - ")) {
-          const option = document.createElement("option");
-          option.value = clave;
-          option.textContent = clave;
-          select.appendChild(option);
-        }
-      }
-    }
-
-    function cargarGrupoSeleccionado() {
-      const clave = document.getElementById("grupo-select").value;
-      if (!clave) return;
-      const grupo = JSON.parse(localStorage.getItem(clave));
-      document.getElementById("grupo-editable").innerHTML = `
-        <form class="form-edit">
-          <label>Curso:</label>
-          <input type="text" id="edit-curso" value="${grupo.curso}" />
-          <label>Fecha:</label>
-          <input type="date" id="edit-fecha" value="${grupo.fecha}" />
-          <label>Añadir alumno:</label>
-          <input type="text" id="nuevo-alumno" placeholder="Nuevo alumno" />
-          <button type="button" class="btn" onclick="añadirAlumnoEditado('${clave}')">Añadir</button>
-          <h4>Alumnos:</h4>
-          <div class="edit-alumnos-container">
-            <ul class="alumnos-lista" id="edit-lista">
-              ${grupo.alumnos.map((nombre, i) => `
-                <li>${nombre}
-                  <span class="btn-eliminar" onclick="eliminarAlumnoEditado(${i}, '${clave}')">x</span>
-                </li>`).join("")}
-            </ul>
-          </div>
-          <button type="button" class="btn" onclick="guardarCambiosGrupo('${clave}')">Guardar cambios</button>
-          <button type="button" class="btn" style="background-color: red;" onclick="eliminarGrupo('${clave}')">Eliminar grupo</button>
-        </form>
-      `;
-    }
-
-    function añadirAlumnoEditado(clave) {
-      const input = document.getElementById("nuevo-alumno");
-      const nuevo = input.value.trim();
-      if (!nuevo) return;
-      const grupo = JSON.parse(localStorage.getItem(clave));
-      grupo.alumnos.push(nuevo);
-      localStorage.setItem(clave, JSON.stringify(grupo));
-      cargarGrupoSeleccionado();
-    }
-
-    function eliminarAlumnoEditado(index, clave) {
-      const grupo = JSON.parse(localStorage.getItem(clave));
-      grupo.alumnos.splice(index, 1);
-      localStorage.setItem(clave, JSON.stringify(grupo));
-      cargarGrupoSeleccionado();
-    }
-
-    function guardarCambiosGrupo(claveAnterior) {
-      const nuevoCurso = document.getElementById("edit-curso").value.trim();
-      const nuevaFecha = document.getElementById("edit-fecha").value;
-      if (!nuevoCurso || !nuevaFecha) return alert("Rellena todos los campos.");
-      const nuevoClave = `${nuevoCurso} - ${nuevaFecha}`;
-      const grupo = JSON.parse(localStorage.getItem(claveAnterior));
-      grupo.curso = nuevoCurso;
-      grupo.fecha = nuevaFecha;
-      localStorage.removeItem(claveAnterior);
-      localStorage.setItem(nuevoClave, JSON.stringify(grupo));
-      alert("Grupo actualizado.");
-      cargarGruposGuardados();
-      cargarGrupoSeleccionado();
-    }
-
-    function eliminarGrupo(clave) {
-      if (confirm("¿Estás seguro de que quieres eliminar este grupo?")) {
-        localStorage.removeItem(clave);
-        alert("Grupo eliminado.");
-        cargarGruposGuardados();
-        document.getElementById("grupo-editable").innerHTML = "";
-        document.getElementById("grupo-select").value = "";
-      }
+    function descargarExcel() {
+      window.location.href = "descargas/resultados_sociometricos.xlsx";
     }
   </script>
 </body>
 </html>
+
 
 
 
