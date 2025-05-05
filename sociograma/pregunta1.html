@@ -6,48 +6,57 @@
   <title>Pregunta 1</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .alumnos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    .nombres-container {
+      display: flex;
+      flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
+      justify-content: center;
     }
 
-    .alumno {
-      text-align: center;
+    .nombre-item {
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      padding: 10px;
-      background-color: #f9f9f9;
+      background-color: #f0f0f0;
       cursor: grab;
-    }
-
-    .alumno img {
-      width: 50px;
-      height: 50px;
-    }
-
-    .zona-seleccion {
       display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nombre-item img {
+      height: 30px;
+    }
+
+    .drop-zona {
+      display: flex;
+      gap: 10px;
       justify-content: center;
-      gap: 20px;
       margin-bottom: 20px;
-      flex-wrap: wrap;
     }
 
-    .slot {
-      border: 2px dashed #aaa;
-      border-radius: 8px;
+    .casilla {
       width: 100px;
-      height: 100px;
-      text-align: center;
-      line-height: 1.2;
-      padding: 5px;
+      height: 60px;
+      border: 2px dashed #888;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
       background-color: #fff;
+      cursor: pointer;
     }
 
-    .slot h3 {
-      margin: 5px 0;
+    .casilla span {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .centrado {
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -55,82 +64,95 @@
   <div class="container">
     <div class="title-box azul">
       <h1 class="title-grande">Pregunta 1</h1>
-      <h2 class="title-secundario">Hola, <span id="nombre-nino"></span></h2>
-      <p>¿A qué compañeros/as escogerías para trabajar en equipo?</p>
+      <h2 class="title-secundario">¿Con quién te gusta trabajar en grupo?</h2>
     </div>
 
-    <div class="alumnos-grid" id="lista-alumnos">
-      <!-- Aquí se insertarán los compañeros con JS -->
+    <div class="nombres-container" id="nombres">
+      <!-- Aquí se cargarán los nombres -->
     </div>
 
-    <div class="zona-seleccion">
-      <div class="slot" data-pos="1"><h3>1º</h3></div>
-      <div class="slot" data-pos="2"><h3>2º</h3></div>
-      <div class="slot" data-pos="3"><h3>3º</h3></div>
-      <div class="slot" data-pos="4"><h3>4º</h3></div>
-      <div class="slot" data-pos="5"><h3>5º</h3></div>
+    <div class="drop-zona" id="zona-eleccion">
+      <!-- Casillas numeradas -->
+      <div class="casilla" data-pos="1"><span>1º</span></div>
+      <div class="casilla" data-pos="2"><span>2º</span></div>
+      <div class="casilla" data-pos="3"><span>3º</span></div>
+      <div class="casilla" data-pos="4"><span>4º</span></div>
+      <div class="casilla" data-pos="5"><span>5º</span></div>
     </div>
 
     <div class="centrado">
-      <button class="btn" onclick="atras()">Atrás</button>
       <button class="btn" onclick="siguiente()">Siguiente</button>
     </div>
   </div>
 
   <script>
-    const nombre = localStorage.getItem("nombreAlumno") || "Nombre";
-    const grupo = localStorage.getItem("grupoSeleccionado");
-    document.getElementById("nombre-nino").textContent = nombre;
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
+    const contenedor = document.getElementById("nombres");
 
-    const alumnosContainer = document.getElementById("lista-alumnos");
-    const slots = document.querySelectorAll(".slot");
+    nombres.forEach(nombre => {
+      const item = document.createElement("div");
+      item.className = "nombre-item";
+      item.textContent = nombre;
+      item.draggable = true;
+      item.dataset.nombre = nombre;
 
-    fetch("../grupos.json")
-      .then(res => res.json())
-      .then(data => {
-        const alumnos = data[grupo].filter(n => n !== nombre);
-        alumnos.forEach(nombre => {
-          const div = document.createElement("div");
-          div.className = "alumno";
-          div.draggable = true;
-          div.innerHTML = `<img src="silueta1.png" alt="avatar"><br>${nombre}`;
-          div.dataset.nombre = nombre;
-          div.addEventListener("dragstart", dragStart);
-          alumnosContainer.appendChild(div);
-        });
+      const img = document.createElement("img");
+      img.src = "silueta1.png";
+      img.alt = "icono";
+
+      item.prepend(img);
+      contenedor.appendChild(item);
+    });
+
+    // Arrastrar y soltar
+    let draggedItem = null;
+
+    document.addEventListener("dragstart", e => {
+      if (e.target.classList.contains("nombre-item")) {
+        draggedItem = e.target;
+      }
+    });
+
+    document.querySelectorAll(".casilla").forEach(casilla => {
+      casilla.addEventListener("dragover", e => e.preventDefault());
+
+      casilla.addEventListener("drop", e => {
+        e.preventDefault();
+        if (draggedItem) {
+          // Evita duplicados
+          document.querySelectorAll(".casilla").forEach(c => {
+            if (c.contains(draggedItem)) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+          });
+
+          casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
+          casilla.appendChild(draggedItem);
+        }
       });
 
-    function dragStart(e) {
-      e.dataTransfer.setData("text/plain", e.target.dataset.nombre);
-    }
-
-    slots.forEach(slot => {
-      slot.addEventListener("dragover", e => e.preventDefault());
-      slot.addEventListener("drop", e => {
-        e.preventDefault();
-        const nombre = e.dataTransfer.getData("text/plain");
-        if (slot.textContent.includes(nombre)) return;
-
-        const existing = Array.from(slots).find(s => s.textContent.includes(nombre));
-        if (existing) existing.innerHTML = `<h3>${existing.dataset.pos}º</h3>`; // vaciar si estaba
-
-        slot.innerHTML = `<h3>${slot.dataset.pos}º</h3>${nombre}`;
+      // Vaciar casilla si se hace clic
+      casilla.addEventListener("click", () => {
+        const hijo = casilla.querySelector(".nombre-item");
+        if (hijo) {
+          contenedor.appendChild(hijo);
+          casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
+        }
       });
     });
 
-    function atras() {
-      window.location.href = "bienvenida.html";
-    }
-
     function siguiente() {
-      // Guardar selección y continuar
-      const seleccion = Array.from(slots).map(slot => slot.textContent.replace(/\dº/, "").trim()).filter(Boolean);
-      localStorage.setItem("respuesta1", JSON.stringify(seleccion));
+      // Guarda las elecciones y pasa a la siguiente pregunta
+      const elecciones = [];
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        elecciones.push(n ? n.dataset.nombre : null);
+      });
+      localStorage.setItem("respuesta1", JSON.stringify(elecciones));
       window.location.href = "pregunta2.html";
     }
   </script>
 </body>
 </html>
+
 
 
 
