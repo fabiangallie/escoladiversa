@@ -84,108 +84,93 @@
     </div>
   </div>
 
-<script>
-  const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
-  const contenedor = document.getElementById("nombres");
-  let selectedName = null;
+  <script>
+    const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
+    const contenedor = document.getElementById("nombres");
 
-  // 1) Crear elementos arrastrables / seleccionables
-  nombres.forEach(nombre => {
-    const item = document.createElement("div");
-    item.className = "nombre-item";
-    item.textContent = nombre;
-    item.dataset.nombre = nombre;
-
-    // Drag por desktop
-    item.draggable = true;
-    item.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", nombre);
+    nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
     });
 
-    // Selección por touch/mobile
-    item.addEventListener("click", () => {
-      // Si ya estaba seleccionado, deselecciona
-      if (selectedName === item) {
-        item.classList.remove("selected");
-        selectedName = null;
-      } else {
-        // Deselecciona anterior
-        document.querySelectorAll(".nombre-item.selected")
-                .forEach(el => el.classList.remove("selected"));
-        // Selecciona este
-        item.classList.add("selected");
-        selectedName = item;
-      }
+    function crearItem(nombre) {
+      const item = document.createElement("div");
+      item.className = "nombre-item";
+      item.textContent = nombre;
+      item.draggable = true;
+      item.dataset.nombre = nombre;
+
+      const img = document.createElement("img");
+      img.src = "silueta1.png";
+      img.alt = "icono";
+
+      item.prepend(img);
+
+      item.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", nombre);
+      });
+
+      return item;
+    }
+
+    document.querySelectorAll(".casilla").forEach(casilla => {
+      casilla.addEventListener("dragover", e => e.preventDefault());
+
+      casilla.addEventListener("drop", e => {
+        e.preventDefault();
+        const nombre = e.dataTransfer.getData("text/plain");
+        if (!nombre) return;
+
+        // Verifica si ya está en otra casilla
+        document.querySelectorAll(".casilla").forEach(c => {
+          const n = c.querySelector(".nombre-item");
+          if (n && n.dataset.nombre === nombre) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        });
+
+        const nuevoItem = crearItem(nombre);
+        casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
+        casilla.appendChild(nuevoItem);
+      });
     });
 
-    contenedor.appendChild(item);
-  });
-
-  // 2) Configura las casillas
-  document.querySelectorAll(".casilla").forEach(caja => {
-    // Desktop drag&drop
-    caja.addEventListener("dragover", e => e.preventDefault());
-    caja.addEventListener("drop", e => {
+    function handleDropBack(e) {
       e.preventDefault();
       const nombre = e.dataTransfer.getData("text/plain");
-      colocarNombreEnCasilla(nombre, caja);
-    });
+      if (!nombre) return;
 
-    // Mobile tap
-    caja.addEventListener("click", () => {
-      if (!selectedName) return;
-      colocarNombreEnCasilla(selectedName.dataset.nombre, caja);
-      // Deselecciona tras colocar
-      selectedName.classList.remove("selected");
-      selectedName = null;
-    });
-  });
+      // Elimina si estaba en una casilla
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        if (n && n.dataset.nombre === nombre) {
+          c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        }
+      });
 
-  // 3) Función para mover el nombre, tanto en mobile como en desktop
-  function colocarNombreEnCasilla(nombre, caja) {
-    // Evitar duplicados en otras casillas
-    document.querySelectorAll(".casilla").forEach(c => {
-      const n = c.querySelector(".nombre-item");
-      if (n && n.dataset.nombre === nombre) {
-        c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+      // Solo lo añade si no está ya en la lista
+      const yaEsta = [...contenedor.children].some(n => n.dataset.nombre === nombre);
+      if (!yaEsta) {
+        contenedor.appendChild(crearItem(nombre));
       }
-    });
-    // Quitar de la lista superior si existe ahí
-    [...contenedor.children].forEach(el => {
-      if (el.dataset.nombre === nombre) el.remove();
-    });
-    // Añadir al recuadro
-    const nuevo = document.createElement("div");
-    nuevo.className = "nombre-item";
-    nuevo.textContent = nombre;
-    nuevo.dataset.nombre = nombre;
-    // Permitir devolver con click
-    nuevo.addEventListener("click", () => {
-      // Si tocan en la casilla, devuelven la tarjeta
-      contenedor.appendChild(nuevo);
-      caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
-    });
-    caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
-    caja.appendChild(nuevo);
-  }
+    }
 
-  // 4) Guardar y navegación
-  function siguiente() {
-    const elecciones = [...document.querySelectorAll(".casilla")].map(c => {
-      const n = c.querySelector(".nombre-item");
-      return n ? n.dataset.nombre : null;
-    });
-    localStorage.setItem("respuesta" + X, JSON.stringify(elecciones));
-    // sustituye X por el número de pregunta y luego ajusta la página siguiente
-    window.location.href = "pregunta" + (X+1) + ".html";
-  }
-  function anterior() {
-    window.location.href = "pregunta" + (X-1) + ".html";
-  }
-</script>
-
+    function siguiente() {
+      const elecciones = [];
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        elecciones.push(n ? n.dataset.nombre : null);
+      });
+      localStorage.setItem("respuesta1", JSON.stringify(elecciones));
+      window.location.href = "pregunta2.html";
+    }
+  </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
