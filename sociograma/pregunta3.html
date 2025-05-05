@@ -6,56 +6,56 @@
   <title>Pregunta 3</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .pregunta-layout {
+    .nombres-container {
       display: flex;
-      justify-content: space-between;
-      gap: 2rem;
-      margin-top: 2rem;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
     }
 
-    .lista-nombres,
-    .zona-destino {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .nombre, .caja {
-      padding: 0.8rem;
-      background-color: #e0f0ff;
+    .nombre-item {
+      padding: 10px;
+      border: 1px solid #ccc;
       border-radius: 8px;
+      background-color: #f0f0f0;
       cursor: grab;
-      text-align: center;
-      font-weight: bold;
-      border: 2px solid #0077b6;
-    }
-
-    .caja span {
-      display: block;
-      margin-bottom: 0.3rem;
-      font-weight: normal;
-    }
-
-    .botones-final {
       display: flex;
-      justify-content: flex-end;
-      margin-top: 2rem;
-      gap: 1rem;
+      align-items: center;
+      gap: 8px;
     }
 
-    .btn {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      background-color: #0077b6;
-      color: white;
+    .nombre-item img {
+      height: 30px;
+    }
+
+    .drop-zona {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .casilla {
+      width: 100px;
+      height: 60px;
+      border: 2px dashed #888;
       border-radius: 6px;
-      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: #fff;
     }
 
-    .btn:hover {
-      background-color: #005f8a;
+    .casilla span {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .centrado {
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -66,97 +66,107 @@
       <h2 class="title-secundario">¿Con quién te gusta trabajar en clase?</h2>
     </div>
 
-    <div class="pregunta-layout">
-      <div class="lista-nombres" id="zona-nombres">
-        <!-- Nombres aquí -->
-      </div>
-
-      <div class="zona-destino" id="zona-destino">
-        <div class="caja" data-pos="1"><span>1º</span></div>
-        <div class="caja" data-pos="2"><span>2º</span></div>
-        <div class="caja" data-pos="3"><span>3º</span></div>
-        <div class="caja" data-pos="4"><span>4º</span></div>
-        <div class="caja" data-pos="5"><span>5º</span></div>
-      </div>
+    <div class="nombres-container" id="nombres" ondragover="event.preventDefault()" ondrop="handleDropBack(event)">
+      <!-- Aquí se cargarán los nombres -->
     </div>
 
-    <div class="botones-final">
-      <button class="btn" onclick="atras()">Atrás</button>
+    <div class="drop-zona" id="zona-eleccion">
+      <div class="casilla" data-pos="1"><span>1º</span></div>
+      <div class="casilla" data-pos="2"><span>2º</span></div>
+      <div class="casilla" data-pos="3"><span>3º</span></div>
+      <div class="casilla" data-pos="4"><span>4º</span></div>
+      <div class="casilla" data-pos="5"><span>5º</span></div>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="anterior()">Atrás</button>
       <button class="btn" onclick="siguiente()">Siguiente</button>
     </div>
   </div>
 
   <script>
     const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
-    const alumno = localStorage.getItem("nombreAlumno");
+    const contenedor = document.getElementById("nombres");
 
-    const zonaNombres = document.getElementById("zona-nombres");
-    const cajas = document.querySelectorAll(".caja");
+    nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
+    });
 
-    function crearElemento(nombre) {
-      const el = document.createElement("div");
-      el.className = "nombre";
-      el.textContent = nombre;
-      el.setAttribute("draggable", "true");
+    function crearItem(nombre) {
+      const item = document.createElement("div");
+      item.className = "nombre-item";
+      item.textContent = nombre;
+      item.draggable = true;
+      item.dataset.nombre = nombre;
 
-      el.addEventListener("dragstart", e => {
+      const img = document.createElement("img");
+      img.src = "silueta1.png";
+      img.alt = "icono";
+
+      item.prepend(img);
+
+      item.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", nombre);
       });
 
-      return el;
+      return item;
     }
 
-    // Mostrar nombres (excepto el alumno actual)
-    const disponibles = nombres.filter(n => n !== alumno);
-    disponibles.forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
+    document.querySelectorAll(".casilla").forEach(casilla => {
+      casilla.addEventListener("dragover", e => e.preventDefault());
 
-    // Permitir soltar en cajas
-    cajas.forEach(caja => {
-      caja.addEventListener("dragover", e => e.preventDefault());
-
-      caja.addEventListener("drop", e => {
+      casilla.addEventListener("drop", e => {
         e.preventDefault();
         const nombre = e.dataTransfer.getData("text/plain");
+        if (!nombre) return;
 
-        // Si ya está en alguna caja, no duplicar
-        const usado = [...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre);
-        if (usado) return;
+        document.querySelectorAll(".casilla").forEach(c => {
+          const n = c.querySelector(".nombre-item");
+          if (n && n.dataset.nombre === nombre) c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        });
 
-        // Quitar de la lista si está ahí
-        const el = [...zonaNombres.children].find(n => n.textContent === nombre);
-        if (el) el.remove();
-
-        // Añadir a la caja correspondiente
-        caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
-        caja.appendChild(crearElemento(nombre));
-      });
-
-      // Hacer clic para devolver a la lista
-      caja.addEventListener("click", () => {
-        const el = caja.querySelector(".nombre");
-        if (el) {
-          zonaNombres.appendChild(crearElemento(el.textContent));
-          caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
-        }
+        const nuevoItem = crearItem(nombre);
+        casilla.innerHTML = `<span>${casilla.dataset.pos}º</span>`;
+        casilla.appendChild(nuevoItem);
       });
     });
 
-    function atras() {
-      window.location.href = "pregunta2.html";
+    function handleDropBack(e) {
+      e.preventDefault();
+      const nombre = e.dataTransfer.getData("text/plain");
+      if (!nombre) return;
+
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        if (n && n.dataset.nombre === nombre) {
+          c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+        }
+      });
+
+      const yaEsta = [...contenedor.children].some(n => n.dataset.nombre === nombre);
+      if (!yaEsta) {
+        contenedor.appendChild(crearItem(nombre));
+      }
     }
 
     function siguiente() {
-      const seleccion = [];
-      cajas.forEach(caja => {
-        const nombre = caja.querySelector(".nombre")?.textContent || "";
-        seleccion.push(nombre);
+      const elecciones = [];
+      document.querySelectorAll(".casilla").forEach(c => {
+        const n = c.querySelector(".nombre-item");
+        elecciones.push(n ? n.dataset.nombre : null);
       });
-      localStorage.setItem("pregunta3", JSON.stringify(seleccion));
+      localStorage.setItem("respuesta3", JSON.stringify(elecciones));
       window.location.href = "pregunta4.html";
+    }
+
+    function anterior() {
+      window.location.href = "pregunta2.html";
     }
   </script>
 </body>
 </html>
+
 
 
 
