@@ -3,42 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sociograma</title>
+  <title>Bienvenido al Sociograma</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <div class="pregunta-box azul" id="pantalla-bienvenida">
-      <h2>Bienvenido/a, <span id="nombre-alumno"></span></h2>
-      <p>Antes de comenzar, ten en cuenta estas instrucciones:</p>
-      <ul class="instrucciones">
-        <li>Este es un test personal. No hay respuestas buenas ni malas.</li>
-        <li>Arrastra de 0 a 5 compañeros a la caja, en orden de preferencia.</li>
-        <li>Puedes elegir menos de cinco si lo deseas, incluso ninguno.</li>
-        <li>Piensa bien tus respuestas, no hay prisa.</li>
-        <li>Cuando termines cada pregunta, pulsa el botón "Siguiente".</li>
-      </ul>
-      <button class="btn" id="btn-siguiente">Siguiente</button>
+    <div class="title-box azul">
+      <h1 class="title-grande">¡Bienvenido/a, <span id="nombre-nino"></span>!</h1>
     </div>
 
-    <!-- Aquí irán las preguntas y demás pantallas (no incluidas aquí por brevedad) -->
+    <div class="consignas">
+      <h2>Antes de empezar, por favor, ten en cuenta:</h2>
+      <ul>
+        <li>No hay respuestas buenas ni malas. Sé sincero.</li>
+        <li>Este test es personal y confidencial.</li>
+        <li>Para cada pregunta podrás arrastrar hasta cinco compañeros/as a una caja por orden de preferencia.</li>
+        <li>Puedes arrastrar uno, dos, tres… hasta cinco, o incluso ninguno si lo prefieres.</li>
+        <li>Elige solo a quienes tú quieras, sin preocuparte por lo que elijan los demás.</li>
+      </ul>
+    </div>
+
+    <div class="centrado">
+      <button class="btn" onclick="siguiente()">Siguiente</button>
+    </div>
   </div>
 
   <script>
-    // Mostrar nombre del alumno en la bienvenida
-    document.addEventListener("DOMContentLoaded", () => {
-      const nombreAlumno = localStorage.getItem("nombreAlumno") || "Alumno/a";
-      document.getElementById("nombre-alumno").textContent = nombreAlumno;
-    });
+    const nombre = localStorage.getItem('nombreAlumno') || 'Nombre';
+    document.getElementById('nombre-nino').textContent = nombre;
 
-    // Botón para avanzar desde bienvenida (ejemplo básico)
-    document.getElementById("btn-siguiente").addEventListener("click", () => {
-      // Aquí ocultar bienvenida y mostrar la primera pregunta
-      alert("Continuar al test... (implementa aquí el paso a la siguiente pantalla)");
-    });
+    function siguiente() {
+      window.location.href = "pregunta1.html";
+    }
   </script>
 </body>
 </html>
+
 
 
 
