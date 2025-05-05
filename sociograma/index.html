@@ -1,15 +1,44 @@
-<div class="pregunta-box azul">
-  <h2>Bienvenido/a, <span id="nombre-alumno"></span></h2>
-  <p>Antes de comenzar, ten en cuenta estas instrucciones:</p>
-  <ul class="instrucciones">
-    <li>Este es un test personal. No hay respuestas buenas ni malas.</li>
-    <li>Arrastra de 0 a 5 compañeros a la caja, en orden de preferencia.</li>
-    <li>Puedes elegir menos de cinco si lo deseas, incluso ninguno.</li>
-    <li>Piensa bien tus respuestas, no hay prisa.</li>
-    <li>Cuando termines cada pregunta, pulsa el botón "Siguiente".</li>
-  </ul>
-  <button class="btn" id="btn-siguiente">Siguiente</button>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sociograma</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="pregunta-box azul" id="pantalla-bienvenida">
+      <h2>Bienvenido/a, <span id="nombre-alumno"></span></h2>
+      <p>Antes de comenzar, ten en cuenta estas instrucciones:</p>
+      <ul class="instrucciones">
+        <li>Este es un test personal. No hay respuestas buenas ni malas.</li>
+        <li>Arrastra de 0 a 5 compañeros a la caja, en orden de preferencia.</li>
+        <li>Puedes elegir menos de cinco si lo deseas, incluso ninguno.</li>
+        <li>Piensa bien tus respuestas, no hay prisa.</li>
+        <li>Cuando termines cada pregunta, pulsa el botón "Siguiente".</li>
+      </ul>
+      <button class="btn" id="btn-siguiente">Siguiente</button>
+    </div>
+
+    <!-- Aquí irán las preguntas y demás pantallas (no incluidas aquí por brevedad) -->
+  </div>
+
+  <script>
+    // Mostrar nombre del alumno en la bienvenida
+    document.addEventListener("DOMContentLoaded", () => {
+      const nombreAlumno = localStorage.getItem("nombreAlumno") || "Alumno/a";
+      document.getElementById("nombre-alumno").textContent = nombreAlumno;
+    });
+
+    // Botón para avanzar desde bienvenida (ejemplo básico)
+    document.getElementById("btn-siguiente").addEventListener("click", () => {
+      // Aquí ocultar bienvenida y mostrar la primera pregunta
+      alert("Continuar al test... (implementa aquí el paso a la siguiente pantalla)");
+    });
+  </script>
+</body>
+</html>
 
 
 
