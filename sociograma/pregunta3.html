@@ -5,6 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pregunta 3</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .pregunta-layout {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .lista-nombres,
+    .zona-destino {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .nombre, .caja {
+      padding: 0.8rem;
+      background-color: #e0f0ff;
+      border-radius: 8px;
+      cursor: grab;
+      text-align: center;
+      font-weight: bold;
+      border: 2px solid #0077b6;
+    }
+
+    .caja span {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: normal;
+    }
+
+    .botones-final {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2rem;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      background-color: #0077b6;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #005f8a;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -13,19 +66,21 @@
       <h2 class="title-secundario">¿Con quién te gusta trabajar en clase?</h2>
     </div>
 
-    <div class="zona-nombres" id="zona-nombres">
-      <!-- Nombres disponibles -->
+    <div class="pregunta-layout">
+      <div class="lista-nombres" id="zona-nombres">
+        <!-- Nombres aquí -->
+      </div>
+
+      <div class="zona-destino" id="zona-destino">
+        <div class="caja" data-pos="1"><span>1º</span></div>
+        <div class="caja" data-pos="2"><span>2º</span></div>
+        <div class="caja" data-pos="3"><span>3º</span></div>
+        <div class="caja" data-pos="4"><span>4º</span></div>
+        <div class="caja" data-pos="5"><span>5º</span></div>
+      </div>
     </div>
 
-    <div class="zona-destino" id="zona-destino">
-      <div class="caja" data-pos="1"><span>1º</span></div>
-      <div class="caja" data-pos="2"><span>2º</span></div>
-      <div class="caja" data-pos="3"><span>3º</span></div>
-      <div class="caja" data-pos="4"><span>4º</span></div>
-      <div class="caja" data-pos="5"><span>5º</span></div>
-    </div>
-
-    <div class="centrado">
+    <div class="botones-final">
       <button class="btn" onclick="atras()">Atrás</button>
       <button class="btn" onclick="siguiente()">Siguiente</button>
     </div>
@@ -51,10 +106,11 @@
       return el;
     }
 
-    // Cargar nombres excepto el alumno
+    // Mostrar nombres (excepto el alumno actual)
     const disponibles = nombres.filter(n => n !== alumno);
     disponibles.forEach(nombre => zonaNombres.appendChild(crearElemento(nombre)));
 
+    // Permitir soltar en cajas
     cajas.forEach(caja => {
       caja.addEventListener("dragover", e => e.preventDefault());
 
@@ -62,19 +118,20 @@
         e.preventDefault();
         const nombre = e.dataTransfer.getData("text/plain");
 
-        // Si ya está en otra caja, no permitir duplicados
-        const yaUsado = [...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre);
-        if (yaUsado) return;
+        // Si ya está en alguna caja, no duplicar
+        const usado = [...document.querySelectorAll(".caja .nombre")].some(n => n.textContent === nombre);
+        if (usado) return;
 
-        // Quitar de la zona-nombres si existe ahí
-        const item = [...zonaNombres.children].find(n => n.textContent === nombre);
-        if (item) item.remove();
+        // Quitar de la lista si está ahí
+        const el = [...zonaNombres.children].find(n => n.textContent === nombre);
+        if (el) el.remove();
 
+        // Añadir a la caja correspondiente
         caja.innerHTML = `<span>${caja.dataset.pos}º</span>`;
         caja.appendChild(crearElemento(nombre));
       });
 
-      // Clic para devolver
+      // Hacer clic para devolver a la lista
       caja.addEventListener("click", () => {
         const el = caja.querySelector(".nombre");
         if (el) {
