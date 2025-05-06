@@ -4,69 +4,100 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
+      font-family: Arial, sans-serif;
+      background-color: #f5faff;
+      margin: 0;
+      padding: 0;
     }
+
     .container {
       max-width: 900px;
-      margin: auto;
+      margin: 0 auto;
       padding: 1em;
-      background: white;
-      border-radius: 8px;
     }
+
     .title-box {
-      background: #cce5ff;
+      background-color: #d0e8ff;
+      border: 2px solid #a5c7e7;
+      border-radius: 12px;
       padding: 1em;
-      border: 1px solid #b8daff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1em;
+      text-align: center;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
     }
-    .title-box h1 {
-      margin: 0;
-      color: #004085;
+
+    h1, h2, h3 {
+      color: #2b4f77;
     }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin: 1em 0;
+    }
+
     .tab-btn {
-      margin: 0.5em;
-      padding: 0.8em;
-      background: #d0e4ff;
+      padding: 0.8em 1.5em;
+      margin: 0 0.5em;
       border: none;
-      border-radius: 6px;
+      background-color: #d0e4ff;
       cursor: pointer;
+      border-radius: 8px;
       font-weight: bold;
     }
+
     .tab-btn.active {
-      background: #4285f4;
+      background-color: #4285f4;
       color: white;
     }
+
     .tab-content {
       display: none;
     }
+
     .tab-content.active {
       display: block;
     }
+
     .info-box {
-      background: #eef6ff;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       padding: 1em;
-      border-radius: 6px;
-      border: 1px solid #ddd;
       margin-top: 1em;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
     }
+
     canvas {
       max-width: 100%;
       height: auto;
+      margin: 1em 0;
     }
+
     .btn {
-      margin: 0.2em;
-      padding: 0.4em 1em;
-      border-radius: 5px;
-      background-color: #e7f1ff;
-      border: 1px solid #ccc;
+      background-color: #e0edff;
+      border: 1px solid #9ebee4;
+      margin: 0.3em;
+      padding: 0.5em 1em;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .azul-claro {
+      background-color: #d0e8ff;
+      padding: 0.5em;
+      border-radius: 6px;
+      box-shadow: inset 1px 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .descargar-btn {
+      margin-top: 1em;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.6em 1em;
+      border-radius: 6px;
       cursor: pointer;
     }
   </style>
@@ -84,9 +115,9 @@
       </select>
     </form>
 
-    <div>
-      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe Individual</button>
-      <button class="tab-btn" onclick="mostrarTab('aula')">Informe de Aula</button>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
+      <button class="tab-btn" onclick="mostrarTab('general')">Informe de aula</button>
     </div>
 
     <div id="individual" class="tab-content active">
@@ -95,143 +126,124 @@
       </div>
     </div>
 
-    <div id="aula" class="tab-content">
-      <div class="info-box" id="informe-aula">
+    <div id="general" class="tab-content">
+      <div class="info-box" id="informe-general">
         <p>Resumen del grupo.</p>
       </div>
-      <button onclick="descargarInformeAula()">Descargar PDF</button>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const mockGrupo = {
-      curso: "6° Prueba",
-      alumnos: [
-        "Ana", "Luis", "Carlos", "Marta", "Pablo",
-        "Lucía", "Jorge", "Sofía", "Raúl", "Elena"
-      ],
-      datos: {
-        "Ana": { simpatía: 4, rechazo: 1, popularidad: 3 },
-        "Luis": { simpatía: 1, rechazo: 4, popularidad: -3 },
-        "Carlos": { simpatía: 3, rechazo: 0, popularidad: 3 },
-        "Marta": { simpatía: 2, rechazo: 2, popularidad: 0 },
-        "Pablo": { simpatía: 0, rechazo: 3, popularidad: -3 },
-        "Lucía": { simpatía: 3, rechazo: 1, popularidad: 2 },
-        "Jorge": { simpatía: 4, rechazo: 0, popularidad: 4 },
-        "Sofía": { simpatía: 1, rechazo: 3, popularidad: -2 },
-        "Raúl": { simpatía: 2, rechazo: 1, popularidad: 1 },
-        "Elena": { simpatía: 0, rechazo: 0, popularidad: 0 },
-      }
-    };
-
-    function mostrarTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelector(`.tab-btn[onclick="mostrarTab('${tabId}')"]`).classList.add('active');
+    function mostrarTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
     }
 
     function cargarGrupos() {
       const select = document.getElementById("grupo-select");
-      select.innerHTML += `<option value="mock">6° Prueba</option>`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
+        }
+      }
     }
 
     function cargarInformes() {
       const grupoKey = document.getElementById("grupo-select").value;
-      if (grupoKey !== "mock") return;
+      if (!grupoKey) return;
 
-      const grupo = mockGrupo;
+      const grupo = JSON.parse(localStorage.getItem(grupoKey));
+      const individualDiv = document.getElementById("informe-individual");
+      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
 
-      // Informe individual
-      const indDiv = document.getElementById("informe-individual");
-      indDiv.innerHTML = '<p>Selecciona un alumno:</p>';
       grupo.alumnos.forEach(nombre => {
         const btn = document.createElement("button");
         btn.textContent = nombre;
         btn.className = "btn";
-        btn.onclick = () => mostrarInformeIndividual(nombre);
-        indDiv.appendChild(btn);
+        btn.onclick = () => mostrarInformeIndividual(nombre, grupo);
+        individualDiv.appendChild(btn);
       });
 
-      // Informe aula
-      const aulaDiv = document.getElementById("informe-aula");
-      aulaDiv.innerHTML = `
-        <h3 class="title-box">Resumen Sociométrico del Aula</h3>
-        <p>Curso: ${grupo.curso}</p>
-        <p>Total alumnos: ${grupo.alumnos.length}</p>
-        <canvas id="grafica-aula"></canvas>
-        <p><strong>Interpretación:</strong> Se observa un grupo con varios subgrupos definidos. Luis y Pablo presentan valores de popularidad negativos significativos. Jorge destaca como líder positivo. Sofía y Marta podrían estar en situación de aislamiento moderado. Es fundamental intervenir sobre las dinámicas de exclusión.</p>
-        <p><strong>Propuesta de intervención:</strong> Implementar estrategias de cohesión grupal, trabajos cooperativos, tutorías entre iguales y juegos de rol para fomentar empatía. Basado en tabla de intervención del Proyecto Atopa.</p>
-      `;
-
-      // Gráfica aula
-      const ctx = document.getElementById('grafica-aula').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: grupo.alumnos,
-          datasets: [{
-            label: 'Popularidad',
-            data: grupo.alumnos.map(a => grupo.datos[a].popularidad),
-            backgroundColor: '#4a90e2'
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
+      mostrarInformeAula(grupo);
     }
 
-    function mostrarInformeIndividual(nombre) {
-      const alumno = mockGrupo.datos[nombre];
-      const cont = document.getElementById("informe-individual");
-      cont.innerHTML = `
-        <h3 class="title-box">Informe de ${nombre}</h3>
-        <p><strong>Simpatía:</strong> ${alumno.simpatía}</p>
-        <p><strong>Rechazo:</strong> ${alumno.rechazo}</p>
-        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-        <canvas id="grafica-${nombre}"></canvas>
-        <p><strong>Resumen:</strong> ${alumno.popularidad > 2 ? nombre + " es percibido como un líder positivo." : alumno.popularidad < -2 ? nombre + " está en riesgo de exclusión." : nombre + " se encuentra en una posición sociométrica media."}</p>
-        <button onclick="cargarInformes()">Volver a la lista</button>
+    function mostrarInformeIndividual(nombre, grupo) {
+      const div = document.getElementById("informe-individual");
+      const data = grupo.resultados[nombre];
+
+      const amistades = data.amistades.join(", ");
+      const rechazos = data.rechazos.join(", ");
+
+      div.innerHTML = `
+        <div class="azul-claro"><h3>${nombre}</h3></div>
+        <p><strong>Amistades:</strong> ${amistades}</p>
+        <p><strong>Rechazos:</strong> ${rechazos}</p>
+        <p><strong>Resumen:</strong> ${data.resumen}</p>
+        <canvas id="graf-${nombre}"></canvas>
       `;
 
-      new Chart(document.getElementById(`grafica-${nombre}`), {
+      const ctx = document.getElementById(`graf-${nombre}`).getContext('2d');
+      new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Simpatía', 'Rechazo', 'Popularidad'],
           datasets: [{
-            label: nombre,
-            data: [alumno.simpatía, alumno.rechazo, alumno.popularidad],
-            backgroundColor: ['#4caf50', '#e53935', '#2196f3']
+            label: 'Puntuación',
+            data: [data.simpatia, data.rechazo, data.popularidad],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3']
           }]
         },
-        options: {
-          plugins: {
-            legend: { display: false }
-          }
-        }
+        options: { responsive: true }
       });
     }
 
-    function descargarInformeAula() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text("Informe de Aula – 6° Prueba", 20, 20);
-      doc.setFontSize(12);
-      doc.text("Curso: 6° Prueba", 20, 30);
-      doc.text("Resumen: Grupo con subgrupos definidos. Jorge destaca, Luis y Pablo necesitan seguimiento.", 20, 40);
-      doc.text("Propuesta: Aplicar dinámicas cooperativas y de empatía. Tabla de Atopa como guía.", 20, 50);
-      doc.save("informe_aula.pdf");
+    function mostrarInformeAula(grupo) {
+      const div = document.getElementById("informe-general");
+      const datos = grupo.analisis;
+
+      div.innerHTML = `
+        <div class="azul-claro"><h3>Informe del grupo: ${grupo.curso}</h3></div>
+        <p><strong>Número de alumnos:</strong> ${grupo.alumnos.length}</p>
+        <p><strong>Cohesión:</strong> ${datos.cohesion}</p>
+        <p><strong>Disociación:</strong> ${datos.disociacion}</p>
+        <canvas id="graf-cohesion"></canvas>
+        <h3>Resumen del clima del aula</h3>
+        <p>${datos.resumen}</p>
+        <h3>Propuesta de intervención</h3>
+        <p><strong>Educación emocional:</strong> ${datos.intervencion.emocional}</p>
+        <p><strong>Educación en valores:</strong> ${datos.intervencion.valores}</p>
+        <p><strong>Grupo y aula:</strong> ${datos.intervencion.grupo}</p>
+      `;
+
+      const ctx = document.getElementById("graf-cohesion").getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Cohesión', 'Disociación', 'Afinidad', 'Rechazo'],
+          datasets: [{
+            label: 'Índices sociométricos',
+            data: [datos.cohesion, datos.disociacion, datos.afinidad, datos.rechazo],
+            backgroundColor: 'rgba(66, 133, 244, 0.2)',
+            borderColor: '#4285f4',
+            pointBackgroundColor: '#4285f4'
+          }]
+        },
+        options: { responsive: true }
+      });
     }
 
     window.onload = cargarGrupos;
   </script>
 </body>
 </html>
+
 
 
 
