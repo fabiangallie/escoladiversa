@@ -5,25 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    .tabs { display: flex; justify-content: center; margin: 1em 0; }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin: 1em 0;
+    }
+
     .tab-btn {
-      padding: 0.8em 1.5em; margin: 0 0.5em;
-      border: none; background-color: #d0e4ff;
-      cursor: pointer; border-radius: 8px; font-weight: bold;
+      padding: 0.8em 1.5em;
+      margin: 0 0.5em;
+      border: none;
+      background-color: #d0e4ff;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: bold;
     }
-    .tab-btn.active { background-color: #4285f4; color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+
+    .tab-btn.active {
+      background-color: #4285f4;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     .info-box {
-      background-color: #f4faff; border: 1px solid #ccc;
-      border-radius: 8px; padding: 1em; margin-top: 1em;
+      background-color: #f4faff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1em;
+      margin-top: 1em;
     }
-    canvas { max-width: 500px; margin-top: 1em; }
-    .btn-volver { margin-top: 1em; display: block; }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    .btn {
+      margin: 0.2em;
+      padding: 0.5em 1em;
+      background: #ddd;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-graph@4.0.0/dist/chartjs-chart-graph.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -40,7 +74,7 @@
 
     <div class="tabs">
       <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
-      <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
+      <button class="tab-btn" onclick="mostrarTab('general')">Informe de aula</button>
       <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
     </div>
 
@@ -52,17 +86,16 @@
 
     <div id="general" class="tab-content">
       <div class="info-box" id="informe-general">
-        <p>Resumen de desempeño del grupo.</p>
+        <p>Resumen general del grupo.</p>
       </div>
     </div>
 
     <div id="graficas" class="tab-content">
       <div class="info-box" id="informe-graficas">
-        <p>Gráficas de clima del aula (por implementar).</p>
+        <p>Gráfico de relaciones sociométricas.</p>
+        <canvas id="sociogramaCanvas" width="600" height="400"></canvas>
       </div>
     </div>
-
-    <button onclick="descargarPDF()" class="tab-btn" style="margin: 2em auto; display: block;">Descargar informe PDF</button>
   </div>
 
   <script>
@@ -73,6 +106,10 @@
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+
+      if (id === 'graficas') {
+        setTimeout(renderSociograma, 100);
+      }
     }
 
     function cargarGrupos() {
@@ -93,11 +130,11 @@
       if (!grupoKey) return;
 
       grupoActual = JSON.parse(localStorage.getItem(grupoKey));
+      const alumnos = grupoActual.alumnos || [];
 
-      // Individual
       const individualDiv = document.getElementById("informe-individual");
       individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
-      grupoActual.alumnos.forEach(nombre => {
+      alumnos.forEach(nombre => {
         const btn = document.createElement("button");
         btn.textContent = nombre;
         btn.className = "btn";
@@ -105,65 +142,94 @@
         individualDiv.appendChild(btn);
       });
 
-      // General
       document.getElementById("informe-general").innerHTML = `
         <h3>Grupo: ${grupoActual.curso}</h3>
-        <p>Total de alumnos: ${grupoActual.alumnos.length}</p>
-        <p>Alumnos populares: Juan, María</p>
-        <p>Alumnos aislados: Pedro</p>
-        <p>Relaciones conflictivas: Andrés vs. Lucía</p>
+        <p>Total de alumnos: ${alumnos.length}</p>
+        <p>Este grupo presenta ciertas dinámicas sociométricas. Se observa...</p>
+        <ul>
+          <li>Red de relaciones parcialmente equilibrada.</li>
+          <li>Existen alumnos con alto nivel de aislamiento.</li>
+        </ul>
+        <p><strong>Sugerencia de intervención:</strong> fomentar actividades cooperativas que integren a los alumnos con baja popularidad.</p>
       `;
-
-      // Gráficas
-      const grafDiv = document.getElementById("informe-graficas");
-      grafDiv.innerHTML = `<canvas id="graficoAula"></canvas>`;
-      new Chart(document.getElementById("graficoAula"), {
-        type: 'bar',
-        data: {
-          labels: ['Aceptación', 'Rechazo', 'Popularidad', 'Aislamiento'],
-          datasets: [{
-            label: 'Indicadores sociométricos',
-            data: [6, 3, 5, 2],
-            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
-          }]
-        }
-      });
     }
 
     function mostrarInformeAlumno(nombre) {
-      const div = document.getElementById("informe-individual");
-      div.innerHTML = `
+      const cont = document.getElementById("informe-individual");
+      const datosSimulados = {
+        simpatia: Math.floor(Math.random() * 10),
+        rechazo: Math.floor(Math.random() * 10),
+        popularidad: Math.floor(Math.random() * 10),
+        amigos: ["Carlos", "Lucía"],
+        rechazados: ["Pedro"]
+      };
+
+      cont.innerHTML = `
         <h3>${nombre}</h3>
-        <p><strong>Amistades:</strong> María, Luis</p>
-        <p><strong>Rechazos:</strong> Andrés</p>
-        <p><strong>Posición sociométrica:</strong> Alta popularidad y percepción positiva.</p>
-        <canvas id="grafico${nombre}"></canvas>
-        <button class="btn-volver" onclick="cargarInformes()">Volver a la lista</button>
+        <canvas id="grafica-${nombre}" width="400" height="200"></canvas>
+        <p><strong>Amistades:</strong> ${datosSimulados.amigos.join(", ")}</p>
+        <p><strong>Rechazos:</strong> ${datosSimulados.rechazados.join(", ")}</p>
+        <p><strong>Resumen:</strong> ${nombre} se encuentra en una posición ${
+          datosSimulados.popularidad > 7 ? "destacada" : datosSimulados.popularidad < 3 ? "aislada" : "media"
+        } dentro del grupo.</p>
+        <button onclick="cargarInformes()" class="btn">Volver</button>
       `;
-      new Chart(document.getElementById(`grafico${nombre}`), {
+
+      const ctx = document.getElementById(`grafica-${nombre}`).getContext('2d');
+      new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Simpatía', 'Rechazo', 'Popularidad'],
           datasets: [{
-            label: 'Puntuaciones',
-            data: [8, 2, 9],
+            label: 'Puntuación',
+            data: [datosSimulados.simpatia, datosSimulados.rechazo, datosSimulados.popularidad],
             backgroundColor: ['#4caf50', '#f44336', '#2196f3']
           }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 10 }
+          }
         }
       });
     }
 
-    function descargarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("Informe del grupo", 20, 20);
-      doc.text("Resumen de sociometría del grupo. Popularidades, rechazos, indicadores...", 20, 30);
-      doc.text("Individual: Juan Pérez - Muy integrado, con múltiples amistades y puntuación alta.", 20, 50);
-      doc.text("Individual: Pedro Gómez - Bajo nivel de integración, posibles medidas a considerar.", 20, 60);
-      doc.save("informe_grupo.pdf");
+    function renderSociograma() {
+      const ctx = document.getElementById('sociogramaCanvas').getContext('2d');
+      const nodes = grupoActual?.alumnos?.map(n => ({ id: n, r: 10 })) || [];
+
+      const edges = [];
+      for (let i = 0; i < nodes.length; i++) {
+        const target = nodes[(i + 1) % nodes.length]?.id;
+        if (target && nodes[i].id !== target) {
+          edges.push({ source: nodes[i].id, target });
+        }
+      }
+
+      new Chart(ctx, {
+        type: 'graph',
+        data: {
+          labels: nodes.map(n => n.id),
+          datasets: [{
+            label: 'Relaciones',
+            data: nodes,
+            edges: edges,
+            backgroundColor: 'skyblue',
+            borderColor: '#333',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          layout: { type: 'force', distance: 100, strength: -300 },
+          elements: { line: { borderColor: '#888' } }
+        }
+      });
     }
 
     window.onload = cargarGrupos;
   </script>
 </body>
 </html>
+
