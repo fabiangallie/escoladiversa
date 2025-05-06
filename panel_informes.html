@@ -5,37 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .tabs {
       display: flex;
       justify-content: center;
       margin: 1em 0;
-      flex-wrap: wrap;
     }
-
     .tab-btn {
       padding: 0.8em 1.5em;
-      margin: 0.5em;
+      margin: 0 0.5em;
       border: none;
       background-color: #d0e4ff;
       cursor: pointer;
       border-radius: 8px;
       font-weight: bold;
     }
-
     .tab-btn.active {
       background-color: #4285f4;
       color: white;
     }
-
     .tab-content {
       display: none;
     }
-
     .tab-content.active {
       display: block;
     }
-
     .info-box {
       background-color: #f4faff;
       border: 1px solid #ccc;
@@ -43,151 +39,167 @@
       padding: 1em;
       margin-top: 1em;
     }
-
     .btn {
-      margin: 0.2em;
+      margin: 0.3em;
       padding: 0.5em 1em;
+      border-radius: 6px;
       background-color: #4285f4;
       color: white;
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background-color: #3367d6;
-    }
-
-    input[type="file"] {
-      margin-top: 1em;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="title-box azul">
-      <h1 class="title-grande">Panel de Informes</h1>
-    </div>
+<div class="container">
+  <div class="title-box azul">
+    <h1 class="title-grande">Panel de Informes</h1>
+  </div>
 
-    <form class="form">
-      <label for="grupo-select">Selecciona un grupo:</label>
-      <select id="grupo-select" onchange="cargarInformes()">
-        <option value="">-- Elegir grupo --</option>
-      </select>
+  <form class="form">
+    <label for="grupo-select">Selecciona un grupo:</label>
+    <select id="grupo-select" onchange="cargarInformes()">
+      <option value="">-- Elegir grupo --</option>
+    </select>
+    <button onclick="generarDatosPrueba()" type="button" class="btn">Crear grupo de prueba</button>
+  </form>
 
-      <label for="cargar-archivo">O carga un archivo de grupo (.json):</label>
-      <input type="file" id="cargar-archivo" accept=".json" onchange="cargarDesdeArchivo(event)">
-    </form>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
+    <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
+    <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
+  </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
-      <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
-      <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
-    </div>
-
-    <div id="individual" class="tab-content active">
-      <div class="info-box" id="informe-individual">
-        <p>Selecciona un alumno del grupo para ver su informe.</p>
-      </div>
-    </div>
-
-    <div id="general" class="tab-content">
-      <div class="info-box" id="informe-general">
-        <p>Resumen de desempeño del grupo.</p>
-      </div>
-    </div>
-
-    <div id="graficas" class="tab-content">
-      <div class="info-box" id="informe-graficas">
-        <p>Gráficas de rendimiento (por implementar).</p>
-      </div>
+  <div id="individual" class="tab-content active">
+    <div class="info-box" id="informe-individual">
+      <p>Selecciona un alumno del grupo para ver su informe.</p>
     </div>
   </div>
 
-  <script>
-    function mostrarTab(id) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+  <div id="general" class="tab-content">
+    <div class="info-box" id="informe-general">
+      <p>Resumen de desempeño del grupo.</p>
+    </div>
+  </div>
+
+  <div id="graficas" class="tab-content">
+    <div class="info-box" id="informe-graficas">
+      <p>Gráficas de rendimiento.</p>
+      <canvas id="grafico-clima" width="400" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+}
+
+function cargarGrupos() {
+  const select = document.getElementById("grupo-select");
+  select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
+  for (let i = 0; i < localStorage.length; i++) {
+    const clave = localStorage.key(i);
+    if (clave.includes(" - ")) {
+      const option = document.createElement("option");
+      option.value = clave;
+      option.textContent = clave;
+      select.appendChild(option);
     }
+  }
+}
 
-    function cargarGrupos() {
-      const select = document.getElementById("grupo-select");
-      select.innerHTML = '<option value="">-- Elegir grupo --</option>';
-      for (let i = 0; i < localStorage.length; i++) {
-        const clave = localStorage.key(i);
-        if (clave.includes(" - ")) {
-          const option = document.createElement("option");
-          option.value = clave;
-          option.textContent = clave;
-          select.appendChild(option);
-        }
-      }
+function cargarInformes() {
+  const grupoKey = document.getElementById("grupo-select").value;
+  if (!grupoKey) return;
+  const grupo = JSON.parse(localStorage.getItem(grupoKey));
+  const alumnos = grupo.alumnos;
+  const individualDiv = document.getElementById("informe-individual");
+  individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
+  alumnos.forEach(nombre => {
+    const btn = document.createElement("button");
+    btn.textContent = nombre;
+    btn.className = "btn";
+    btn.onclick = () => mostrarInformeAlumno(nombre, grupo);
+    individualDiv.appendChild(btn);
+  });
+
+  document.getElementById("informe-general").innerHTML = `
+    <h3>Grupo: ${grupo.curso}</h3>
+    <p>Total de alumnos: ${alumnos.length}</p>
+    <ul>
+      <li><strong>Popular:</strong> ${grupo.popular}</li>
+      <li><strong>Rechazado:</strong> ${grupo.rechazado}</li>
+      <li><strong>Aislado:</strong> ${grupo.aislado}</li>
+    </ul>
+  `;
+
+  const ctx = document.getElementById("grafico-clima");
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Simpatía', 'Rechazo', 'Popularidad'],
+      datasets: [{
+        label: 'Promedio del grupo',
+        data: [grupo.mediaSimpatia, grupo.mediaRechazo, grupo.mediaPopularidad],
+        backgroundColor: ['#4caf50', '#f44336', '#2196f3']
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } }
     }
+  });
+}
 
-    function cargarInformes() {
-      const grupoKey = document.getElementById("grupo-select").value;
-      if (!grupoKey) return;
+function mostrarInformeAlumno(nombre, grupo) {
+  const alumno = grupo.respuestas[nombre];
+  const simpatias = alumno.simpatias.join(", ");
+  const rechazos = alumno.rechazos.join(", ");
+  document.getElementById("informe-individual").innerHTML = `
+    <h3>${nombre}</h3>
+    <p><strong>Simpatías:</strong> ${simpatias}</p>
+    <p><strong>Rechazos:</strong> ${rechazos}</p>
+    <p><strong>Resumen:</strong> ${alumno.resumen}</p>
+    <button class="btn" onclick="cargarInformes()">Volver</button>
+  `;
+}
 
-      const grupo = JSON.parse(localStorage.getItem(grupoKey));
+function generarDatosPrueba() {
+  const alumnos = Array.from({ length: 10 }, (_, i) => `Alumno ${i + 1}`);
+  const respuestas = {};
+  alumnos.forEach((a, i) => {
+    const simpatias = [alumnos[(i + 1) % 10], alumnos[(i + 2) % 10]];
+    const rechazos = [alumnos[(i + 3) % 10]];
+    respuestas[a] = {
+      simpatias,
+      rechazos,
+      resumen: `Tiene una posición media en el grupo, con algunas simpatías y un rechazo.`
+    };
+  });
+  const grupo = {
+    curso: "6º prueba",
+    alumnos,
+    respuestas,
+    popular: "Alumno 1",
+    rechazado: "Alumno 4",
+    aislado: "Alumno 9",
+    mediaSimpatia: 6.5,
+    mediaRechazo: 3.2,
+    mediaPopularidad: 5.1
+  };
+  localStorage.setItem("6º prueba - test", JSON.stringify(grupo));
+  cargarGrupos();
+  document.getElementById("grupo-select").value = "6º prueba - test";
+  cargarInformes();
+}
 
-      const individualDiv = document.getElementById("informe-individual");
-      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
-      grupo.alumnos.forEach(nombre => {
-        const btn = document.createElement("button");
-        btn.textContent = nombre;
-        btn.className = "btn";
-        btn.onclick = () => {
-          individualDiv.innerHTML = `
-            <button class="btn" onclick="cargarInformes()">Volver</button>
-            <h3>${nombre}</h3>
-            <p><strong>Informe del alumno:</strong></p>
-            <p>Amistades y rechazos: (por implementar)</p>
-            <p>Posición sociométrica: (por implementar)</p>
-          `;
-        };
-        individualDiv.appendChild(btn);
-      });
-
-      document.getElementById("informe-general").innerHTML = `
-        <h3>Grupo: ${grupo.curso}</h3>
-        <p>Total de alumnos: ${grupo.alumnos.length}</p>
-        <p>Contenido general del grupo (por implementar).</p>
-      `;
-
-      document.getElementById("informe-graficas").innerHTML = `
-        <p>Gráficas basadas en los datos del grupo (por implementar).</p>
-      `;
-    }
-
-    function cargarDesdeArchivo(event) {
-      const archivo = event.target.files[0];
-      if (!archivo) return;
-
-      const lector = new FileReader();
-      lector.onload = function (e) {
-        try {
-          const datos = JSON.parse(e.target.result);
-          if (datos.curso && datos.alumnos) {
-            const clave = datos.curso + " - CARGADO";
-            localStorage.setItem(clave, JSON.stringify(datos));
-            alert("Grupo cargado correctamente como: " + clave);
-            location.reload();
-          } else {
-            alert("Archivo no válido. Debe contener 'curso' y 'alumnos'.");
-          }
-        } catch {
-          alert("Error al leer el archivo. Asegúrate de que sea un JSON válido.");
-        }
-      };
-      lector.readAsText(archivo);
-    }
-
-    window.onload = cargarGrupos;
-  </script>
+window.onload = cargarGrupos;
+</script>
 </body>
 </html>
+
 
 
 
