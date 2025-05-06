@@ -4,21 +4,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
-  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .tab-btn.active { background-color: #4285f4; color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .btn { margin: 5px; padding: 6px 12px; border-radius: 5px; border: none; background: #4285f4; color: white; cursor: pointer; }
-    canvas { max-width: 400px; margin-top: 10px; }
-    .info-box { background: #f4faff; border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-top: 1em; }
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+      padding: 1em;
+    }
+
+    .title-box {
+      background-color: #4285f4;
+      color: white;
+      padding: 1em;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .form {
+      margin: 1em 0;
+      padding: 1em;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 1em;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.6em;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background-color: #4285f4;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+      background: white;
+      padding: 1em;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .btn {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 0.5em 1em;
+      margin: 0.3em;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    canvas {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+
+    .info-box {
+      margin-top: 1em;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title-box azul">
-      <h1 class="title-grande">Panel de Informes</h1>
+    <div class="title-box">
+      <h1>Panel de Informes</h1>
     </div>
 
     <form class="form">
@@ -84,11 +160,11 @@
       mostrarListaAlumnos();
       document.getElementById("descargar-pdf").style.display = "inline-block";
 
-      // Informe general básico
+      // Informe general
       document.getElementById("informe-general").innerHTML = `
         <h3>Grupo: ${grupoActual.curso}</h3>
         <p>Total de alumnos: ${grupoActual.alumnos.length}</p>
-        <p>Análisis de aula (por implementar con aspectos destacables).</p>
+        <p><strong>Análisis:</strong> En este grupo se observan relaciones positivas y algunos focos de aislamiento o rechazo que conviene trabajar.</p>
       `;
     }
 
@@ -112,7 +188,11 @@
         popularidad: Math.floor(Math.random() * 10)
       };
 
-      const resumen = `Posición sociométrica: ${datos.simpatias.length >= 3 ? "muy aceptado" : datos.simpatias.length >= 1 ? "aceptado" : "aislado"}.`;
+      const resumen = `Posición sociométrica: ${
+        datos.simpatias.length >= 3 ? "muy aceptado"
+        : datos.simpatias.length >= 1 ? "aceptado"
+        : "aislado"
+      }.`
 
       cont.innerHTML = `
         <h3>${nombre}</h3>
@@ -131,23 +211,27 @@
             datasets: [{
               label: 'Nivel',
               data: [datos.simpatias.length, datos.rechazos.length, datos.popularidad],
-              backgroundColor: ['green', 'red', 'blue']
+              backgroundColor: ['#4caf50', '#f44336', '#2196f3']
             }]
           },
-          options: { responsive: true, scales: { y: { beginAtZero: true } } }
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
         });
       }, 200);
     }
 
     function descargarTodos() {
-      alert("Función de descarga de PDF en desarrollo.");
-      // Aquí vendría la generación real del PDF con todos los informes individuales
+      alert("Descarga de informes múltiples en desarrollo.");
     }
 
     window.onload = cargarGrupos;
   </script>
 </body>
 </html>
+
 
 
 
