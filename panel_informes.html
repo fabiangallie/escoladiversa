@@ -6,14 +6,8 @@
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    .tabs {
-      display: flex;
-      justify-content: center;
-      margin: 1em 0;
-    }
-
+    .tabs { display: flex; justify-content: center; margin: 1em 0; }
     .tab-btn {
       padding: 0.8em 1.5em;
       margin: 0 0.5em;
@@ -23,20 +17,9 @@
       border-radius: 8px;
       font-weight: bold;
     }
-
-    .tab-btn.active {
-      background-color: #4285f4;
-      color: white;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
+    .tab-btn.active { background-color: #4285f4; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .info-box {
       background-color: #f4faff;
       border: 1px solid #ccc;
@@ -44,21 +27,9 @@
       padding: 1em;
       margin-top: 1em;
     }
-
-    canvas {
-      max-width: 400px;
-      margin-top: 1em;
-    }
-
-    .btn {
-      margin: 0.3em;
-      padding: 0.5em 1em;
-      border: none;
-      background-color: #90caf9;
-      color: black;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    .btn { margin: 5px; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; }
+    .chart-container { width: 300px; height: 300px; margin-top: 10px; }
+    hr { margin: 1.5em 0; }
   </style>
 </head>
 <body>
@@ -71,6 +42,7 @@
       <label for="grupo-select">Selecciona un grupo:</label>
       <select id="grupo-select" onchange="cargarInformes()">
         <option value="">-- Elegir grupo --</option>
+        <option value="6° prueba">6° prueba</option>
       </select>
     </form>
 
@@ -84,31 +56,39 @@
       <div class="info-box" id="informe-individual">
         <p>Selecciona un alumno del grupo para ver su informe.</p>
       </div>
-      <button class="btn" onclick="descargarPDF()">Descargar todos en PDF</button>
+      <button onclick="descargarPDF()">Descargar PDF con todos los informes</button>
     </div>
 
     <div id="general" class="tab-content">
       <div class="info-box" id="informe-general">
-        <p>Resumen de desempeño del grupo.</p>
+        <h3>Informe de aula - 6° prueba</h3>
+        <p>Este grupo muestra un nivel medio de cohesión social. Se han detectado algunos casos de rechazo aislado.</p>
+        <ul>
+          <li><b>Alumnos con mayor popularidad:</b> Ana, Lucas</li>
+          <li><b>Alumnos más rechazados:</b> Carla</li>
+          <li><b>Subgrupos:</b> 2 grupos principales identificados</li>
+        </ul>
       </div>
     </div>
 
     <div id="graficas" class="tab-content">
       <div class="info-box" id="informe-graficas">
-        <p>Gráficas de rendimiento (por implementar).</p>
+        <p>Gráfica sociométrica de ejemplo (relaciones de amistad).</p>
+        <img src="sociograma_demo.png" alt="Gráfica sociométrica" style="max-width:100%; border:1px solid #ccc; border-radius:8px;" />
       </div>
     </div>
   </div>
 
   <script>
-    const ejemploGrupo = {
-      curso: "6º Primaria",
-      alumnos: ["Lucía", "Carlos", "María", "Pedro"],
-      resultados: {
-        "Lucía": { simpatía: 8, rechazo: 2, popularidad: 9 },
-        "Carlos": { simpatía: 4, rechazo: 6, popularidad: 3 },
-        "María": { simpatía: 7, rechazo: 3, popularidad: 6 },
-        "Pedro": { simpatía: 5, rechazo: 4, popularidad: 5 },
+    const datosSimulados = {
+      "6° prueba": {
+        alumnos: ["Ana", "Lucas", "Carla", "Mario", "Eva", "Nico", "Sara", "Leo", "Marta", "Pablo"],
+        informes: {
+          "Ana": { simpatia: 9, rechazo: 1, popularidad: 8, resumen: "Muy bien integrada. Alta popularidad y bajas puntuaciones de rechazo." },
+          "Lucas": { simpatia: 8, rechazo: 2, popularidad: 9, resumen: "Buen liderazgo y relaciones sociales sólidas." },
+          "Carla": { simpatia: 2, rechazo: 7, popularidad: 2, resumen: "Dificultades de integración y relaciones conflictivas." },
+          // Otros con valores simulados...
+        }
       }
     };
 
@@ -119,90 +99,60 @@
       document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
     }
 
-    function cargarGrupos() {
-      const select = document.getElementById("grupo-select");
-      const option = document.createElement("option");
-      option.value = "ejemplo";
-      option.textContent = ejemploGrupo.curso;
-      select.appendChild(option);
-    }
-
     function cargarInformes() {
       const grupoKey = document.getElementById("grupo-select").value;
       if (!grupoKey) return;
-
-      const grupo = ejemploGrupo;
-      const individualDiv = document.getElementById("informe-individual");
-      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
-      
+      const grupo = datosSimulados[grupoKey];
+      const container = document.getElementById("informe-individual");
+      container.innerHTML = "<p>Selecciona un alumno:</p>";
       grupo.alumnos.forEach(nombre => {
         const btn = document.createElement("button");
-        btn.textContent = nombre;
         btn.className = "btn";
-        btn.onclick = () => mostrarInformeAlumno(nombre, grupo.resultados[nombre]);
-        individualDiv.appendChild(btn);
+        btn.textContent = nombre;
+        btn.onclick = () => mostrarInforme(nombre, grupoKey);
+        container.appendChild(btn);
       });
     }
 
-    function mostrarInformeAlumno(nombre, datos) {
-      const div = document.getElementById("informe-individual");
-      div.innerHTML = `
+    function mostrarInforme(nombre, grupoKey) {
+      const data = datosSimulados[grupoKey].informes[nombre];
+      if (!data) return;
+      const cont = document.getElementById("informe-individual");
+      cont.innerHTML = `
         <h3>${nombre}</h3>
-        <p>Simpatía: ${datos.simpatía}</p>
-        <p>Rechazo: ${datos.rechazo}</p>
-        <p>Popularidad: ${datos.popularidad}</p>
-        <canvas id="grafico-${nombre}"></canvas>
+        <p><strong>Resumen:</strong> ${data.resumen}</p>
+        <div class="chart-container">
+          <canvas id="grafico-${nombre}"></canvas>
+        </div>
       `;
-
-      const ctx = document.getElementById(`grafico-${nombre}`).getContext("2d");
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Simpatía", "Rechazo", "Popularidad"],
-          datasets: [{
-            label: "Puntuaciones",
-            data: [datos.simpatía, datos.rechazo, datos.popularidad],
-            backgroundColor: ["#66bb6a", "#ef5350", "#42a5f5"]
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 10
-            }
-          }
-        }
-      });
+      setTimeout(() => {
+        new Chart(document.getElementById(`grafico-${nombre}`), {
+          type: 'bar',
+          data: {
+            labels: ['Simpatía', 'Rechazo', 'Popularidad'],
+            datasets: [{
+              label: 'Puntuación',
+              data: [data.simpatia, data.rechazo, data.popularidad],
+              backgroundColor: ['#4caf50', '#f44336', '#2196f3']
+            }]
+          },
+          options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+      }, 100);
     }
 
-    async function descargarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      const alumnos = ejemploGrupo.alumnos;
-      const resultados = ejemploGrupo.resultados;
-
-      alumnos.forEach((nombre, i) => {
-        const datos = resultados[nombre];
-        if (i !== 0) doc.addPage();
-
-        doc.setFontSize(16);
-        doc.text(`Informe Individual: ${nombre}`, 20, 20);
-        doc.setFontSize(12);
-        doc.text(`Simpatía: ${datos.simpatía}`, 20, 40);
-        doc.text(`Rechazo: ${datos.rechazo}`, 20, 50);
-        doc.text(`Popularidad: ${datos.popularidad}`, 20, 60);
-      });
-
-      doc.save("informes_individuales.pdf");
+    function descargarPDF() {
+      alert("La descarga de PDF se implementará en la siguiente versión. Aquí se incluirán todos los informes individuales con sus gráficas.");
     }
 
-    window.onload = cargarGrupos;
+    window.onload = () => {
+      document.getElementById("grupo-select").value = "6° prueba";
+      cargarInformes();
+    };
   </script>
 </body>
 </html>
+
 
 
 
