@@ -6,199 +6,149 @@
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    .tabs {
-      display: flex;
-      justify-content: center;
-      margin: 1em 0;
-    }
-    .tab-btn {
-      padding: 0.8em 1.5em;
-      margin: 0 0.5em;
-      border: none;
-      background-color: #d0e4ff;
-      cursor: pointer;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    .tab-btn.active {
-      background-color: #4285f4;
-      color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .info-box {
-      background-color: #f4faff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1em;
-      margin-top: 1em;
-    }
-    .btn {
-      margin: 0.3em;
-      padding: 0.5em 1em;
-      border-radius: 6px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-    }
+    .tab-btn.active { background-color: #4285f4; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .btn { margin: 5px; padding: 6px 12px; border-radius: 5px; border: none; background: #4285f4; color: white; cursor: pointer; }
+    canvas { max-width: 400px; margin-top: 10px; }
+    .info-box { background: #f4faff; border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-top: 1em; }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="title-box azul">
-    <h1 class="title-grande">Panel de Informes</h1>
-  </div>
+  <div class="container">
+    <div class="title-box azul">
+      <h1 class="title-grande">Panel de Informes</h1>
+    </div>
 
-  <form class="form">
-    <label for="grupo-select">Selecciona un grupo:</label>
-    <select id="grupo-select" onchange="cargarInformes()">
-      <option value="">-- Elegir grupo --</option>
-    </select>
-    <button onclick="generarDatosPrueba()" type="button" class="btn">Crear grupo de prueba</button>
-  </form>
+    <form class="form">
+      <label for="grupo-select">Selecciona un grupo:</label>
+      <select id="grupo-select" onchange="cargarInformes()">
+        <option value="">-- Elegir grupo --</option>
+      </select>
+    </form>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
-    <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
-    <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
-  </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
+      <button class="tab-btn" onclick="mostrarTab('general')">Informe general</button>
+      <button class="tab-btn" onclick="mostrarTab('graficas')">Gráficas</button>
+    </div>
 
-  <div id="individual" class="tab-content active">
-    <div class="info-box" id="informe-individual">
-      <p>Selecciona un alumno del grupo para ver su informe.</p>
+    <div id="individual" class="tab-content active">
+      <div class="info-box" id="informe-individual">
+        <p>Selecciona un alumno del grupo para ver su informe.</p>
+      </div>
+      <button id="descargar-pdf" style="display:none" class="btn" onclick="descargarTodos()">Descargar todos los informes</button>
+    </div>
+
+    <div id="general" class="tab-content">
+      <div class="info-box" id="informe-general">
+        <p>Resumen de desempeño del grupo.</p>
+      </div>
+    </div>
+
+    <div id="graficas" class="tab-content">
+      <div class="info-box" id="informe-graficas">
+        <p>Gráficas de rendimiento (por implementar).</p>
+      </div>
     </div>
   </div>
 
-  <div id="general" class="tab-content">
-    <div class="info-box" id="informe-general">
-      <p>Resumen de desempeño del grupo.</p>
-    </div>
-  </div>
+  <script>
+    let grupoActual = null;
 
-  <div id="graficas" class="tab-content">
-    <div class="info-box" id="informe-graficas">
-      <p>Gráficas de rendimiento.</p>
-      <canvas id="grafico-clima" width="400" height="200"></canvas>
-    </div>
-  </div>
-</div>
-
-<script>
-function mostrarTab(id) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
-}
-
-function cargarGrupos() {
-  const select = document.getElementById("grupo-select");
-  select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
-  for (let i = 0; i < localStorage.length; i++) {
-    const clave = localStorage.key(i);
-    if (clave.includes(" - ")) {
-      const option = document.createElement("option");
-      option.value = clave;
-      option.textContent = clave;
-      select.appendChild(option);
+    function mostrarTab(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
     }
-  }
-}
 
-function cargarInformes() {
-  const grupoKey = document.getElementById("grupo-select").value;
-  if (!grupoKey) return;
-  const grupo = JSON.parse(localStorage.getItem(grupoKey));
-  const alumnos = grupo.alumnos;
-  const individualDiv = document.getElementById("informe-individual");
-  individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
-  alumnos.forEach(nombre => {
-    const btn = document.createElement("button");
-    btn.textContent = nombre;
-    btn.className = "btn";
-    btn.onclick = () => mostrarInformeAlumno(nombre, grupo);
-    individualDiv.appendChild(btn);
-  });
-
-  document.getElementById("informe-general").innerHTML = `
-    <h3>Grupo: ${grupo.curso}</h3>
-    <p>Total de alumnos: ${alumnos.length}</p>
-    <ul>
-      <li><strong>Popular:</strong> ${grupo.popular}</li>
-      <li><strong>Rechazado:</strong> ${grupo.rechazado}</li>
-      <li><strong>Aislado:</strong> ${grupo.aislado}</li>
-    </ul>
-  `;
-
-  const ctx = document.getElementById("grafico-clima");
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Simpatía', 'Rechazo', 'Popularidad'],
-      datasets: [{
-        label: 'Promedio del grupo',
-        data: [grupo.mediaSimpatia, grupo.mediaRechazo, grupo.mediaPopularidad],
-        backgroundColor: ['#4caf50', '#f44336', '#2196f3']
-      }]
-    },
-    options: {
-      scales: { y: { beginAtZero: true } }
+    function cargarGrupos() {
+      const select = document.getElementById("grupo-select");
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
+        }
+      }
     }
-  });
-}
 
-function mostrarInformeAlumno(nombre, grupo) {
-  const alumno = grupo.respuestas[nombre];
-  const simpatias = alumno.simpatias.join(", ");
-  const rechazos = alumno.rechazos.join(", ");
-  document.getElementById("informe-individual").innerHTML = `
-    <h3>${nombre}</h3>
-    <p><strong>Simpatías:</strong> ${simpatias}</p>
-    <p><strong>Rechazos:</strong> ${rechazos}</p>
-    <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-    <button class="btn" onclick="cargarInformes()">Volver</button>
-  `;
-}
+    function cargarInformes() {
+      const clave = document.getElementById("grupo-select").value;
+      if (!clave) return;
+      grupoActual = JSON.parse(localStorage.getItem(clave));
+      mostrarListaAlumnos();
+      document.getElementById("descargar-pdf").style.display = "inline-block";
 
-function generarDatosPrueba() {
-  const alumnos = Array.from({ length: 10 }, (_, i) => `Alumno ${i + 1}`);
-  const respuestas = {};
-  alumnos.forEach((a, i) => {
-    const simpatias = [alumnos[(i + 1) % 10], alumnos[(i + 2) % 10]];
-    const rechazos = [alumnos[(i + 3) % 10]];
-    respuestas[a] = {
-      simpatias,
-      rechazos,
-      resumen: `Tiene una posición media en el grupo, con algunas simpatías y un rechazo.`
-    };
-  });
-  const grupo = {
-    curso: "6º prueba",
-    alumnos,
-    respuestas,
-    popular: "Alumno 1",
-    rechazado: "Alumno 4",
-    aislado: "Alumno 9",
-    mediaSimpatia: 6.5,
-    mediaRechazo: 3.2,
-    mediaPopularidad: 5.1
-  };
-  localStorage.setItem("6º prueba - test", JSON.stringify(grupo));
-  cargarGrupos();
-  document.getElementById("grupo-select").value = "6º prueba - test";
-  cargarInformes();
-}
+      // Informe general básico
+      document.getElementById("informe-general").innerHTML = `
+        <h3>Grupo: ${grupoActual.curso}</h3>
+        <p>Total de alumnos: ${grupoActual.alumnos.length}</p>
+        <p>Análisis de aula (por implementar con aspectos destacables).</p>
+      `;
+    }
 
-window.onload = cargarGrupos;
-</script>
+    function mostrarListaAlumnos() {
+      const cont = document.getElementById("informe-individual");
+      cont.innerHTML = "<p>Selecciona un alumno:</p>";
+      grupoActual.alumnos.forEach(nombre => {
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.textContent = nombre;
+        btn.onclick = () => mostrarInforme(nombre);
+        cont.appendChild(btn);
+      });
+    }
+
+    function mostrarInforme(nombre) {
+      const cont = document.getElementById("informe-individual");
+      const datos = grupoActual.resultados[nombre] || {
+        simpatias: [],
+        rechazos: [],
+        popularidad: Math.floor(Math.random() * 10)
+      };
+
+      const resumen = `Posición sociométrica: ${datos.simpatias.length >= 3 ? "muy aceptado" : datos.simpatias.length >= 1 ? "aceptado" : "aislado"}.`;
+
+      cont.innerHTML = `
+        <h3>${nombre}</h3>
+        <p><strong>Amistades:</strong> ${datos.simpatias.join(", ") || "Ninguna"}</p>
+        <p><strong>Rechazos:</strong> ${datos.rechazos.join(", ") || "Ninguno"}</p>
+        <p><strong>Resumen:</strong> ${resumen}</p>
+        <canvas id="graf-${nombre}"></canvas>
+        <button class="btn" onclick="mostrarListaAlumnos()">Volver</button>
+      `;
+
+      setTimeout(() => {
+        new Chart(document.getElementById(`graf-${nombre}`), {
+          type: 'bar',
+          data: {
+            labels: ['Simpatía', 'Rechazo', 'Popularidad'],
+            datasets: [{
+              label: 'Nivel',
+              data: [datos.simpatias.length, datos.rechazos.length, datos.popularidad],
+              backgroundColor: ['green', 'red', 'blue']
+            }]
+          },
+          options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+      }, 200);
+    }
+
+    function descargarTodos() {
+      alert("Función de descarga de PDF en desarrollo.");
+      // Aquí vendría la generación real del PDF con todos los informes individuales
+    }
+
+    window.onload = cargarGrupos;
+  </script>
 </body>
 </html>
+
 
 
 
