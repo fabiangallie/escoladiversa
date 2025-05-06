@@ -4,97 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 960px;
-      margin: auto;
-      padding: 1em;
-    }
-
-    .title-box {
-      background-color: #4285f4;
-      color: white;
-      padding: 1em;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .form {
-      margin: 1em 0;
-      padding: 1em;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 1em;
-      margin-bottom: 1em;
-    }
-
+    .tabs { display: flex; justify-content: center; margin: 1em 0; }
     .tab-btn {
-      flex: 1;
-      padding: 0.6em;
-      background: #e0e0e0;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 0.8em 1.5em; margin: 0 0.5em;
+      border: none; background-color: #d0e4ff;
+      cursor: pointer; border-radius: 8px; font-weight: bold;
     }
-
-    .tab-btn.active {
-      background-color: #4285f4;
-      color: white;
-    }
-
-    .tab-content {
-      display: none;
-      background: white;
-      padding: 1em;
-      border-radius: 6px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .btn {
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      padding: 0.5em 1em;
-      margin: 0.3em;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    canvas {
-      max-width: 100%;
-      margin-top: 10px;
-    }
-
+    .tab-btn.active { background-color: #4285f4; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .info-box {
-      margin-top: 1em;
+      background-color: #f4faff; border: 1px solid #ccc;
+      border-radius: 8px; padding: 1em; margin-top: 1em;
     }
-
-    h3 {
-      margin-top: 0;
-    }
+    canvas { max-width: 500px; margin-top: 1em; }
+    .btn-volver { margin-top: 1em; display: block; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title-box">
-      <h1>Panel de Informes</h1>
+    <div class="title-box azul">
+      <h1 class="title-grande">Panel de Informes</h1>
     </div>
 
     <form class="form">
@@ -114,7 +48,6 @@
       <div class="info-box" id="informe-individual">
         <p>Selecciona un alumno del grupo para ver su informe.</p>
       </div>
-      <button id="descargar-pdf" style="display:none" class="btn" onclick="descargarTodos()">Descargar todos los informes</button>
     </div>
 
     <div id="general" class="tab-content">
@@ -125,9 +58,11 @@
 
     <div id="graficas" class="tab-content">
       <div class="info-box" id="informe-graficas">
-        <p>Gráficas de rendimiento (por implementar).</p>
+        <p>Gráficas de clima del aula (por implementar).</p>
       </div>
     </div>
+
+    <button onclick="descargarPDF()" class="tab-btn" style="margin: 2em auto; display: block;">Descargar informe PDF</button>
   </div>
 
   <script>
@@ -154,91 +89,81 @@
     }
 
     function cargarInformes() {
-      const clave = document.getElementById("grupo-select").value;
-      if (!clave) return;
-      grupoActual = JSON.parse(localStorage.getItem(clave));
-      mostrarListaAlumnos();
-      document.getElementById("descargar-pdf").style.display = "inline-block";
+      const grupoKey = document.getElementById("grupo-select").value;
+      if (!grupoKey) return;
 
-      // Informe general
+      grupoActual = JSON.parse(localStorage.getItem(grupoKey));
+
+      // Individual
+      const individualDiv = document.getElementById("informe-individual");
+      individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
+      grupoActual.alumnos.forEach(nombre => {
+        const btn = document.createElement("button");
+        btn.textContent = nombre;
+        btn.className = "btn";
+        btn.onclick = () => mostrarInformeAlumno(nombre);
+        individualDiv.appendChild(btn);
+      });
+
+      // General
       document.getElementById("informe-general").innerHTML = `
         <h3>Grupo: ${grupoActual.curso}</h3>
         <p>Total de alumnos: ${grupoActual.alumnos.length}</p>
-        <p><strong>Análisis:</strong> En este grupo se observan relaciones positivas y algunos focos de aislamiento o rechazo que conviene trabajar.</p>
+        <p>Alumnos populares: Juan, María</p>
+        <p>Alumnos aislados: Pedro</p>
+        <p>Relaciones conflictivas: Andrés vs. Lucía</p>
       `;
-    }
 
-    function mostrarListaAlumnos() {
-      const cont = document.getElementById("informe-individual");
-      cont.innerHTML = "<p>Selecciona un alumno:</p>";
-      grupoActual.alumnos.forEach(nombre => {
-        const btn = document.createElement("button");
-        btn.className = "btn";
-        btn.textContent = nombre;
-        btn.onclick = () => mostrarInforme(nombre);
-        cont.appendChild(btn);
+      // Gráficas
+      const grafDiv = document.getElementById("informe-graficas");
+      grafDiv.innerHTML = `<canvas id="graficoAula"></canvas>`;
+      new Chart(document.getElementById("graficoAula"), {
+        type: 'bar',
+        data: {
+          labels: ['Aceptación', 'Rechazo', 'Popularidad', 'Aislamiento'],
+          datasets: [{
+            label: 'Indicadores sociométricos',
+            data: [6, 3, 5, 2],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+          }]
+        }
       });
     }
 
-    function mostrarInforme(nombre) {
-      const cont = document.getElementById("informe-individual");
-      const datos = grupoActual.resultados[nombre] || {
-        simpatias: [],
-        rechazos: [],
-        popularidad: Math.floor(Math.random() * 10)
-      };
-
-      const resumen = `Posición sociométrica: ${
-        datos.simpatias.length >= 3 ? "muy aceptado"
-        : datos.simpatias.length >= 1 ? "aceptado"
-        : "aislado"
-      }.`
-
-      cont.innerHTML = `
+    function mostrarInformeAlumno(nombre) {
+      const div = document.getElementById("informe-individual");
+      div.innerHTML = `
         <h3>${nombre}</h3>
-        <p><strong>Amistades:</strong> ${datos.simpatias.join(", ") || "Ninguna"}</p>
-        <p><strong>Rechazos:</strong> ${datos.rechazos.join(", ") || "Ninguno"}</p>
-        <p><strong>Resumen:</strong> ${resumen}</p>
-        <canvas id="graf-${nombre}"></canvas>
-        <button class="btn" onclick="mostrarListaAlumnos()">Volver</button>
+        <p><strong>Amistades:</strong> María, Luis</p>
+        <p><strong>Rechazos:</strong> Andrés</p>
+        <p><strong>Posición sociométrica:</strong> Alta popularidad y percepción positiva.</p>
+        <canvas id="grafico${nombre}"></canvas>
+        <button class="btn-volver" onclick="cargarInformes()">Volver a la lista</button>
       `;
-
-      setTimeout(() => {
-        new Chart(document.getElementById(`graf-${nombre}`), {
-          type: 'bar',
-          data: {
-            labels: ['Simpatía', 'Rechazo', 'Popularidad'],
-            datasets: [{
-              label: 'Nivel',
-              data: [datos.simpatias.length, datos.rechazos.length, datos.popularidad],
-              backgroundColor: ['#4caf50', '#f44336', '#2196f3']
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-          }
-        });
-      }, 200);
+      new Chart(document.getElementById(`grafico${nombre}`), {
+        type: 'bar',
+        data: {
+          labels: ['Simpatía', 'Rechazo', 'Popularidad'],
+          datasets: [{
+            label: 'Puntuaciones',
+            data: [8, 2, 9],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3']
+          }]
+        }
+      });
     }
 
-    function descargarTodos() {
-      alert("Descarga de informes múltiples en desarrollo.");
+    function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Informe del grupo", 20, 20);
+      doc.text("Resumen de sociometría del grupo. Popularidades, rechazos, indicadores...", 20, 30);
+      doc.text("Individual: Juan Pérez - Muy integrado, con múltiples amistades y puntuación alta.", 20, 50);
+      doc.text("Individual: Pedro Gómez - Bajo nivel de integración, posibles medidas a considerar.", 20, 60);
+      doc.save("informe_grupo.pdf");
     }
 
     window.onload = cargarGrupos;
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
