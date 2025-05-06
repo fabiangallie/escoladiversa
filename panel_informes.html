@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .tabs {
       display: flex;
@@ -43,18 +45,19 @@
       margin-top: 1em;
     }
 
-    .btn {
-      background-color: #4285f4;
-      color: white;
-      padding: 0.5em 1em;
-      margin: 0.5em;
-      border-radius: 8px;
-      cursor: pointer;
-      border: none;
+    canvas {
+      max-width: 400px;
+      margin-top: 1em;
     }
 
-    .btn:hover {
-      background-color: #357ae8;
+    .btn {
+      margin: 0.3em;
+      padding: 0.5em 1em;
+      border: none;
+      background-color: #90caf9;
+      color: black;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -81,13 +84,12 @@
       <div class="info-box" id="informe-individual">
         <p>Selecciona un alumno del grupo para ver su informe.</p>
       </div>
-      <button class="btn" id="generar-pdf-individual">Generar Informe PDF</button>
+      <button class="btn" onclick="descargarPDF()">Descargar todos en PDF</button>
     </div>
 
     <div id="general" class="tab-content">
       <div class="info-box" id="informe-general">
         <p>Resumen de desempeño del grupo.</p>
-        <button class="btn" id="generar-pdf-grupo">Generar Informe del Grupo PDF</button>
       </div>
     </div>
 
@@ -98,8 +100,18 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
+    const ejemploGrupo = {
+      curso: "6º Primaria",
+      alumnos: ["Lucía", "Carlos", "María", "Pedro"],
+      resultados: {
+        "Lucía": { simpatía: 8, rechazo: 2, popularidad: 9 },
+        "Carlos": { simpatía: 4, rechazo: 6, popularidad: 3 },
+        "María": { simpatía: 7, rechazo: 3, popularidad: 6 },
+        "Pedro": { simpatía: 5, rechazo: 4, popularidad: 5 },
+      }
+    };
+
     function mostrarTab(id) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -109,79 +121,89 @@
 
     function cargarGrupos() {
       const select = document.getElementById("grupo-select");
-      for (let i = 0; i < localStorage.length; i++) {
-        const clave = localStorage.key(i);
-        if (clave.includes(" - ")) {
-          const option = document.createElement("option");
-          option.value = clave;
-          option.textContent = clave;
-          select.appendChild(option);
-        }
-      }
+      const option = document.createElement("option");
+      option.value = "ejemplo";
+      option.textContent = ejemploGrupo.curso;
+      select.appendChild(option);
     }
 
     function cargarInformes() {
       const grupoKey = document.getElementById("grupo-select").value;
       if (!grupoKey) return;
 
-      const grupo = JSON.parse(localStorage.getItem(grupoKey));
-      
-      // Informe individual: muestra lista de alumnos para seleccionar
+      const grupo = ejemploGrupo;
       const individualDiv = document.getElementById("informe-individual");
       individualDiv.innerHTML = '<p>Selecciona un alumno:</p>';
+      
       grupo.alumnos.forEach(nombre => {
         const btn = document.createElement("button");
         btn.textContent = nombre;
         btn.className = "btn";
-        btn.onclick = () => {
-          individualDiv.innerHTML = `<h3>${nombre}</h3><p>Informe del alumno (por implementar).</p>`;
-        };
+        btn.onclick = () => mostrarInformeAlumno(nombre, grupo.resultados[nombre]);
         individualDiv.appendChild(btn);
       });
-
-      // Informe general (placeholder)
-      document.getElementById("informe-general").innerHTML = `
-        <h3>Grupo: ${grupo.curso}</h3>
-        <p>Total de alumnos: ${grupo.alumnos.length}</p>
-        <p>Contenido general del grupo (por implementar).</p>
-      `;
-
-      // Gráficas (placeholder)
-      document.getElementById("informe-graficas").innerHTML = `
-        <p>Gráficas basadas en los datos del grupo (por implementar).</p>
-      `;
     }
 
-    // Función para generar PDF del informe individual
-    document.getElementById('generar-pdf-individual').addEventListener('click', function() {
-      const nombreAlumno = document.querySelector('#informe-individual h3').textContent;
-      if (!nombreAlumno) return alert('Selecciona un alumno para generar su informe.');
+    function mostrarInformeAlumno(nombre, datos) {
+      const div = document.getElementById("informe-individual");
+      div.innerHTML = `
+        <h3>${nombre}</h3>
+        <p>Simpatía: ${datos.simpatía}</p>
+        <p>Rechazo: ${datos.rechazo}</p>
+        <p>Popularidad: ${datos.popularidad}</p>
+        <canvas id="grafico-${nombre}"></canvas>
+      `;
 
+      const ctx = document.getElementById(`grafico-${nombre}`).getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Simpatía", "Rechazo", "Popularidad"],
+          datasets: [{
+            label: "Puntuaciones",
+            data: [datos.simpatía, datos.rechazo, datos.popularidad],
+            backgroundColor: ["#66bb6a", "#ef5350", "#42a5f5"]
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 10
+            }
+          }
+        }
+      });
+    }
+
+    async function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.text(`Informe Individual de ${nombreAlumno}`, 20, 20);
-      doc.text(`Datos de comportamiento (por implementar)`, 20, 30);
-      doc.save(`informe_individual_${nombreAlumno}.pdf`);
-    });
 
-    // Función para generar PDF del informe general
-    document.getElementById('generar-pdf-grupo').addEventListener('click', function() {
-      const grupoKey = document.getElementById("grupo-select").value;
-      if (!grupoKey) return alert('Selecciona un grupo para generar el informe.');
+      const alumnos = ejemploGrupo.alumnos;
+      const resultados = ejemploGrupo.resultados;
 
-      const grupo = JSON.parse(localStorage.getItem(grupoKey));
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text(`Informe del Grupo: ${grupo.curso}`, 20, 20);
-      doc.text(`Total de alumnos: ${grupo.alumnos.length}`, 20, 30);
-      doc.text(`Descripción sociométrica del grupo (por implementar)`, 20, 40);
-      doc.save(`informe_grupo_${grupo.curso}.pdf`);
-    });
+      alumnos.forEach((nombre, i) => {
+        const datos = resultados[nombre];
+        if (i !== 0) doc.addPage();
+
+        doc.setFontSize(16);
+        doc.text(`Informe Individual: ${nombre}`, 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Simpatía: ${datos.simpatía}`, 20, 40);
+        doc.text(`Rechazo: ${datos.rechazo}`, 20, 50);
+        doc.text(`Popularidad: ${datos.popularidad}`, 20, 60);
+      });
+
+      doc.save("informes_individuales.pdf");
+    }
 
     window.onload = cargarGrupos;
   </script>
 </body>
 </html>
+
 
 
 
