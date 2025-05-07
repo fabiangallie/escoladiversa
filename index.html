@@ -3,28 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sociograma Escola Diversa</title>
+  <title>Panel de Informes - Escola Diversa</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    .student-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .student-list li {
+      margin: 5px 10px;
+    }
+    .student-list button {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .report {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+    .report.active {
+      display: block;
+    }
+    .report img {
+      max-width: 100%;
+      height: auto;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <img src="corazon.png" alt="" class="logo" />
+    <h1>Informes Individuales</h1>
+    <ul class="student-list">
+      <li><button onclick="showReport('student1')">Alumno 1</button></li>
+      <li><button onclick="showReport('student2')">Alumno 2</button></li>
+      <li><button onclick="showReport('student3')">Alumno 3</button></li>
+      <li><button onclick="showReport('student4')">Alumno 4</button></li>
+      <li><button onclick="showReport('student5')">Alumno 5</button></li>
+      <li><button onclick="showReport('student6')">Alumno 6</button></li>
+      <li><button onclick="showReport('student7')">Alumno 7</button></li>
+      <li><button onclick="showReport('student8')">Alumno 8</button></li>
+      <li><button onclick="showReport('student9')">Alumno 9</button></li>
+      <li><button onclick="showReport('student10')">Alumno 10</button></li>
+    </ul>
 
-    <div class="title-box">
-      <h1 class="title-grande">Escola Diversa</h1>
-      <h2 class="title-secundario">Sociograma</h2>
+    <div id="student1" class="report">
+      <h2>Informe de Alumno 1</h2>
+      <img src="grafica_alumno1.png" alt="Gráfica Alumno 1" />
+      <p>Redacción del informe para el Alumno 1.</p>
     </div>
-
-    <div class="button-group">
-      <a href="seleccion.html" class="btn">Entrar</a>
+    <div id="student2" class="report">
+      <h2>Informe de Alumno 2</h2>
+      <img src="grafica_alumno2.png" alt="Gráfica Alumno 2" />
+      <p>Redacción del informe para el Alumno 2.</p>
+    </div>
+    <div id="student3" class="report">
+      <h2>Informe de Alumno 3</h2>
+      <img src="grafica_alumno3.png" alt="Gráfica Alumno 3" />
+      <p>Redacción del informe para el Alumno 3.</p>
+    </div>
+    <div id="student4" class="report">
+      <h2>Informe de Alumno 4</h2>
+      <img src="grafica_alumno4.png" alt="Gráfica Alumno 4" />
+      <p>Redacción del informe para el Alumno 4.</p>
+    </div>
+    <div id="student5" class="report">
+      <h2>Informe de Alumno 5</h2>
+      <img src="grafica_alumno5.png" alt="Gráfica Alumno 5" />
+      <p>Redacción del informe para el Alumno 5.</p>
+    </div>
+    <div id="student6" class="report">
+      <h2>Informe de Alumno 6</h2>
+      <img src="grafica_alumno6.png" alt="Gráfica Alumno 6" />
+      <p>Redacción del informe para el Alumno 6.</p>
+    </div>
+    <div id="student7" class="report">
+      <h2>Informe de Alumno 7</h2>
+      <img src="grafica_alumno7.png" alt="Gráfica Alumno 7" />
+      <p>Redacción del informe para el Alumno 7.</p>
+    </div>
+    <div id="student8" class="report">
+      <h2>Informe de Alumno 8</h2>
+      <img src="grafica_alumno8.png" alt="Gráfica Alumno 8" />
+      <p>Redacción del informe para el Alumno 8.</p>
+    </div>
+    <div id="student9" class="report">
+      <h2>Informe de Alumno 9</h2>
+      <img src="grafica_alumno9.png" alt="Gráfica Alumno 9" />
+      <p>Redacción del informe para el Alumno 9.</p>
+    </div>
+    <div id="student10" class="report">
+      <h2>Informe de Alumno 10</h2>
+      <img src="grafica_alumno10.png" alt="Gráfica Alumno 10" />
+      <p>Redacción del informe para el Alumno 10.</p>
     </div>
   </div>
 
-<footer style="text-align: center; margin-top: 40px; font-size: 0.9em; color: #666;">
-  ©2025 escoladiversa · Proyecto sociométrico educativo creado por OpenAI, colaborador pedagógico Fabián Gallié
-</footer>
+  <footer>
+    @2025 escoladiversa.proyecto sociométrico educativo creado por OpenAI, colaborador pedagógico Fabián Gallié
+  </footer>
 
+  <script>
+    function showReport(id) {
+      const reports = document.querySelectorAll('.report');
+      reports.forEach(report => {
+        report.classList.remove('active');
+      });
+      const selectedReport = document.getElementById(id);
+      if (selectedReport) {
+        selectedReport.classList.add('active');
+        selectedReport.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
 </body>
 </html>
+
 
 
