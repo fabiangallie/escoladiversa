@@ -3,175 +3,214 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Informes Sociométricos - Fabián Gallié</title>
+  <title>Panel de Informes Sociométricos</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f0f4f8;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     header {
-      background: #0077b6;
-      color: white;
-      padding: 1rem;
+      background-color: #e0f0ff;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
-    h1 {
-      margin: 0;
-    }
-    .selector {
+    nav {
       display: flex;
-      overflow-x: auto;
-      background: #caf0f8;
-      padding: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px;
     }
-    .selector button {
-      margin: 0.25rem;
-      padding: 0.5rem 1rem;
+    nav button {
+      padding: 10px 20px;
+      background: #007acc;
+      color: #fff;
       border: none;
-      background: #00b4d8;
-      color: white;
-      cursor: pointer;
       border-radius: 5px;
+      cursor: pointer;
     }
-    .selector button:hover {
-      background: #0096c7;
+    nav button:hover {
+      background: #005fa3;
     }
-    .informe {
-      padding: 1rem;
-      background: white;
-      margin: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+    section { padding: 20px; }
     .cuadro-titulo {
-      background: #d0f0fd;
-      border-left: 6px solid #00b4d8;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      font-weight: bold;
-      font-size: 1.2rem;
+      background: #f2f8ff;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
     }
-    canvas {
-      max-width: 100%;
-      height: auto;
+    .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .alumnos-selector button {
+      flex: 1;
+      min-width: 100px;
+      background: #2196f3;
     }
-    .descargar {
-      margin-top: 1rem;
-      text-align: right;
-    }
-    .descargar button {
-      padding: 0.5rem 1rem;
-      background: #0077b6;
+    canvas { max-width: 100%; height: 250px !important; }
+    .boton-descargar {
+      margin: 10px 0;
+      padding: 8px 16px;
+      background-color: #4caf50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+    }
+    .boton-descargar:hover { background-color: #3e8e41; }
+    .indicadores-explicacion {
+      font-size: 0.9em;
+      margin-top: 10px;
+      color: #333;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Informes Sociométricos Escolares</h1>
+    <p>Desarrollado por ChatGPT y Fabián Gallié</p>
+  </header>
 
-<header>
-  <h1>Informes Sociométricos - Fabián Gallié</h1>
-</header>
+  <nav>
+    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
+    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+  </nav>
 
-<div class="selector" id="alumnoSelector">
-  <!-- Se generan botones de alumnos por JS -->
-</div>
-
-<div id="contenedorInforme" class="informe">
-  <!-- Informe cargado por JS -->
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const alumnos = [
-  "Ana", "Luis", "María", "Carlos", "Lucía",
-  "Diego", "Sofía", "Pablo", "Carmen", "Iván"
-];
-
-const informes = alumnos.map((nombre, i) => ({
-  nombre,
-  elecciones: ["Amigo1", "Amigo2"],
-  rechazos: ["Rechazo1"],
-  estatus: ["Estatus positivo"],
-  nivel: "Popularidad media",
-  resumen: `El alumno/a ${nombre} se posiciona como una figura relevante en el grupo, con relaciones sociales estables. Su nivel de aceptación es adecuado.`,
-  grafico: {
-    afinidad: Math.floor(Math.random()*100),
-    rechazo: Math.floor(Math.random()*100),
-    participacion: Math.floor(Math.random()*100),
-    popularidad: Math.floor(Math.random()*100)
-  }
-}));
-
-function generarBotones() {
-  const cont = document.getElementById("alumnoSelector");
-  alumnos.forEach((nombre, i) => {
-    const btn = document.createElement("button");
-    btn.textContent = nombre;
-    btn.onclick = () => mostrarInforme(i);
-    cont.appendChild(btn);
-  });
-}
-
-function mostrarInforme(idx) {
-  const alumno = informes[idx];
-  const cont = document.getElementById("contenedorInforme");
-  cont.innerHTML = `
-    <div class="cuadro-titulo">Informe de ${alumno.nombre}</div>
-    <canvas id="grafico-${idx}" width="300" height="150"></canvas>
-    <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-    <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-    <p><strong>Estatus:</strong> ${alumno.estatus.join(", ")}</p>
-    <p><strong>Nivel de popularidad:</strong> ${alumno.nivel}</p>
-    <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-    <div class="descargar">
-      <button onclick="descargarInforme('${alumno.nombre}')">Descargar informe de ${alumno.nombre}</button>
+  <section id="aula">
+    <div id="contenidoAula">
+      <div class="cuadro-titulo"><h2>Informe General del Aula</h2></div>
+      <canvas id="graficoCohesion"></canvas>
+      <div class="indicadores-explicacion">
+        <p><strong>IC</strong>: Índice de Cohesión — mide la integración del grupo.</p>
+        <p><strong>ID</strong>: Índice de Disociación — mide la fragmentación o aislamiento.</p>
+        <p><strong>LAP</strong>: Actividad media de Afinidad — promedio de elecciones positivas.</p>
+        <p><strong>LAN</strong>: Actividad media de Rechazo — promedio de rechazos recibidos.</p>
+      </div>
+      <p><strong>Resumen:</strong> El grupo muestra un equilibrio aceptable pero con signos de segregación en algunos subgrupos...</p>
+      <h3>Propuesta de Intervención</h3>
+      <p>Aplicar actividades cooperativas, fomentar la empatía, y establecer tutorías entre iguales para fortalecer la inclusión...</p>
     </div>
-  `;
+    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
+  </section>
 
-  const ctx = document.getElementById(`grafico-${idx}`).getContext("2d");
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ["Afinidad", "Rechazo", "Participación", "Popularidad"],
-      datasets: [{
-        label: "Índices",
-        data: [
-          alumno.grafico.afinidad,
-          alumno.grafico.rechazo,
-          alumno.grafico.participacion,
-          alumno.grafico.popularidad
-        ],
-        backgroundColor: ['#0077b6', '#d00000', '#90be6d', '#f9c74f']
-      }]
-    },
-    options: {
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
+  <section id="individual" style="display:none;">
+    <div class="cuadro-titulo"><h2>Informes Individuales</h2></div>
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div id="informeAlumnoContainer">
+      <div id="informeAlumno"></div>
+      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    </div>
+  </section>
+
+  <script>
+    const datosSimulados = {
+      aula: { cohesion: 65, disociacion: 20, lap: 70, lan: 30 },
+      alumnos: [
+        {
+          nombre: "Lucía",
+          elecciones: ["Marcos", "Ana"],
+          rechazos: ["Pedro"],
+          status: "Aceptación Media",
+          popularidad: "Media",
+          resumen: "Lucía mantiene relaciones estables y recibe cierta valoración positiva de sus compañeros..."
+        },
+        {
+          nombre: "Pedro",
+          elecciones: ["Lucía"],
+          rechazos: ["Ana", "Marcos"],
+          status: "Rechazo Alto",
+          popularidad: "Baja",
+          resumen: "Pedro es frecuentemente rechazado y muestra señales de aislamiento en el grupo..."
+        }
+      ]
+    };
+
+    function mostrarSeccion(seccion) {
+      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
     }
-  });
-}
 
-function descargarInforme(nombre) {
-  const contenido = document.getElementById("contenedorInforme").innerText;
-  const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
-  const enlace = document.createElement("a");
-  enlace.href = URL.createObjectURL(blob);
-  enlace.download = `Informe_${nombre}.txt`;
-  enlace.click();
-}
+    function cargarGraficoAula() {
+      const ctx = document.getElementById('graficoCohesion').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['IC', 'ID', 'LAP', 'LAN'],
+          datasets: [{
+            label: 'Índices Sociométricos',
+            data: [
+              datosSimulados.aula.cohesion,
+              datosSimulados.aula.disociacion,
+              datosSimulados.aula.lap,
+              datosSimulados.aula.lan
+            ],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
 
-generarBotones();
-mostrarInforme(0); // mostrar primero
-</script>
+    function generarSelectorAlumnos() {
+      const contenedor = document.getElementById("selectorAlumnos");
+      datosSimulados.alumnos.forEach((alumno, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = alumno.nombre;
+        btn.onclick = () => mostrarInformeAlumno(i);
+        contenedor.appendChild(btn);
+      });
+    }
 
+    function mostrarInformeAlumno(i) {
+      const alumno = datosSimulados.alumnos[i];
+      const contenedor = document.getElementById("informeAlumno");
+      contenedor.innerHTML = `
+        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+        <canvas id="graficoAlumno${i}"></canvas>
+        <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
+        <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
+        <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
+        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
+        <p><strong>Resumen:</strong> ${alumno.resumen}</p>
+      `;
+      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+      const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Elecciones', 'Rechazos'],
+          datasets: [{
+            data: [alumno.elecciones.length, alumno.rechazos.length],
+            backgroundColor: ['#4caf50', '#f44336']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    function descargarPDF(idElemento, nombreArchivo) {
+      const elemento = document.getElementById(idElemento);
+      html2pdf()
+        .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
+        .from(elemento)
+        .save();
+    }
+
+    window.onload = () => {
+      cargarGraficoAula();
+      generarSelectorAlumnos();
+    };
+  </script>
 </body>
 </html>
+
 
 
 
