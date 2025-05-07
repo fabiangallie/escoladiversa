@@ -3,239 +3,172 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Informes</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Panel de Informes Sociométricos</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+    }
+    header {
+      background-color: #007B9E;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .creditos {
+      background-color: #e6f2f8;
+      text-align: center;
+      font-size: 0.9em;
+      padding: 0.4em;
+      font-weight: bold;
+      border-top: 1px solid #b5dce9;
+    }
     .tabs {
       display: flex;
-      justify-content: center;
-      margin: 1em 0;
+      justify-content: space-around;
+      background-color: #eaf3f9;
+      border-bottom: 2px solid #007B9E;
     }
-    .tab-btn {
-      padding: 0.8em 1.5em;
-      margin: 0 0.5em;
+    .tabs button {
+      background: none;
       border: none;
-      background-color: #d0e4ff;
+      padding: 1em;
       cursor: pointer;
-      border-radius: 8px;
+      font-size: 1em;
+    }
+    .tabs button.active {
+      border-bottom: 3px solid #007B9E;
       font-weight: bold;
     }
-    .tab-btn.active {
-      background-color: #4285f4;
-      color: white;
-    }
-    .tab-content {
+    .panel {
       display: none;
+      padding: 1em;
     }
-    .tab-content.active {
+    .panel.active {
       display: block;
     }
-    .info-box {
-      background-color: #f4faff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1em;
-      margin-top: 1em;
+    .grafico {
+      max-width: 600px;
+      margin: auto;
+      margin-bottom: 2em;
     }
-    .grafico-container {
-      max-width: 400px;
-      margin: 1em auto;
+    .cuadro-titulo {
+      background-color: #d9ecf2;
+      padding: 0.5em;
+      margin-bottom: 1em;
+      border: 1px solid #a4cce1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .titulo-cuadro {
-      background-color: #cfe2ff;
-      border-radius: 6px;
-      padding: 10px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 10px;
+    .lista-alumnos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+      margin-bottom: 1em;
     }
-    .btn-descargar {
-      display: inline-block;
-      margin: 10px auto;
-      padding: 8px 16px;
-      background-color: #0074D9;
+    .lista-alumnos button {
+      background-color: #007B9E;
       color: white;
       border: none;
-      border-radius: 4px;
+      padding: 0.5em 1em;
+      border-radius: 5px;
       cursor: pointer;
+    }
+    .informe-individual {
+      background-color: white;
+      padding: 1em;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="title-box azul">
-    <h1 class="title-grande">Panel de Informes</h1>
-  </div>
 
-  <form class="form">
-    <label for="grupo-select">Selecciona un grupo:</label>
-    <select id="grupo-select" onchange="generarInformes()">
-      <option value="">-- Elegir grupo --</option>
-    </select>
-  </form>
+<header>
+  <h1>Informes Sociométricos Escolares</h1>
+</header>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="mostrarTab('individual')">Informe individual</button>
-    <button class="tab-btn" onclick="mostrarTab('aula')">Informe de aula</button>
-  </div>
-
-  <div id="individual" class="tab-content active">
-    <div class="info-box" id="informe-individual">
-      <p>Selecciona un grupo para ver los informes individuales.</p>
-    </div>
-    <button class="btn-descargar" onclick="descargarPDFs()">Descargar todos los informes individuales</button>
-  </div>
-
-  <div id="aula" class="tab-content">
-    <div class="info-box" id="informe-aula">
-      <p>Selecciona un grupo para ver el informe del aula.</p>
-    </div>
-  </div>
+<div class="creditos">
+  Aplicación desarrollada por OpenAI &middot; Coordinación Pedagógica: <strong>Fabián Gallié</strong>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('grupo')">Informe de Aula</button>
+  <button class="tab-btn" onclick="showTab('individual')">Informes Individuales</button>
+</div>
+
+<div id="grupo" class="panel active">
+  <div class="cuadro-titulo"><h2>Informe de Aula</h2></div>
+  <div class="grafico"><img src="graficos/grafico_aula.png" style="max-width:100%"/></div>
+  <p><strong>Índice de Cohesión:</strong> 78% (Alto)<br/>
+     <strong>Índice de Disociación:</strong> 14% (Bajo)<br/>
+     <strong>Actividad Media de Afinidad:</strong> 4.1 (Alta)<br/>
+     <strong>Actividad Media de Rechazo:</strong> 1.2 (Baja)
+  </p>
+  <p><strong>Resumen:</strong> El grupo presenta una estructura cohesionada con pocas situaciones de aislamiento. Destacan algunos alumnos con alta centralidad (como Marta y Diego) y otros con escasa participación (como Óscar). Hay una buena percepción colectiva, aunque convendría reforzar la integración emocional de los alumnos periféricos.</p>
+  <p><strong>Intervención Recomendada:</strong><br/>
+    Basándonos en el análisis sociométrico y los indicadores evaluados según el modelo ATOPA, proponemos una intervención que trabaje:
+    <ul>
+      <li><strong>Educación Emocional:</strong> Dinámicas para fomentar empatía y gestión emocional.</li>
+      <li><strong>Resolución de Conflictos:</strong> Juegos cooperativos y mediación entre pares.</li>
+      <li><strong>Educación en Valores:</strong> Actividades que refuercen el respeto, la solidaridad y la escucha activa.</li>
+      <li><strong>Fortalecimiento del Grupo:</strong> Roles rotativos, tutoría entre iguales y creación de normas de aula.</li>
+    </ul>
+  </p>
+</div>
+
+<div id="individual" class="panel">
+  <div class="cuadro-titulo"><h2>Informes Individuales</h2></div>
+  <div class="lista-alumnos" id="listaAlumnos"></div>
+  <div id="detalleAlumno" class="informe-individual"></div>
+</div>
+
 <script>
-const datosSimulados = {
-  "6º prueba": {
-    alumnos: ["Eloy", "Izan", "Martina", "Brandan", "Alan", "Carmen M.", "Hugo P.", "Manuel", "Daniela", "Irene"],
-    respuestas: {
-      Eloy: { simpatia: 3, rechazo: 1, popularidad: 4 },
-      Izan: { simpatia: 5, rechazo: 0, popularidad: 5 },
-      Martina: { simpatia: 2, rechazo: 3, popularidad: 3 },
-      Brandan: { simpatia: 1, rechazo: 2, popularidad: 2 },
-      Alan: { simpatia: 4, rechazo: 0, popularidad: 4 },
-      "Carmen M.": { simpatia: 3, rechazo: 1, popularidad: 3 },
-      "Hugo P.": { simpatia: 0, rechazo: 4, popularidad: 1 },
-      Manuel: { simpatia: 1, rechazo: 3, popularidad: 2 },
-      Daniela: { simpatia: 4, rechazo: 1, popularidad: 4 },
-      Irene: { simpatia: 5, rechazo: 0, popularidad: 5 }
-    }
-  }
-};
+const alumnos = [
+  { nombre: 'Marta', amigos: ['Diego', 'Lucía'], enemigos: ['Óscar'], estatus: 'Alta Popularidad', resumen: 'Marta es muy elegida por sus compañeros, especialmente por Diego y Lucía. Muestra un alto estatus sociométrico y buena integración.' },
+  { nombre: 'Óscar', amigos: [], enemigos: ['Marta', 'Diego'], estatus: 'Rechazado', resumen: 'Óscar ha recibido varios rechazos y no ha sido elegido positivamente. Se recomienda incluirlo en dinámicas de grupo para mejorar su integración.' },
+  { nombre: 'Diego', amigos: ['Marta', 'Lucía'], enemigos: [], estatus: 'Popular', resumen: 'Diego es un alumno muy presente en las elecciones positivas. Su posición es central en el grupo.' },
+  { nombre: 'Lucía', amigos: ['Marta'], enemigos: [], estatus: 'Aceptada', resumen: 'Lucía tiene buenas relaciones sociales con algunos compañeros pero necesita ampliar su red de afinidad.' }
+];
 
-function mostrarTab(id) {
+function showTab(tabId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelector(`.tab-btn[onclick="mostrarTab('${id}')"]`).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
 }
 
-function cargarGrupos() {
-  const select = document.getElementById("grupo-select");
-  Object.keys(datosSimulados).forEach(grupo => {
-    const option = document.createElement("option");
-    option.value = grupo;
-    option.textContent = grupo;
-    select.appendChild(option);
-  });
-}
-
-function generarInformes() {
-  const grupo = document.getElementById("grupo-select").value;
-  if (!grupo) return;
-
-  const data = datosSimulados[grupo];
-  const individualBox = document.getElementById("informe-individual");
-  const aulaBox = document.getElementById("informe-aula");
-  individualBox.innerHTML = '';
-  aulaBox.innerHTML = '';
-
-  data.alumnos.forEach(nombre => {
-    const info = data.respuestas[nombre];
-    const div = document.createElement("div");
-    div.className = "info-box";
-    div.innerHTML = `
-      <div class="titulo-cuadro">${nombre}</div>
-      <p><strong>Simpatía:</strong> ${info.simpatia}</p>
-      <p><strong>Rechazo:</strong> ${info.rechazo}</p>
-      <p><strong>Popularidad:</strong> ${info.popularidad}</p>
-      <canvas id="grafico-${nombre}" class="grafico-container"></canvas>
-      <p><em>${diagnostico(info)}</em></p>
-    `;
-    individualBox.appendChild(div);
-    setTimeout(() => generarGrafico(`grafico-${nombre}`, info), 100);
-  });
-
-  aulaBox.innerHTML = `
-    <div class="titulo-cuadro">Resumen del Aula - ${grupo}</div>
-    <p><strong>Alumnos:</strong> ${data.alumnos.length}</p>
-    <p><strong>Índice medio de simpatía:</strong> ${media(data, "simpatia")}</p>
-    <p><strong>Índice medio de rechazo:</strong> ${media(data, "rechazo")}</p>
-    <p><strong>Índice medio de popularidad:</strong> ${media(data, "popularidad")}</p>
-    <canvas id="grafico-aula" class="grafico-container"></canvas>
-    <p>Este grupo presenta un nivel de cohesión ${media(data, "simpatia") > 3 ? "alto" : "moderado/bajo"} con niveles de rechazo ${media(data, "rechazo") > 2 ? "preocupantes" : "bajos"}.</p>
-    <p><strong>Propuesta de intervención:</strong> Se sugiere trabajar la educación emocional, la gestión de conflictos y las dinámicas cooperativas. Revisar los casos de alumnos con mayor índice de rechazo o menor popularidad y fomentar su integración mediante tareas compartidas y tutorías afectivas.</p>
+function mostrarInforme(nombre) {
+  const alumno = alumnos.find(a => a.nombre === nombre);
+  const html = `
+    <h3>${alumno.nombre}</h3>
+    <div class="grafico"><img src="graficos/${alumno.nombre.toLowerCase()}.png" style="max-width:100%"/></div>
+    <p><strong>Amigos:</strong> ${alumno.amigos.join(', ') || 'Ninguno'}</p>
+    <p><strong>Enemigos:</strong> ${alumno.enemigos.join(', ') || 'Ninguno'}</p>
+    <p><strong>Estatus Sociométrico:</strong> ${alumno.estatus}</p>
+    <p><strong>Resumen:</strong> ${alumno.resumen}</p>
   `;
-  setTimeout(() => generarGrafico("grafico-aula", {
-    simpatia: media(data, "simpatia"),
-    rechazo: media(data, "rechazo"),
-    popularidad: media(data, "popularidad")
-  }), 100);
+  document.getElementById('detalleAlumno').innerHTML = html;
 }
 
-function generarGrafico(id, datos) {
-  const ctx = document.getElementById(id).getContext("2d");
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Simpatía', 'Rechazo', 'Popularidad'],
-      datasets: [{
-        label: 'Índices',
-        data: [datos.simpatia, datos.rechazo, datos.popularidad],
-        backgroundColor: ['#4CAF50', '#F44336', '#2196F3']
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, max: 6 }
-      }
-    }
+function cargarLista() {
+  const contenedor = document.getElementById('listaAlumnos');
+  alumnos.forEach(al => {
+    const btn = document.createElement('button');
+    btn.textContent = al.nombre;
+    btn.onclick = () => mostrarInforme(al.nombre);
+    contenedor.appendChild(btn);
   });
 }
 
-function media(data, campo) {
-  const sum = Object.values(data.respuestas).reduce((a, b) => a + b[campo], 0);
-  return (sum / Object.keys(data.respuestas).length).toFixed(2);
-}
-
-function diagnostico(info) {
-  if (info.simpatia >= 4 && info.rechazo === 0) return "Alumno/a con alta aceptación y sin conflicto aparente.";
-  if (info.rechazo >= 3) return "Alumno/a con posibles dificultades de integración.";
-  if (info.popularidad <= 2) return "Alumno/a poco visibilizado por el grupo.";
-  return "Alumno/a con integración media en el aula.";
-}
-
-async function descargarPDFs() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const grupo = document.getElementById("grupo-select").value;
-  if (!grupo) return;
-
-  const alumnos = datosSimulados[grupo].alumnos;
-  const respuestas = datosSimulados[grupo].respuestas;
-
-  alumnos.forEach((alumno, index) => {
-    const datos = respuestas[alumno];
-    doc.setFontSize(16);
-    doc.text(`Informe de ${alumno}`, 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Simpatía: ${datos.simpatia}`, 20, 40);
-    doc.text(`Rechazo: ${datos.rechazo}`, 20, 50);
-    doc.text(`Popularidad: ${datos.popularidad}`, 20, 60);
-    doc.text(`Diagnóstico: ${diagnostico(datos)}`, 20, 75);
-    if (index !== alumnos.length - 1) doc.addPage();
-  });
-
-  doc.save("Informes_Individuales.pdf");
-}
-
-window.onload = cargarGrupos;
+cargarLista();
 </script>
+
 </body>
 </html>
+
 
 
 
