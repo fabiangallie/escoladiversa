@@ -166,7 +166,8 @@
       const contenedor = document.getElementById("informeAlumno");
       contenedor.innerHTML = `
         <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-        <canvas id="graficoAlumno${i}"></canvas>
+       <canvas id="graficoAlumno${i}" style="height: 180px;"></canvas>
+
         <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
         <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
         <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
