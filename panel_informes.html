@@ -29,7 +29,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    nav button:hover { background: #005fa3; }
+    nav button:hover {
+      background: #005fa3;
+    }
     section { padding: 20px; }
     .cuadro-titulo {
       background: #f2f8ff;
@@ -43,18 +45,17 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 20px;
+      justify-content: center;
     }
     .alumnos-selector button {
       flex: 1;
       min-width: 100px;
       background: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px;
-      cursor: pointer;
     }
-    canvas { max-width: 100%; height: 220px !important; }
+    canvas {
+      max-width: 100%;
+      height: 180px !important;
+    }
     .boton-descargar {
       margin: 10px 0;
       padding: 8px 16px;
@@ -80,13 +81,9 @@
   <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
-      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada. Alumnos como "Nico" y "Laura" destacan por su aislamiento y bajo nivel de elección por parte de sus compañeros.</p>
+      <p><strong>Resumen:</strong> El grupo muestra un equilibrio aceptable pero con signos de segregación en algunos subgrupos...</p>
       <h3>Propuesta de Intervención</h3>
-      <ul>
-        <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
-        <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
-        <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
-      </ul>
+      <p>Aplicar actividades cooperativas, fomentar la empatía, y establecer tutorías entre iguales para fortalecer la inclusión...</p>
     </div>
     <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
   </section>
@@ -101,23 +98,24 @@
 
   <script>
     const datosSimulados = {
-      aula: {
-        cohesion: 35,
-        disociacion: 62,
-        lap: 40,
-        lan: 70
-      },
+      aula: { cohesion: 65, disociacion: 20, lap: 70, lan: 30 },
       alumnos: [
-        { nombre: "Nico", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja", resumen: "Nico muestra aislamiento y es percibido negativamente." },
-        { nombre: "Laura", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Laura tiene relaciones limitadas con sus compañeros." },
-        { nombre: "Sofía", elecciones: ["Pedro", "Laura"], rechazos: [], status: "Alta", popularidad: "Alta", resumen: "Sofía es una figura central con buena aceptación." },
-        { nombre: "Pedro", elecciones: ["Sofía"], rechazos: [], status: "Media", popularidad: "Media", resumen: "Pedro mantiene relaciones estables sin conflictos." },
-        { nombre: "Marina", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Marina se relaciona con figuras populares." },
-        { nombre: "Carlos", elecciones: ["Pedro"], rechazos: [], status: "Baja", popularidad: "Baja", resumen: "Carlos participa poco en la dinámica grupal." },
-        { nombre: "Julia", elecciones: ["Sofía"], rechazos: ["Laura"], status: "Alta", popularidad: "Alta", resumen: "Julia es valorada positivamente por varios compañeros." },
-        { nombre: "Álvaro", elecciones: ["Pedro"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Álvaro mantiene lazos moderados." },
-        { nombre: "Lucía", elecciones: ["Julia", "Sofía"], rechazos: [], status: "Alta", popularidad: "Alta", resumen: "Lucía se integra muy bien al grupo." },
-        { nombre: "Raúl", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja", resumen: "Raúl se encuentra desvinculado del resto del grupo." }
+        {
+          nombre: "Lucía",
+          elecciones: ["Marcos", "Ana"],
+          rechazos: ["Pedro"],
+          status: "Aceptación Media",
+          popularidad: "Media",
+          resumen: "Lucía mantiene relaciones estables y recibe cierta valoración positiva de sus compañeros."
+        },
+        {
+          nombre: "Pedro",
+          elecciones: ["Lucía"],
+          rechazos: ["Ana", "Marcos"],
+          status: "Rechazo Alto",
+          popularidad: "Baja",
+          resumen: "Pedro es frecuentemente rechazado y muestra señales de aislamiento en el grupo."
+        }
       ]
     };
 
@@ -131,7 +129,7 @@
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Índice de cohesión', 'Índice de disociación', 'Índice actividad positiva', 'Índice actividad negativa'],
+          labels: ['Índice de cohesión', 'Índice de disociación', 'Actividad positiva', 'Actividad negativa'],
           datasets: [{
             label: 'Índices Sociométricos',
             data: [
