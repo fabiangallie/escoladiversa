@@ -57,12 +57,17 @@
       cursor: pointer;
     }
     .boton-descargar:hover { background-color: #3e8e41; }
+    .indicadores-explicacion {
+      font-size: 0.9em;
+      margin-top: 10px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Informes Sociométricos Escolares</h1>
-   
+    <p>Desarrollado por ChatGPT y Fabián Gallié</p>
   </header>
 
   <nav>
@@ -74,6 +79,12 @@
     <div id="contenidoAula">
       <div class="cuadro-titulo"><h2>Informe General del Aula</h2></div>
       <canvas id="graficoCohesion"></canvas>
+      <div class="indicadores-explicacion">
+        <p><strong>IC</strong>: Índice de Cohesión — mide la integración del grupo.</p>
+        <p><strong>ID</strong>: Índice de Disociación — mide la fragmentación o aislamiento.</p>
+        <p><strong>LAP</strong>: Actividad media de Afinidad — promedio de elecciones positivas.</p>
+        <p><strong>LAN</strong>: Actividad media de Rechazo — promedio de rechazos recibidos.</p>
+      </div>
       <p><strong>Resumen:</strong> El grupo muestra un equilibrio aceptable pero con signos de segregación en algunos subgrupos...</p>
       <h3>Propuesta de Intervención</h3>
       <p>Aplicar actividades cooperativas, fomentar la empatía, y establecer tutorías entre iguales para fortalecer la inclusión...</p>
@@ -199,6 +210,7 @@
   </script>
 </body>
 </html>
+
 
 
 
