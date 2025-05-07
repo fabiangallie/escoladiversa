@@ -2,98 +2,151 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Informe de Aula - Sociograma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Informes Sociométricos - Escoladiversa</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f0f0f0;
-    }
-    header {
-      background-color: #023e8a;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    main {
-      padding: 1rem;
-      background: white;
-      margin: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .titulo {
-      background: #ade8f4;
-      padding: 1rem;
-      border-left: 5px solid #0077b6;
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-    }
-    canvas {
-      max-width: 100%;
-      height: auto;
-    }
-    .resumen {
-      margin-top: 1.5rem;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; }
+    header { background: #004488; color: white; padding: 1rem; text-align: center; }
+    nav { display: flex; justify-content: center; gap: 1rem; background: #ddd; padding: 1rem; flex-wrap: wrap; }
+    nav button { padding: 0.5rem 1rem; border: none; background: #004488; color: white; border-radius: 5px; cursor: pointer; }
+    nav button:hover { background: #0066aa; }
+    .content { padding: 1rem; }
+    .box { background: #e0f0ff; border: 1px solid #aac; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); padding: 1rem; margin-bottom: 1rem; border-radius: 10px; }
+    canvas { max-width: 100%; height: auto; }
+    .small-graph { height: 250px; }
+    footer { background: #004488; color: white; text-align: center; padding: 0.5rem; position: fixed; bottom: 0; width: 100%; }
+    select, button.download { margin: 0.5rem 0; padding: 0.5rem; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Informe de Aula - Sociograma</h1>
-    <p>Autor: Fabián Gallié</p>
+    <h1>Informes Sociométricos Escoladiversa</h1>
+    <p>Colaborador del proyecto: <strong>Fabián Gallié</strong></p>
   </header>
 
-  <main>
-    <div class="titulo">Gráfico de Sociograma</div>
-    <canvas id="graficoAula" width="600" height="300"></canvas>
+  <nav>
+    <button onclick="mostrar('aula')">Informe de Aula</button>
+    <button onclick="mostrar('individual')">Informe Individual</button>
+  </nav>
 
-    <div class="titulo">Índices de Grupo</div>
-    <ul>
-      <li><strong>Índice de cohesión (IC):</strong> 72% - Nivel alto</li>
-      <li><strong>Índice de disociación (ID):</strong> 15% - Nivel bajo</li>
-      <li><strong>Actividad media de afinidad (LAP):</strong> 6.4</li>
-      <li><strong>Actividad media de rechazo (LAN):</strong> 1.1</li>
-    </ul>
+  <div class="content">
+    <div id="aula" style="display:none;">
+      <div class="box">
+        <h2>Informe General del Aula</h2>
+        <p><strong>Resumen:</strong> El análisis sociométrico del aula indica un nivel de cohesión moderado (IC: 42%, ID: 27%). Se observan subgrupos y algunas figuras con aislamiento social. La actividad media de afinidad (LAP) es del 55% y la de rechazo (LAN) es del 15%, lo cual sugiere buena predisposición relacional general. Se detectan casos como el de Laura, con alta popularidad, y Pedro, en situación de aislamiento.</p>
+        <p><strong>Propuesta de Intervención:</strong> Educación emocional (autoestima, empatía), dinámicas de cohesión grupal, resolución de conflictos y trabajo en valores, siguiendo las orientaciones del proyecto Atopa (ver tabla p.77 y estructura www.atopa.es/int_primaria/primaria.html).</p>
+      </div>
 
-    <div class="resumen">
-      <p>La cohesión del grupo es elevada, lo que sugiere vínculos sólidos entre la mayoría de sus miembros. Pocos alumnos manifiestan rechazos activos. Se identifican roles de liderazgo y aislamiento, destacando la necesidad de seguimiento para quienes se encuentran en posiciones sociométricas desfavorables.</p>
+      <div class="box">
+        <h3>Gráfica de Relaciones (Nodos)</h3>
+        <canvas id="graficaRedAula" class="small-graph"></canvas>
+      </div>
+
+      <div class="box">
+        <h3>Índices Sociométricos</h3>
+        <canvas id="graficaIndices" class="small-graph"></canvas>
+        <p><strong>IC:</strong> Índice de cohesión<br/>
+        <strong>ID:</strong> Índice de disociación<br/>
+        <strong>LAP:</strong> Actividad media de afinidad<br/>
+        <strong>LAN:</strong> Actividad media de rechazo</p>
+      </div>
+
+      <button class="download" onclick="descargarPDF('aula')">Descargar Informe de Aula (PDF)</button>
     </div>
-  </main>
+
+    <div id="individual" style="display:none;">
+      <select id="selectorAlumno" onchange="mostrarAlumno()">
+        <option value="">Seleccione un alumno</option>
+        <option value="laura">Laura</option>
+        <option value="pedro">Pedro</option>
+        <option value="ana">Ana</option>
+        <option value="mario">Mario</option>
+        <option value="lucia">Lucía</option>
+      </select>
+
+      <div id="informeAlumno" class="box" style="display:none;">
+        <h2 id="nombreAlumno">Informe Individual</h2>
+        <div id="datosAlumno">
+          <canvas id="graficaAlumno" class="small-graph"></canvas>
+          <p><strong>Posición Sociométrica:</strong> Aislado</p>
+          <p><strong>Elecciones Recibidas:</strong> Ninguna</p>
+          <p><strong>Rechazos Recibidos:</strong> 2 (Mario, Lucía)</p>
+          <p><strong>Elecciones Emitidas:</strong> Laura (no mutua), Ana (no mutua)</p>
+          <p><strong>Popularidad:</strong> Muy baja</p>
+          <p><strong>Atributos asociados:</strong> “Callado”, “No participa”</p>
+        </div>
+        <button class="download" onclick="descargarPDF('individual')">Descargar Informe Individual</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Escoladiversa - Proyecto Sociométrico Educativo
+  </footer>
+
+  <script>
+    function mostrar(seccion) {
+      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+    }
+
+    function mostrarAlumno() {
+      const nombre = document.getElementById("selectorAlumno").value;
+      if (nombre) {
+        document.getElementById("informeAlumno").style.display = "block";
+        document.getElementById("nombreAlumno").innerText = "Informe de " + nombre.charAt(0).toUpperCase() + nombre.slice(1);
+        // Simula gráfica distinta por alumno
+        dibujarGraficoAlumno();
+      } else {
+        document.getElementById("informeAlumno").style.display = "none";
+      }
+    }
+
+    function descargarPDF(tipo) {
+      alert("Función de descarga de " + tipo + " activada (a implementar)");
+    }
+
+    function dibujarGraficoAlumno() {
+      const ctx = document.getElementById("graficaAlumno").getContext("2d");
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Elecciones', 'Rechazos'],
+          datasets: [{
+            data: [0, 2],
+            backgroundColor: ['#66bb6a', '#ef5350']
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    // Gráfica aula
+    window.onload = () => {
+      new Chart(document.getElementById("graficaRedAula").getContext("2d"), {
+        type: 'bar',
+        data: {
+          labels: ['Laura', 'Pedro', 'Ana', 'Mario', 'Lucía'],
+          datasets: [{ label: 'Popularidad', data: [4, 0, 2, 1, 3], backgroundColor: '#42a5f5' }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+
+      new Chart(document.getElementById("graficaIndices").getContext("2d"), {
+        type: 'bar',
+        data: {
+          labels: ['IC', 'ID', 'LAP', 'LAN'],
+          datasets: [{
+            label: '%',
+            data: [42, 27, 55, 15],
+            backgroundColor: ['#66bb6a', '#ef5350', '#42a5f5', '#ffa726']
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+    };
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById("graficoAula").getContext("2d");
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["IC", "ID", "LAP", "LAN"],
-        datasets: [{
-          label: "Índices Grupales",
-          data: [72, 15, 64, 11],
-          backgroundColor: ["#0077b6", "#d00000", "#90be6d", "#f9c74f"]
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100
-          }
-        }
-      }
-    });
-  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
