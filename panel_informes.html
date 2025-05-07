@@ -7,9 +7,9 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
@@ -23,11 +23,33 @@
     h1 {
       margin: 0;
     }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .button-group button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button-group button:hover {
+      background-color: #0056b3;
+    }
     .alumnos {
       display: flex;
       overflow-x: auto;
       background: #e9ecef;
       padding: 10px;
+      margin-bottom: 20px;
     }
     .alumnos button {
       margin: 0 5px;
@@ -41,24 +63,30 @@
     .alumnos button:hover {
       background: #0056b3;
     }
-    .informe {
-      padding: 20px;
-      display: none;
+    .informe, .grupo {
       background: white;
-      margin: 20px;
+      padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
     }
     .grafica {
       max-width: 400px;
       margin: 0 auto 20px;
+      display: block;
     }
-    .grupo {
-      background: white;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    .print-button {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .print-button:hover {
+      background-color: #218838;
     }
     footer {
       text-align: center;
@@ -66,7 +94,6 @@
       font-size: 0.9em;
       background-color: #f0f0f0;
       color: #555;
-      margin-top: auto;
     }
   </style>
 </head>
@@ -75,17 +102,33 @@
     <h1>Informes Sociométricos</h1>
   </header>
 
-  <div class="alumnos" id="listaAlumnos"></div>
+  <div class="main-content">
+    <div class="button-group">
+      <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+      <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
+    </div>
 
-  <div id="contenedorInformes"></div>
+    <div id="seccion-individual" style="display:none;">
+      <div class="alumnos" id="listaAlumnos"></div>
+      <div id="contenedorInformes"></div>
+    </div>
 
-  <div class="grupo">
-    <h2>Informe Grupal</h2>
-    <p><strong>Índice de cohesión (IC):</strong> 72% - Alto</p>
-    <p><strong>Índice de disociación (ID):</strong> 18% - Bajo</p>
-    <p><strong>Actividad media de afinidad (LAP):</strong> 65% - Media</p>
-    <p><strong>Actividad media de rechazo (LAN):</strong> 12% - Baja</p>
-    <p>El grupo muestra un nivel alto de cohesión y baja disociación. Existen vínculos sólidos entre varios alumnos, con algunos casos de aislamiento leve que se trabajarán en la intervención emocional y en valores.</p>
+    <div id="seccion-aula" style="display:none;">
+      <div class="grupo">
+        <h2>Informe Grupal</h2>
+        <p><strong>Índice de cohesión (IC):</strong> 72% - Alto</p>
+        <p><strong>Índice de disociación (ID):</strong> 18% - Bajo</p>
+        <p><strong>Actividad media de afinidad (LAP):</strong> 65% - Media</p>
+        <p><strong>Actividad media de rechazo (LAN):</strong> 12% - Baja</p>
+        <p>El grupo muestra un nivel alto de cohesión y baja disociación. Existen vínculos sólidos entre varios alumnos, con algunos casos de aislamiento leve que se trabajarán en la intervención emocional y en valores.</p>
+        <h3>Propuesta de Intervención</h3>
+        <ul>
+          <li>Implementar dinámicas de grupo que fomenten la inclusión de alumnos aislados.</li>
+          <li>Realizar talleres de resolución de conflictos para mejorar la convivencia.</li>
+          <li>Promover actividades cooperativas que refuercen los lazos entre subgrupos.</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <footer>
@@ -111,7 +154,6 @@
         grafica: "https://via.placeholder.com/400x200?text=Gráfica+Lucía",
         texto: "Lucía ha sido identificada como sociocéntrica. Es una figura clave en el grupo."
       },
-      // Añadir el resto aquí
       "Mateo": {
         grafica: "https://via.placeholder.com/400x200?text=Gráfica+Mateo",
         texto: "Mateo tiene un perfil reservado. Ha recibido pocas elecciones, por lo que se recomienda fomentar su inclusión."
@@ -156,7 +198,6 @@
       contenedor.innerHTML = "";
       const div = document.createElement("div");
       div.className = "informe";
-      div.style.display = "block";
 
       const img = document.createElement("img");
       img.src = informes[nombre].grafica;
@@ -166,12 +207,36 @@
       const texto = document.createElement("p");
       texto.textContent = informes[nombre].texto;
 
+      const printBtn = document.createElement("button");
+      printBtn.textContent = "Imprimir";
+      printBtn.className = "print-button";
+      printBtn.onclick = () => imprimirInforme(nombre);
+
       div.appendChild(img);
       div.appendChild(texto);
+      div.appendChild(printBtn);
       contenedor.appendChild(div);
       div.scrollIntoView({ behavior: "smooth" });
     }
-  </script>
-</body>
-</html>
+
+    function imprimirInforme(nombre) {
+      const contenido = informes[nombre].texto;
+      const ventana = window.open('', '', 'height=600,width=800');
+      ventana.document.write('<html><head><title>Informe de ' + nombre + '</title></head><body>');
+      ventana.document.write('<h1>Informe de ' + nombre + '</h1>');
+      ventana.document.write('<p>' + contenido + '</p>');
+      ventana.document.write('</body></html>');
+      ventana.document.close();
+      ventana.print();
+    }
+
+    function mostrarSeccion(seccion) {
+      document.getElementById('seccion-individual').style.display = 'none';
+      document.getElementById('seccion-aula').style.display = 'none';
+
+      if (seccion === 'individual') {
+        document.getElementById('seccion-individual').
+::contentReference[oaicite:0]{index=0}
+ 
+
 
