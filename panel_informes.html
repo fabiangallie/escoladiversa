@@ -29,7 +29,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    nav button:hover { background: #005fa3; }
+    nav button:hover {
+      background: #005fa3;
+    }
     section { padding: 20px; }
     .cuadro-titulo {
       background: #f2f8ff;
@@ -38,13 +40,27 @@
       padding: 10px;
       margin-bottom: 10px;
     }
-    .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .alumnos-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
     .alumnos-selector button {
       flex: 1;
       min-width: 100px;
       background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px;
     }
-    canvas { max-width: 100%; height: 180px !important; }
+    canvas {
+      max-width: 600px;
+      height: 200px !important;
+      margin: auto;
+      display: block;
+    }
     .boton-descargar {
       margin: 10px 0;
       padding: 8px 16px;
@@ -87,7 +103,12 @@
 
   <script>
     const datosSimulados = {
-      aula: { cohesion: 65, disociacion: 20, lap: 70, lan: 30 },
+      aula: {
+        cohesion: 65,
+        disociacion: 20,
+        lap: 70,
+        lan: 30
+      },
       alumnos: [
         {
           nombre: "Lucía",
@@ -95,7 +116,7 @@
           rechazos: ["Pedro"],
           status: "Aceptación Media",
           popularidad: "Media",
-          resumen: "Lucía mantiene relaciones estables y recibe cierta valoración positiva de sus compañeros..."
+          resumen: "Lucía mantiene relaciones estables y recibe cierta valoración positiva de sus compañeros."
         },
         {
           nombre: "Pedro",
@@ -103,7 +124,7 @@
           rechazos: ["Ana", "Marcos"],
           status: "Rechazo Alto",
           popularidad: "Baja",
-          resumen: "Pedro es frecuentemente rechazado y muestra señales de aislamiento en el grupo..."
+          resumen: "Pedro es frecuentemente rechazado y muestra señales de aislamiento en el grupo."
         }
       ]
     };
@@ -119,10 +140,10 @@
         type: 'bar',
         data: {
           labels: [
-            'Índice de Cohesión',
-            'Índice de Disociación',
-            'Índice Actividad Positiva',
-            'Índice Actividad Negativa'
+            'Índice de cohesión',
+            'Índice de disociación',
+            'Actividad positiva (LAP)',
+            'Actividad negativa (LAN)'
           ],
           datasets: [{
             label: 'Índices Sociométricos',
@@ -145,7 +166,6 @@
 
     function generarSelectorAlumnos() {
       const contenedor = document.getElementById("selectorAlumnos");
-      contenedor.innerHTML = "";
       datosSimulados.alumnos.forEach((alumno, i) => {
         const btn = document.createElement("button");
         btn.textContent = alumno.nombre;
@@ -200,6 +220,7 @@
   </script>
 </body>
 </html>
+
 
 
 
