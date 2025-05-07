@@ -2,218 +2,89 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Informes Sociométricos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informe de Aula - Sociograma</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background-color: #f0f0f0;
     }
     header {
-      background-color: #e0f0ff;
-      padding: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #023e8a;
+      color: white;
+      padding: 1rem;
       text-align: center;
     }
-    header h1 {
-      margin: 0;
+    main {
+      padding: 1rem;
+      background: white;
+      margin: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    header p {
-      font-weight: bold;
-      color: #333;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      margin-top: 10px;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      border: none;
-      background-color: #007acc;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    nav button:hover {
-      background-color: #005ea6;
-    }
-    section {
-      padding: 20px;
+    .titulo {
+      background: #ade8f4;
+      padding: 1rem;
+      border-left: 5px solid #0077b6;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
     }
     canvas {
       max-width: 100%;
-      height: 300px !important;
+      height: auto;
     }
-    .cuadro-titulo {
-      background-color: #e0f0ff;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 15px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .alumnos-selector {
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-      gap: 10px;
-    }
-    .alumnos-selector button {
-      flex: 1;
-      min-width: 120px;
+    .resumen {
+      margin-top: 1.5rem;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Informes Sociométricos Escolares</h1>
-    <p>Colaborador: Fabián Gallié</p>
+    <h1>Informe de Aula - Sociograma</h1>
+    <p>Autor: Fabián Gallié</p>
   </header>
 
-  <nav>
-    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
-    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
-  </nav>
+  <main>
+    <div class="titulo">Gráfico de Sociograma</div>
+    <canvas id="graficoAula" width="600" height="300"></canvas>
 
-  <section id="aula">
-    <div class="cuadro-titulo">
-      <h2>Informe General del Aula</h2>
-    </div>
-    <canvas id="graficoCohesion"></canvas>
-    <div id="resumenAula">
-      <p><strong>Resumen:</strong> El grupo presenta un nivel medio de cohesión con algunos casos de disociación importantes...</p>
-    </div>
-    <div id="propuestaIntervencion">
-      <h3>Propuesta de Intervención</h3>
-      <p>Se recomienda aplicar estrategias de educación emocional, resolución de conflictos y actividades de cooperación grupal... (basado en la tabla final del proyecto Atopa)</p>
-    </div>
-  </section>
+    <div class="titulo">Índices de Grupo</div>
+    <ul>
+      <li><strong>Índice de cohesión (IC):</strong> 72% - Nivel alto</li>
+      <li><strong>Índice de disociación (ID):</strong> 15% - Nivel bajo</li>
+      <li><strong>Actividad media de afinidad (LAP):</strong> 6.4</li>
+      <li><strong>Actividad media de rechazo (LAN):</strong> 1.1</li>
+    </ul>
 
-  <section id="individual" style="display:none;">
-    <div class="cuadro-titulo">
-      <h2>Informe Individual por Alumno</h2>
+    <div class="resumen">
+      <p>La cohesión del grupo es elevada, lo que sugiere vínculos sólidos entre la mayoría de sus miembros. Pocos alumnos manifiestan rechazos activos. Se identifican roles de liderazgo y aislamiento, destacando la necesidad de seguimiento para quienes se encuentran en posiciones sociométricas desfavorables.</p>
     </div>
-    <div class="alumnos-selector" id="selectorAlumnos">
-      <!-- Botones generados dinámicamente -->
-    </div>
-    <div id="informeAlumno">
-      <!-- Informe generado dinámicamente -->
-    </div>
-  </section>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const datosSimulados = {
-      aula: {
-        cohesion: 65,
-        disociacion: 20,
-        lap: 70,
-        lan: 30,
-        resumen: "El grupo muestra un equilibrio aceptable pero con signos de segregación en algunos subgrupos..."
+    const ctx = document.getElementById("graficoAula").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["IC", "ID", "LAP", "LAN"],
+        datasets: [{
+          label: "Índices Grupales",
+          data: [72, 15, 64, 11],
+          backgroundColor: ["#0077b6", "#d00000", "#90be6d", "#f9c74f"]
+        }]
       },
-      alumnos: [
-        {
-          nombre: "Lucía",
-          elecciones: ["Marcos", "Ana"],
-          rechazos: ["Pedro"],
-          status: "Aceptación Media",
-          popularidad: "Media",
-          resumen: "Lucía tiene un papel activo, seleccionando compañeros y siendo elegida por algunos..."
-        },
-        {
-          nombre: "Pedro",
-          elecciones: ["Lucía"],
-          rechazos: ["Ana"],
-          status: "Rechazo Alto",
-          popularidad: "Baja",
-          resumen: "Pedro recibe más rechazos que elecciones, lo cual indica una posición sociométrica desfavorecida..."
-        }
-      ]
-    };
-
-    function mostrarSeccion(seccion) {
-      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
-      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
-    }
-
-    function cargarGraficoAula() {
-      const ctx = document.getElementById('graficoCohesion').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['IC', 'ID', 'LAP', 'LAN'],
-          datasets: [{
-            label: 'Índices Sociométricos',
-            data: [
-              datosSimulados.aula.cohesion,
-              datosSimulados.aula.disociacion,
-              datosSimulados.aula.lap,
-              datosSimulados.aula.lan
-            ],
-            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: { beginAtZero: true, max: 100 }
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
           }
         }
-      });
-    }
-
-    function generarSelectorAlumnos() {
-      const contenedor = document.getElementById("selectorAlumnos");
-      datosSimulados.alumnos.forEach((alumno, index) => {
-        const btn = document.createElement("button");
-        btn.textContent = alumno.nombre;
-        btn.onclick = () => mostrarInformeAlumno(index);
-        contenedor.appendChild(btn);
-      });
-    }
-
-    function mostrarInformeAlumno(indice) {
-      const alumno = datosSimulados.alumnos[indice];
-      const contenedor = document.getElementById("informeAlumno");
-      contenedor.innerHTML = `
-        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-        <canvas id="graficoAlumno${indice}"></canvas>
-        <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-        <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-        <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
-        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-        <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-      `;
-
-      const ctx = document.getElementById(`graficoAlumno${indice}`).getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Elecciones', 'Rechazos'],
-          datasets: [{
-            data: [alumno.elecciones.length, alumno.rechazos.length],
-            backgroundColor: ['#4caf50', '#f44336']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' }
-          }
-        }
-      });
-    }
-
-    window.onload = () => {
-      cargarGraficoAula();
-      generarSelectorAlumnos();
-    };
+      }
+    });
   </script>
 </body>
 </html>
