@@ -29,9 +29,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    nav button:hover {
-      background: #005fa3;
-    }
+    nav button:hover { background: #005fa3; }
     section { padding: 20px; }
     .cuadro-titulo {
       background: #f2f8ff;
@@ -46,7 +44,7 @@
       min-width: 100px;
       background: #2196f3;
     }
-    canvas { max-width: 100%; height: 250px !important; }
+    canvas { max-width: 100%; height: 180px !important; }
     .boton-descargar {
       margin: 10px 0;
       padding: 8px 16px;
@@ -57,6 +55,14 @@
       cursor: pointer;
     }
     .boton-descargar:hover { background-color: #3e8e41; }
+    .leyenda {
+      font-size: 14px;
+      margin: 10px 0;
+      color: #333;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -72,6 +78,12 @@
   <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
+      <div class="leyenda">
+        <span><strong>IC:</strong> Índice de Cohesión</span>
+        <span><strong>ID:</strong> Índice de Disociación</span>
+        <span><strong>LAP:</strong> Liderazgo Apreciado</span>
+        <span><strong>LAN:</strong> Liderazgo No reconocido</span>
+      </div>
       <p><strong>Resumen:</strong> El grupo muestra un equilibrio aceptable pero con signos de segregación en algunos subgrupos...</p>
       <h3>Propuesta de Intervención</h3>
       <p>Aplicar actividades cooperativas, fomentar la empatía, y establecer tutorías entre iguales para fortalecer la inclusión...</p>
@@ -80,7 +92,7 @@
   </section>
 
   <section id="individual" style="display:none;">
-  <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
     <div id="informeAlumnoContainer">
       <div id="informeAlumno"></div>
       <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
@@ -142,6 +154,7 @@
 
     function generarSelectorAlumnos() {
       const contenedor = document.getElementById("selectorAlumnos");
+      contenedor.innerHTML = "";
       datosSimulados.alumnos.forEach((alumno, i) => {
         const btn = document.createElement("button");
         btn.textContent = alumno.nombre;
@@ -196,6 +209,7 @@
   </script>
 </body>
 </html>
+
 
 
 
