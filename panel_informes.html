@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes Sociométricos</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
@@ -37,6 +37,10 @@
       border-radius: 5px;
       padding: 10px;
       margin-bottom: 10px;
+    }
+    .cuadro-titulo h4 {
+      margin-top: 0;
+      color: #856404;
     }
     .alumnos-selector {
       display: flex;
@@ -161,51 +165,219 @@
       });
     }
 
-    function mostrarInformeAlumno(i) {
-      const alumno = datosSimulados.alumnos[i];
-      const contenedor = document.getElementById("informeAlumno");
-      contenedor.innerHTML = `
-        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-        <canvas id="graficoAlumno${i}"></canvas>
-        <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-        <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-        <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
-        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-        <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-      `;
-      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
-      const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Elecciones', 'Rechazos'],
-          datasets: [{
-            data: [alumno.elecciones.length, alumno.rechazos.length],
-            backgroundColor: ['#4caf50', '#f44336']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-    }
-
     function descargarPDF(idElemento, nombreArchivo) {
       const elemento = document.getElementById(idElemento);
-      html2pdf()
-        .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
-        .from(elemento)
-        .save();
+      html2pdf().set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(elemento).save();
     }
 
     window.onload = () => {
-      cargarGraficoAula();
-      generarSelectorAlumnos();
-    };
+  document.addEventListener('DOMContentLoaded', () => {
+    cargarGraficoAula();
+    generarSelectorAlumnos();
+  });
+};
+
+    function mostrarInformeAlumno(i) {
+  const alumno = datosSimulados.alumnos[i];
+  const totalAlumnos = datosSimulados.alumnos.length - 1;
+
+  const SP = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre)).length;
+  const SN = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre)).length;
+  const EP = alumno.elecciones.length;
+  const EN = alumno.rechazos.length;
+  const NP = (SP / totalAlumnos) * 100;
+  const NN = (SN / totalAlumnos) * 100;
+
+  let posicion = "Integrado";
+  if (NP >= 75 && SN <= 10) posicion = "Líder";
+  else if (NP >= 50 && SN <= 25) posicion = "Astro";
+  else if (SP >= 3 && SN >= 3) posicion = "Polémico";
+  else if (SP === 0 && SN >= 3) posicion = "Rechazado Total";
+  else if (SP <= 1 && EP <= 1) posicion = "Solitario";
+  else if (SP === 0 && EP > 0) posicion = "Olvidado";
+
+  const amistades = datosSimulados.alumnos
+    .filter(a => a.elecciones.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))
+    .map(a => a.nombre);
+
+  const enemistades = datosSimulados.alumnos
+    .filter(a => a.rechazos.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre))
+    .map(a => a.nombre);
+
+  const oposicionSentimientos = datosSimulados.alumnos
+    .filter(a =>
+      (a.elecciones.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)) ||
+      (a.rechazos.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))
+    )
+    .map(a => a.nombre);
+
+  const contenedor = document.getElementById("informeAlumno");
+  contenedor.innerHTML = `
+    <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+    <canvas id="graficoAlumno${i}"></canvas>
+    <canvas id="graficoExtendido${i}" style="margin-top:20px;"></canvas>
+    <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
+    <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
+    <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
+    <p><strong>Popularidad:</strong> ${alumno.popularidad} (${NP.toFixed(1)}%)</p>
+    <p><strong>Posición Sociométrica:</strong> ${posicion}</p>
+    <p><strong>Amistades (elección mutua):</strong> ${amistades.join(", ") || "Ninguna"}</p>
+    <p><strong>Enemistades (rechazo mutuo):</strong> ${enemistades.join(", ") || "Ninguna"}</p>
+    <p><strong>Oposición de sentimientos:</strong> ${oposicionSentimientos.join(", ") || "Ninguna"}</p>
+    ${(SP <= 1 || SN >= 3 || EN >= 3) ? `
+    <div class="cuadro-titulo" style="background-color:#fff3cd;">
+      <h4>Propuesta de Intervención</h4>
+      <ul>
+        <li><strong>Educación emocional:</strong> Autoestima, empatía, habilidades sociales</li>
+        <li><strong>Educación en valores:</strong> Respeto, solidaridad</li>
+        <li><strong>Trabajo grupal:</strong> Cohesión de grupo, colaboración</li>
+      </ul>
+    </div>` : ""}
+    <div style="font-size: 0.85em; margin-top: 10px;">
+      <strong>Leyenda:</strong> NP: Popularidad, NN: Rechazo, OS: Oposición de Sentimientos, EN: Expansividad negativa.
+    </div>
+  `;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Elecciones', 'Rechazos'],
+      datasets: [{
+        data: [alumno.elecciones.length, alumno.rechazos.length],
+        backgroundColor: ['#4caf50', '#f44336']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  const ctx2 = document.getElementById(`graficoExtendido${i}`).getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['NP', 'NN', 'OS', 'EN'],
+      datasets: [{
+        label: 'Indicadores (%)',
+        data: [NP, NN, oposicionSentimientos.length * 10, EN * 20],
+        backgroundColor: ['#2196f3', '#f44336', '#9c27b0', '#ff9800']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+}
+    <div style="font-size: 0.85em; margin-top: 10px;">
+      <strong>Leyenda:</strong> NP: Popularidad, NN: Rechazo, OS: Oposición de Sentimientos
+    </div>
+  `;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Elecciones', 'Rechazos'],
+      datasets: [{
+        data: [alumno.elecciones.length, alumno.rechazos.length],
+        backgroundColor: ['#4caf50', '#f44336']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  const ctx2 = document.getElementById(`graficoExtendido${i}`).getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['NP', 'NN', 'EN'],
+      datasets: [{
+        label: 'Indicadores (%)',
+        data: [NP, NN, EN * 20],
+        backgroundColor: ['#2196f3', '#f44336', '#ff9800']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+}</h3></div>
+    <canvas id="graficoAlumno${i}"></canvas>
+    <canvas id="graficoExtendido${i}" style="margin-top:20px;"></canvas>
+    <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
+    <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
+    <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
+    <p><strong>Popularidad:</strong> ${alumno.popularidad} (${NP.toFixed(1)}%)</p>
+    <p><strong>Posición Sociométrica:</strong> ${posicion}</p>
+    <p><strong>Amistades (elección mutua):</strong> ${amistades.join(", ") || "Ninguna"}</p>
+    <p><strong>Enemistades (rechazo mutuo):</strong> ${enemistades.join(", ") || "Ninguna"}</p>
+    <p><strong>Oposición de sentimientos:</strong> ${oposicionSentimientos.join(", ") || "Ninguna"}</p>
+    ${((SP <= 1 || SN >= 3 || EN >= 3) ? `
+    <div class="cuadro-titulo" style="background-color:#fff3cd;">
+      <h4>Propuesta de Intervención</h4>
+      <ul>
+        <li><strong>Educación emocional:</strong> autoestima, empatía, habilidades sociales</li>
+        <li><strong>Educación en valores:</strong> respeto, solidaridad</li>
+        <li><strong>Grupo:</strong> mejorar cohesión, trabajo cooperativo</li>
+      </ul>
+    </div>` : "")}
+    <div style="font-size: 0.85em; margin-top: 10px;">
+      <strong>Leyenda:</strong> NP: Popularidad, NN: Rechazo, OS: Oposición Sentimientos, PP: Percepción positiva, PAP: Percepción acertada positiva, OIP: Oposición percepción/realidad positiva, EN: Expansividad negativa, PN: Percepción negativa, PAN: Percepción acertada negativa, OIN: Oposición percepción/realidad negativa, IP/IN: Impresiones grupo, IMP/IMN: niveles medios, IPP/IPN: Preferencias positivas/negativas.
+    </div>
+  `;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Elecciones', 'Rechazos'],
+      datasets: [{
+        data: [alumno.elecciones.length, alumno.rechazos.length],
+        backgroundColor: ['#4caf50', '#f44336']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  const ctx2 = document.getElementById(`graficoExtendido${i}`).getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['NP', 'NN', 'EN'],
+      datasets: [{
+        label: 'Indicadores (%)',
+        data: [NP, NN, EN * 20],
+        backgroundColor: ['#2196f3', '#f44336', '#ff9800']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+}
   </script>
 </body>
 </html>
+
 
 
