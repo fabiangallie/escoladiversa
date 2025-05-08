@@ -96,12 +96,12 @@
   </section>
 
   <section id="individual" style="display:none;">
-    <div class="alumnos-selector" id="selectorAlumnos"></div>
-    <div id="informeAlumnoContainer">
-      <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
-    </div>
-  </section>
+  <div class="alumnos-selector" id="selectorAlumnos"></div>
+  <div id="informeAlumnoContainer">
+    <div id="informeAlumno"></div>
+    <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+  </div>
+</section>
 
   <script>
     const datosSimulados = {
@@ -180,7 +180,6 @@
     function mostrarInformeAlumno(i) {
   const alumno = datosSimulados.alumnos[i];
   const totalAlumnos = datosSimulados.alumnos.length - 1;
-
   const SP = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre)).length;
   const SN = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre)).length;
   const EP = alumno.elecciones.length;
@@ -196,20 +195,9 @@
   else if (SP <= 1 && EP <= 1) posicion = "Solitario";
   else if (SP === 0 && EP > 0) posicion = "Olvidado";
 
-  const amistades = datosSimulados.alumnos
-    .filter(a => a.elecciones.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))
-    .map(a => a.nombre);
-
-  const enemistades = datosSimulados.alumnos
-    .filter(a => a.rechazos.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre))
-    .map(a => a.nombre);
-
-  const oposicionSentimientos = datosSimulados.alumnos
-    .filter(a =>
-      (a.elecciones.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)) ||
-      (a.rechazos.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))
-    )
-    .map(a => a.nombre);
+  const amistades = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre)).map(a => a.nombre);
+  const enemistades = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)).map(a => a.nombre);
+  const oposicionSentimientos = datosSimulados.alumnos.filter(a => (a.elecciones.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)) || (a.rechazos.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))).map(a => a.nombre);
 
   const contenedor = document.getElementById("informeAlumno");
   contenedor.innerHTML = `
@@ -234,6 +222,46 @@
       </ul>
     </div>` : ""}
     <div style="font-size: 0.85em; margin-top: 10px;">
+      <strong>Leyenda:</strong> NP: Popularidad, NN: Rechazo, OS: Oposición de Sentimientos, EN: Expansividad negativa.
+    </div>
+  `;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Elecciones', 'Rechazos'],
+      datasets: [{
+        data: [alumno.elecciones.length, alumno.rechazos.length],
+        backgroundColor: ['#4caf50', '#f44336']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  const ctx2 = document.getElementById(`graficoExtendido${i}`).getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['NP', 'NN', 'OS', 'EN'],
+      datasets: [{
+        label: 'Indicadores (%)',
+        data: [NP, NN, oposicionSentimientos.length * 10, EN * 20],
+        backgroundColor: ['#2196f3', '#f44336', '#9c27b0', '#ff9800']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+}    <div style="font-size: 0.85em; margin-top: 10px;">
       <strong>Leyenda:</strong> NP: Popularidad, NN: Rechazo, OS: Oposición de Sentimientos, EN: Expansividad negativa.
     </div>
   `;
@@ -378,6 +406,7 @@
   </script>
 </body>
 </html>
+
 
 
 
