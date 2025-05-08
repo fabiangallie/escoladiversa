@@ -68,14 +68,174 @@
     .leyenda {
       font-size: 0.75em;
       color: #666;
-      margin-top: 8px;
+      margin: 8px 0 16px;
     }
   </style>
 </head>
 <body>
-  <!-- El resto del contenido permanece igual -->
+  <header>
+    <h1>Informes Sociométricos</h1>
+  </header>
+
+  <nav>
+    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
+    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+  </nav>
+
+  <section id="aula">
+    <div id="contenidoAula">
+      <canvas id="graficoCohesion"></canvas>
+      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada.</p>
+      <h3>Propuesta de Intervención</h3>
+      <ul>
+        <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
+        <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
+        <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
+      </ul>
+    </div>
+    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
+  </section>
+
+  <section id="individual" style="display:none;">
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div id="informeAlumnoContainer">
+      <div id="informeAlumno"></div>
+      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    </div>
+  </section>
+
+  <script>
+    const datosSimulados = {
+      aula: { cohesion: 35, disociacion: 62, lap: 40, lan: 70 },
+      alumnos: [
+        { nombre: "Nico", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja" },
+        { nombre: "Laura", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media" },
+        { nombre: "Sofía", elecciones: ["Pedro", "Laura"], rechazos: [], status: "Alta", popularidad: "Alta" },
+        { nombre: "Pedro", elecciones: ["Sofía"], rechazos: [], status: "Media", popularidad: "Media" },
+        { nombre: "Marina", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media" },
+        { nombre: "Carlos", elecciones: ["Pedro"], rechazos: [], status: "Baja", popularidad: "Baja" },
+        { nombre: "Julia", elecciones: ["Sofía"], rechazos: ["Laura"], status: "Alta", popularidad: "Alta" },
+        { nombre: "Álvaro", elecciones: ["Pedro"], rechazos: ["Nico"], status: "Media", popularidad: "Media" },
+        { nombre: "Lucía", elecciones: ["Julia", "Sofía"], rechazos: [], status: "Alta", popularidad: "Alta" },
+        { nombre: "Raúl", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja" }
+      ]
+    };
+
+    function mostrarSeccion(seccion) {
+      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+    }
+
+    function cargarGraficoAula() {
+      const ctx = document.getElementById('graficoCohesion').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Cohesión', 'Disociación', 'Actividad Positiva', 'Actividad Negativa'],
+          datasets: [{
+            label: 'Indicadores Aula',
+            data: [datosSimulados.aula.cohesion, datosSimulados.aula.disociacion, datosSimulados.aula.lap, datosSimulados.aula.lan],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    function generarSelectorAlumnos() {
+      const contenedor = document.getElementById("selectorAlumnos");
+      contenedor.innerHTML = "";
+      datosSimulados.alumnos.forEach((alumno, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = alumno.nombre;
+        btn.onclick = () => mostrarInformeAlumno(i);
+        contenedor.appendChild(btn);
+      });
+    }
+
+    function mostrarInformeAlumno(i) {
+      const alumno = datosSimulados.alumnos[i];
+      const total = datosSimulados.alumnos.length - 1;
+      const SP = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre)).length;
+      const SN = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre)).length;
+      const EP = alumno.elecciones.length;
+      const EN = alumno.rechazos.length;
+      const NP = (SP / total) * 100;
+      const NN = (SN / total) * 100;
+
+      const amistades = datosSimulados.alumnos
+        .filter(a => a.elecciones.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre))
+        .map(a => `${a.nombre} (${alumno.elecciones.includes(a.nombre) ? 1 : 0}/${a.elecciones.includes(alumno.nombre) ? 1 : 0})`);
+
+      const enemistades = datosSimulados.alumnos
+        .filter(a => a.rechazos.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre))
+        .map(a => `${a.nombre} (${alumno.rechazos.includes(a.nombre) ? 1 : 0}/${a.rechazos.includes(alumno.nombre) ? 1 : 0})`);
+
+      const oposiciones = datosSimulados.alumnos
+        .filter(a => (a.elecciones.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)) || (a.rechazos.includes(alumno.nombre) && alumno.elecciones.includes(a.nombre)))
+        .map(a => `${a.nombre} (1/1)`);
+
+      const contenedor = document.getElementById("informeAlumno");
+      contenedor.innerHTML = `
+        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+        <canvas id="graficoAlumno${i}"></canvas>
+        <div class="leyenda">NP: Popularidad, NN: Rechazo recibido, OS: Oposición sentimientos, EN: Rechazos emitidos</div>
+        <p><strong>Posición Sociométrica:</strong> ${SP === 0 && SN >= 3 ? "Rechazado total" : SP === 0 ? "Olvidado" : SN >= 3 ? "Polémico" : "Integrado"}</p>
+        <p><strong>SP:</strong> ${SP} &nbsp; <strong>SN:</strong> ${SN} &nbsp; <strong>EP:</strong> ${EP} &nbsp; <strong>EN:</strong> ${EN}</p>
+        <p><strong>NP:</strong> ${NP.toFixed(1)}% &nbsp; <strong>NN:</strong> ${NN.toFixed(1)}%</p>
+        <p><strong>Amistades:</strong> ${amistades.join(", ") || "Ninguna"}</p>
+        <p><strong>Enemistades:</strong> ${enemistades.join(", ") || "Ninguna"}</p>
+        <p><strong>Oposición de Sentimientos:</strong> ${oposiciones.join(", ") || "Ninguna"}</p>
+        ${(SP <= 1 || SN >= 3 || EN >= 3) ? `
+          <div class="cuadro-titulo" style="background-color:#fff3cd;">
+            <h4>Propuesta de Intervención</h4>
+            <ul>
+              <li><strong>Educación emocional:</strong> Autoestima, empatía, habilidades sociales</li>
+              <li><strong>Educación en valores:</strong> Respeto, solidaridad</li>
+              <li><strong>Trabajo grupal:</strong> Cohesión de grupo, colaboración</li>
+            </ul>
+          </div>` : ""}
+      `;
+
+      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+      new Chart(document.getElementById(`graficoAlumno${i}`).getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['NP', 'NN', 'OS', 'EN'],
+          datasets: [{
+            data: [NP, NN, oposiciones.length * 10, EN * 20],
+            backgroundColor: ['#2196f3', '#f44336', '#9c27b0', '#ff9800']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    function descargarPDF(idElemento, nombreArchivo) {
+      const elemento = document.getElementById(idElemento);
+      html2pdf()
+        .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
+        .from(elemento)
+        .save();
+    }
+
+    window.onload = () => {
+      cargarGraficoAula();
+      generarSelectorAlumnos();
+    };
+  </script>
 </body>
 </html>
+
 
 
 
