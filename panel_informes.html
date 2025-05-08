@@ -175,10 +175,28 @@
       generarSelectorAlumnos();
     };
 
-    // Aquí puedes pegar la función mostrarInformeAlumno extendida
+    function mostrarInformeAlumno(i) {
+  const alumno = datosSimulados.alumnos[i];
+  const totalAlumnos = datosSimulados.alumnos.length - 1;
+  const SP = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre)).length;
+  const SN = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre)).length;
+  const EP = alumno.elecciones.length;
+  const EN = alumno.rechazos.length;
+  const SPval = SP * 5;
+  const SNval = SN * 5;
+  const NP = (SPval / (totalAlumnos * 5)) * 100;
+  const NN = (SNval / (totalAlumnos * 5)) * 100;
+
+  let posicion = "Integrado";
+  if (NP > 50 && SN === 0) posicion = "Líder";
+  else if (NP <= 50 && SP >= 3 && SN === 0) posicion = "Astro";
+  else if (SP === 0 && SN >= 3) posicion = "Rechazado total";
+  else if (SP <= 1 && SN <= 1 && EP === 0) posicion = "Solitario";
+  else if (SP === 0 && EP >
   </script>
 </body>
 </html>
+
 
 
 
