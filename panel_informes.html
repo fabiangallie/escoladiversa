@@ -38,6 +38,10 @@
       padding: 10px;
       margin-bottom: 10px;
     }
+    .cuadro-titulo h4 {
+      margin-top: 0;
+      color: #856404;
+    }
     .alumnos-selector {
       display: flex;
       flex-wrap: wrap;
@@ -161,49 +165,17 @@
       });
     }
 
-    function mostrarInformeAlumno(i) {
-      const alumno = datosSimulados.alumnos[i];
-      const contenedor = document.getElementById("informeAlumno");
-      contenedor.innerHTML = `
-        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-        <canvas id="graficoAlumno${i}"></canvas>
-        <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-        <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-        <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
-        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-        <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-      `;
-      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
-      const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Elecciones', 'Rechazos'],
-          datasets: [{
-            data: [alumno.elecciones.length, alumno.rechazos.length],
-            backgroundColor: ['#4caf50', '#f44336']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-    }
-
     function descargarPDF(idElemento, nombreArchivo) {
       const elemento = document.getElementById(idElemento);
-      html2pdf()
-        .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
-        .from(elemento)
-        .save();
+      html2pdf().set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(elemento).save();
     }
 
     window.onload = () => {
       cargarGraficoAula();
       generarSelectorAlumnos();
     };
+
+    // Aquí iría la función mostrarInformeAlumno extendida
   </script>
 </body>
 </html>
