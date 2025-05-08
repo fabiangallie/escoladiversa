@@ -3,68 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Informes Sociométricos</title>
+  <title>Panel de Informes - Escola Diversa</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
     header {
-      background-color: #e0f0ff;
+      background-color: #007BFF;
+      color: white;
       padding: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
     }
-    nav {
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    .button-group {
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px;
-    }
-    nav button {
-      padding: 10px 20px;
-      background: #007acc;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    nav button:hover { background: #005fa3; }
-    section { padding: 20px; }
-    .cuadro-titulo {
-      background: #f2f8ff;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .alumnos-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
       margin-bottom: 20px;
     }
-    .alumnos-selector button {
-      flex: 1;
-      min-width: 100px;
-      background: #2196f3;
-      color: white;
+    .button-group button {
+      margin: 0 10px;
+      padding: 10px 20px;
       border: none;
+      background-color: #007BFF;
+      color: white;
       border-radius: 5px;
+      cursor: pointer;
+    }
+    .alumnos {
+      display: flex;
+      overflow-x: auto;
+      background: #e9ecef;
       padding: 10px;
+      margin-bottom: 20px;
+    }
+    .alumnos button {
+      margin: 0 5px;
+      padding: 8px 12px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      border-radius: 5px;
       cursor: pointer;
     }
-    canvas { max-width: 100%; height: 220px !important; }
-    .boton-descargar {
-      margin: 10px 0;
+    .informe, .grupo {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    canvas {
+      max-width: 300px;
+      margin: 0 auto 10px;
+      display: block;
+    }
+    .print-button {
+      display: block;
+      margin: 10px auto;
       padding: 8px 16px;
-      background-color: #4caf50;
+      background-color: #28a745;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-    .boton-descargar:hover { background-color: #3e8e41; }
+    .leyenda {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9em;
+      background-color: #f0f0f0;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -72,142 +96,146 @@
     <h1>Informes Sociométricos</h1>
   </header>
 
-  <nav>
-    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
-    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
-  </nav>
-
-  <section id="aula">
-    <div id="contenidoAula">
-      <canvas id="graficoCohesion"></canvas>
-      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada. Alumnos como "Nico" y "Laura" destacan por su aislamiento y bajo nivel de elección por parte de sus compañeros.</p>
-      <h3>Propuesta de Intervención</h3>
-      <ul>
-        <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
-        <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
-        <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
-      </ul>
+  <div class="main-content">
+    <div class="button-group">
+      <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+      <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     </div>
-    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-  </section>
 
-  <section id="individual" style="display:none;">
-    <div class="alumnos-selector" id="selectorAlumnos"></div>
-    <div id="informeAlumnoContainer">
-      <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    <div id="seccion-individual" style="display:none;">
+      <div class="alumnos" id="listaAlumnos"></div>
+      <div id="contenedorInformes"></div>
     </div>
-  </section>
+
+    <div id="seccion-aula" style="display:none;">
+      <div class="grupo">
+        <h2>Informe Grupal</h2>
+        <p><strong>Índice de cohesión:</strong> 72% - Alto</p>
+        <p><strong>Índice de disociación:</strong> 18% - Bajo</p>
+        <p><strong>Actividad media de afinidad:</strong> 65% - Media</p>
+        <p><strong>Actividad media de rechazo:</strong> 12% - Baja</p>
+        <p>El grupo muestra un nivel alto de cohesión y baja disociación. Existen vínculos sólidos entre varios alumnos, con algunos casos de aislamiento leve que se trabajarán en la intervención emocional y en valores.</p>
+        <h3>Propuesta de Intervención</h3>
+        <ul>
+          <li>Implementar dinámicas de grupo que fomenten la inclusión de alumnos aislados.</li>
+          <li>Realizar talleres de resolución de conflictos para mejorar la convivencia.</li>
+          <li>Promover actividades cooperativas que refuercen los lazos entre subgrupos.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    @2025 escoladiversa.proyecto sociométrico educativo creado por OpenAI, colaborador pedagógico Fabián Gallié
+  </footer>
 
   <script>
-    const datosSimulados = {
-      aula: {
-        cohesion: 35,
-        disociacion: 62,
-        lap: 40,
-        lan: 70
+    const alumnos = ["Ana", "Carlos", "Lucía", "Mateo", "Elena", "David", "Sofía", "Tomás", "Marta", "Hugo"];
+    const informes = {
+      "Ana": {
+        sociometrico: {
+          NP: 3, NN: 1, OS: 1, PP: 2, PAP: 1, OIP: 0, EN: 0, PN: 1,
+          POSICION: "Preferido",
+          amistades: ["Lucía (2)", "Carlos (1)"],
+          enemistades: ["Tomás (2)"],
+          oposiciones: [["Pedro", "Ana"]],
+          intervencion: "Fomentar la responsabilidad grupal y resolución de conflictos leves."
+        }
       },
-      alumnos: [
-        { nombre: "Nico", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja", resumen: "Nico muestra aislamiento y es percibido negativamente." },
-        { nombre: "Laura", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Laura tiene relaciones limitadas con sus compañeros." },
-        { nombre: "Sofía", elecciones: ["Pedro", "Laura"], rechazos: [], status: "Alta", popularidad: "Alta", resumen: "Sofía es una figura central con buena aceptación." },
-        { nombre: "Pedro", elecciones: ["Sofía"], rechazos: [], status: "Media", popularidad: "Media", resumen: "Pedro mantiene relaciones estables sin conflictos." },
-        { nombre: "Marina", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Marina se relaciona con figuras populares." },
-        { nombre: "Carlos", elecciones: ["Pedro"], rechazos: [], status: "Baja", popularidad: "Baja", resumen: "Carlos participa poco en la dinámica grupal." },
-        { nombre: "Julia", elecciones: ["Sofía"], rechazos: ["Laura"], status: "Alta", popularidad: "Alta", resumen: "Julia es valorada positivamente por varios compañeros." },
-        { nombre: "Álvaro", elecciones: ["Pedro"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Álvaro mantiene lazos moderados." },
-        { nombre: "Lucía", elecciones: ["Julia", "Sofía"], rechazos: [], status: "Alta", popularidad: "Alta", resumen: "Lucía se integra muy bien al grupo." },
-        { nombre: "Raúl", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja", resumen: "Raúl se encuentra desvinculado del resto del grupo." }
-      ]
+      "Carlos": {
+        sociometrico: {
+          NP: 1, NN: 2, OS: 1, PP: 1, PAP: 0, OIP: 1, EN: 0, PN: 0,
+          POSICION: "Rechazado",
+          amistades: ["Marta (1)"],
+          enemistades: ["Mateo (2)"],
+          oposiciones: [["Carlos", "Mateo"]],
+          intervencion: "Desarrollar empatía y habilidades sociales para mejorar integración."
+        }
+      }
     };
 
-    function mostrarSeccion(seccion) {
-      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
-      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
-    }
+    const lista = document.getElementById("listaAlumnos");
+    const contenedor = document.getElementById("contenedorInformes");
 
-    function cargarGraficoAula() {
-      const ctx = document.getElementById('graficoCohesion').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
+    alumnos.forEach(nombre => {
+      const btn = document.createElement("button");
+      btn.textContent = nombre;
+      btn.onclick = () => mostrarInforme(nombre);
+      lista.appendChild(btn);
+    });
+
+    function mostrarInforme(nombre) {
+      const datos = informes[nombre]?.sociometrico;
+      if (!datos) return;
+
+      contenedor.innerHTML = "";
+      const div = document.createElement("div");
+      div.className = "informe";
+
+      const canvas = document.createElement("canvas");
+      canvas.id = "grafica-" + nombre;
+
+      const resumen = `
+        <p><strong>Posición sociométrica:</strong> ${datos.POSICION}</p>
+        <p><strong>Amistades:</strong> ${datos.amistades.join(", ")}</p>
+        <p><strong>Enemistades:</strong> ${datos.enemistades.join(", ")}</p>
+        <p><strong>Oposición de sentimientos:</strong> ${datos.oposiciones.map(p => p.join(" ↔ ")).join(", ")}</p>
+        <p><strong>Propuesta de intervención:</strong> ${datos.intervencion}</p>
+      `;
+
+      const leyenda = document.createElement("div");
+      leyenda.className = "leyenda";
+      leyenda.innerHTML = "NP: Elecciones positivas | NN: Negativas | OS: Oposición | PP: Percepción positiva | PAP: Atrib. positivos | OIP: Opinión popularidad | EN: Elección negativa | PN: Percepción negativa";
+
+      const printBtn = document.createElement("button");
+      printBtn.textContent = "Imprimir";
+      printBtn.className = "print-button";
+      printBtn.onclick = () => imprimirInforme(nombre, div.innerHTML);
+
+      div.appendChild(canvas);
+      div.innerHTML += resumen;
+      div.appendChild(leyenda);
+      div.appendChild(printBtn);
+
+      contenedor.appendChild(div);
+
+      new Chart(canvas.getContext("2d"), {
+        type: "bar",
         data: {
-          labels: ['Índice de cohesión', 'Índice de disociación', 'Índice actividad positiva', 'Índice actividad negativa'],
+          labels: ["NP", "NN", "OS", "PP", "PAP", "OIP", "EN", "PN"],
           datasets: [{
-            label: 'Índices Sociométricos',
-            data: [
-              datosSimulados.aula.cohesion,
-              datosSimulados.aula.disociacion,
-              datosSimulados.aula.lap,
-              datosSimulados.aula.lan
-            ],
-            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+            label: "Indicadores",
+            data: [datos.NP, datos.NN, datos.OS, datos.PP, datos.PAP, datos.OIP, datos.EN, datos.PN],
+            backgroundColor: "#007BFF"
           }]
         },
         options: {
           responsive: true,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, max: 100 } }
+          scales: { y: { beginAtZero: true } }
         }
       });
+
+      div.scrollIntoView({ behavior: "smooth" });
     }
 
-    function generarSelectorAlumnos() {
-      const contenedor = document.getElementById("selectorAlumnos");
-      datosSimulados.alumnos.forEach((alumno, i) => {
-        const btn = document.createElement("button");
-        btn.textContent = alumno.nombre;
-        btn.onclick = () => mostrarInformeAlumno(i);
-        contenedor.appendChild(btn);
-      });
+    function imprimirInforme(nombre, contenido) {
+      const ventana = window.open('', '', 'width=800,height=600');
+      ventana.document.write(`<html><head><title>Informe de ${nombre}</title></head><body>${contenido}</body></html>`);
+      ventana.document.close();
+      ventana.print();
     }
 
-    function mostrarInformeAlumno(i) {
-      const alumno = datosSimulados.alumnos[i];
-      const contenedor = document.getElementById("informeAlumno");
-      contenedor.innerHTML = `
-        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-       <canvas id="graficoAlumno${i}"></canvas>
-
-        <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-        <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-        <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
-        <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-        <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-      `;
-      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
-      const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Elecciones', 'Rechazos'],
-          datasets: [{
-            data: [alumno.elecciones.length, alumno.rechazos.length],
-            backgroundColor: ['#4caf50', '#f44336']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
+    function mostrarSeccion(seccion) {
+      document.getElementById('seccion-individual').style.display = seccion === 'individual' ? 'block' : 'none';
+      document.getElementById('seccion-aula').style.display = seccion === 'aula' ? 'block' : 'none';
     }
 
-    function descargarPDF(idElemento, nombreArchivo) {
-      const elemento = document.getElementById(idElemento);
-      html2pdf()
-        .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
-        .from(elemento)
-        .save();
-    }
-
-    window.onload = () => {
-      cargarGraficoAula();
-      generarSelectorAlumnos();
-    };
+    window.onload = () => mostrarSeccion('aula');
   </script>
 </body>
 </html>
+
 
 
 
