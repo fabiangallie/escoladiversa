@@ -55,10 +55,10 @@
       cursor: pointer;
     }
     canvas {
-      display: block;
-      margin: 0 auto 20px auto;
       max-width: 100%;
       height: 220px !important;
+      display: block;
+      margin: 0 0 20px 0;
     }
     .boton-descargar {
       margin: 10px 0;
@@ -86,7 +86,6 @@
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
-
   <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
@@ -100,6 +99,7 @@
     </div>
     <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
   </section>
+
   <section id="individual" style="display:none;">
     <div class="alumnos-selector" id="selectorAlumnos"></div>
     <div id="informeAlumnoContainer">
@@ -239,7 +239,11 @@
           labels: ['NP','NN','EP','PP','Pap','OIP','EN','PN','Pan','OIN','IP','Imp','IN','Imn','IPP'],
           datasets: [{
             data: [NP, NN, EP, PP, Pap, OIP, EN, PN, Pan, OIN, IP, Imp, IN, Imn, IPP],
-            backgroundColor: '#2196f3'
+            backgroundColor: [
+              '#4caf50', '#f44336', '#2196f3', '#ff9800', '#9c27b0',
+              '#3f51b5', '#009688', '#795548', '#607d8b', '#e91e63',
+              '#00bcd4', '#ffc107', '#8bc34a', '#673ab7', '#ff5722'
+            ]
           }]
         },
         options: {
