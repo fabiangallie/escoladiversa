@@ -93,27 +93,27 @@
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
-  <section id="aula">
-    <div id="contenidoAula">
-      <canvas id="graficoCohesion"></canvas>
-      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada.</p>
-      <h3>Propuesta de Intervención</h3>
-      <ul>
-        <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
-        <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
-        <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
-      </ul>
-    </div>
-    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-  </section>
+<section id="aula">
+  <div id="contenidoAula">
+    <canvas id="graficoCohesion"></canvas>
+    <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada.</p>
+    <h3>Propuesta de Intervención</h3>
+    <ul>
+      <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
+      <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
+      <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
+    </ul>
+  </div>
+  <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
+</section>
 
-  <section id="individual" style="display:none;">
-    <div class="alumnos-selector" id="selectorAlumnos"></div>
-    <div id="informeAlumnoContainer">
-      <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
-    </div>
-  </section>
+<section id="individual" style="display:none;">
+  <div class="alumnos-selector" id="selectorAlumnos"></div>
+  <div id="informeAlumnoContainer">
+    <div id="informeAlumno"></div>
+    <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+  </div>
+</section>
 <script>
   const datosSimulados = {
     aula: { cohesion: 35, disociacion: 62, lap: 40, lan: 70 },
@@ -247,6 +247,7 @@
 </script>
 </body>
 </html>
+
 
 
 
