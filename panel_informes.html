@@ -55,10 +55,10 @@
       cursor: pointer;
     }
     canvas {
-      max-width: 100%;
-      height: 220px !important;
       display: block;
       margin: 0 auto 20px auto;
+      max-width: 100%;
+      height: 220px !important;
     }
     .boton-descargar {
       margin: 10px 0;
@@ -78,13 +78,6 @@
   </style>
 </head>
 <body>
-  <div style="padding: 1em;">
-    <label for="grupo-cargado"><strong>Selecciona un grupo guardado:</strong></label>
-    <select id="grupo-cargado" onchange="cargarGrupoDesdeStorage()">
-      <option value="">-- Elegir grupo --</option>
-    </select>
-  </div>
-
   <header>
     <h1>Informes Sociométricos</h1>
   </header>
@@ -93,161 +86,140 @@
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
-<section id="aula">
-  <div id="contenidoAula">
-    <canvas id="graficoCohesion"></canvas>
-    <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada.</p>
-    <h3>Propuesta de Intervención</h3>
-    <ul>
-      <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
-      <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
-      <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
-    </ul>
-  </div>
-  <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-</section>
 
-<section id="individual" style="display:none;">
-  <div class="alumnos-selector" id="selectorAlumnos"></div>
-  <div id="informeAlumnoContainer">
-    <div id="informeAlumno"></div>
-    <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
-  </div>
-</section>
-<script>
-  const datosSimulados = {
-    aula: { cohesion: 35, disociacion: 62, lap: 40, lan: 70 },
-    alumnos: [
-      { nombre: "Nico", elecciones: [], rechazos: ["Laura", "Pedro"], status: "Rechazo", popularidad: "Baja", resumen: "Nico muestra aislamiento." },
-      { nombre: "Laura", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Laura tiene relaciones limitadas." },
-      { nombre: "Sofía", elecciones: ["Pedro", "Laura"], rechazos: [], status: "Alta", popularidad: "Alta", resumen: "Sofía es aceptada." },
-      { nombre: "Pedro", elecciones: ["Sofía"], rechazos: [], status: "Media", popularidad: "Media", resumen: "Pedro es estable." },
-      { nombre: "Marina", elecciones: ["Sofía"], rechazos: ["Nico"], status: "Media", popularidad: "Media", resumen: "Marina se relaciona bien." }
-    ]
-  };
+  <section id="aula">
+    <div id="contenidoAula">
+      <canvas id="graficoCohesion"></canvas>
+      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión bajo, con una disociación marcada y actividad negativa elevada.</p>
+      <h3>Propuesta de Intervención</h3>
+      <ul>
+        <li><strong>Educación emocional:</strong> Habilidades Sociales, Resolución de conflictos</li>
+        <li><strong>Educación en valores:</strong> Respeto y tolerancia, Solidaridad</li>
+        <li><strong>Grupo y aula:</strong> Cohesión de grupo, Trabajo cooperativo</li>
+      </ul>
+    </div>
+    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
+  </section>
+  <section id="individual" style="display:none;">
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div id="informeAlumnoContainer">
+      <div id="informeAlumno"></div>
+      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    </div>
+  </section>
 
-  function mostrarSeccion(seccion) {
-    document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
-    document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
-  }
+  <script>
+    const datosSimulados = {
+      aula: { cohesion: 35, disociacion: 62, lap: 40, lan: 70 },
+      alumnos: [
+        { nombre: "Nico", elecciones: ["Laura"], rechazos: ["Pedro"], status: "Rechazo", popularidad: "Baja" },
+        { nombre: "Laura", elecciones: ["Sofía", "Pedro"], rechazos: [], status: "Alta", popularidad: "Media" },
+        { nombre: "Sofía", elecciones: ["Laura", "Pedro"], rechazos: ["Nico"], status: "Alta", popularidad: "Alta" },
+        { nombre: "Pedro", elecciones: ["Laura"], rechazos: ["Nico"], status: "Media", popularidad: "Media" },
+        { nombre: "Álvaro", elecciones: [], rechazos: ["Nico", "Pedro"], status: "Rechazo", popularidad: "Baja" }
+      ]
+    };
 
-  function cargarGraficoAula() {
-    const ctx = document.getElementById('graficoCohesion').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Índice de cohesión', 'Índice de disociación', 'Índice actividad positiva', 'Índice actividad negativa'],
-        datasets: [{
-          label: 'Índices Sociométricos',
-          data: [
-            datosSimulados.aula.cohesion,
-            datosSimulados.aula.disociacion,
-            datosSimulados.aula.lap,
-            datosSimulados.aula.lan
-          ],
-          backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, max: 100 } }
-      }
-    });
-  }
-
-  function generarSelectorAlumnos() {
-    const contenedor = document.getElementById("selectorAlumnos");
-    contenedor.innerHTML = "";
-    datosSimulados.alumnos.forEach((alumno, i) => {
-      const btn = document.createElement("button");
-      btn.textContent = alumno.nombre;
-      btn.onclick = () => mostrarInformeAlumno(i);
-      contenedor.appendChild(btn);
-    });
-  }
-
-  function mostrarInformeAlumno(i) {
-    const alumno = datosSimulados.alumnos[i];
-    const contenedor = document.getElementById("informeAlumno");
-    contenedor.innerHTML = `
-      <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-      <canvas id="graficoAlumno${i}"></canvas>
-      <p><strong>Elecciones:</strong> ${alumno.elecciones.join(", ")}</p>
-      <p><strong>Rechazos:</strong> ${alumno.rechazos.join(", ")}</p>
-      <p><strong>Estatus Sociométrico:</strong> ${alumno.status}</p>
-      <p><strong>Popularidad:</strong> ${alumno.popularidad}</p>
-      <p><strong>Resumen:</strong> ${alumno.resumen}</p>
-    `;
-    document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
-    const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Elecciones', 'Rechazos'],
-        datasets: [{
-          data: [alumno.elecciones.length, alumno.rechazos.length],
-          backgroundColor: ['#4caf50', '#f44336']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
-  }
-
-  function descargarPDF(idElemento, nombreArchivo) {
-    const elemento = document.getElementById(idElemento);
-    html2pdf()
-      .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
-      .from(elemento)
-      .save();
-  }
-
-  function cargarOpcionesGrupo() {
-    const select = document.getElementById("grupo-cargado");
-    for (let i = 0; i < localStorage.length; i++) {
-      const clave = localStorage.key(i);
-      if (clave.includes(" - ")) {
-        const option = document.createElement("option");
-        option.value = clave;
-        option.textContent = clave;
-        select.appendChild(option);
-      }
+    function mostrarSeccion(seccion) {
+      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
     }
-  }
 
-  function cargarGrupoDesdeStorage() {
-    const clave = document.getElementById("grupo-cargado").value;
-    if (!clave) return;
-    const grupo = JSON.parse(localStorage.getItem(clave));
-    if (grupo && grupo.alumnos) {
-      datosSimulados.alumnos = grupo.alumnos.map(nombre => ({
-        nombre,
-        elecciones: [],
-        rechazos: [],
-        status: "Desconocido",
-        popularidad: "Desconocida",
-        resumen: "Pendiente de análisis"
-      }));
-      generarSelectorAlumnos();
-      document.getElementById("informeAlumno").innerHTML = '';
-      document.getElementById("btnDescargarAlumno").style.display = "none";
-      alert("Grupo cargado correctamente.");
+    function cargarGraficoAula() {
+      const ctx = document.getElementById('graficoCohesion').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Índice de cohesión', 'Índice de disociación', 'Índice actividad positiva', 'Índice actividad negativa'],
+          datasets: [{
+            label: 'Índices Sociométricos',
+            data: [
+              datosSimulados.aula.cohesion,
+              datosSimulados.aula.disociacion,
+              datosSimulados.aula.lap,
+              datosSimulados.aula.lan
+            ],
+            backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                max: 100,
+                fontColor: '#333',
+                fontStyle: 'bold'
+              },
+              gridLines: {
+                color: '#ccc'
+              }
+            }],
+            xAxes: [{
+              ticks: {
+                fontColor: '#333',
+                fontStyle: 'bold'
+              },
+              gridLines: {
+                color: '#ddd'
+              }
+            }]
+          }
+        }
+      });
     }
-  }
+    function generarSelectorAlumnos() {
+      const contenedor = document.getElementById("selectorAlumnos");
+      datosSimulados.alumnos.forEach((alumno, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = alumno.nombre;
+        btn.onclick = () => mostrarInformeAlumno(i);
+        contenedor.appendChild(btn);
+      });
+    }
 
-  window.onload = () => {
-    cargarOpcionesGrupo();
-    cargarGraficoAula();
-    generarSelectorAlumnos();
-  };
-</script>
-</body>
-</html>
+    function mostrarInformeAlumno(i) {
+      const alumno = datosSimulados.alumnos[i];
+      const total = datosSimulados.alumnos.length - 1;
 
+      const SP = datosSimulados.alumnos.filter(a => a.elecciones.includes(alumno.nombre)).length;
+      const SN = datosSimulados.alumnos.filter(a => a.rechazos.includes(alumno.nombre)).length;
+      const EP = alumno.elecciones.length;
+      const EN = alumno.rechazos.length;
+      const NP = (SP / total) * 100;
+      const NN = (SN / total) * 100;
+      const PP = Math.round(Math.random() * 100);
+      const Pap = Math.round(Math.random() * 100);
+      const OIP = Math.round(Math.random() * 100);
+      const PN = Math.round(Math.random() * 100);
+      const Pan = Math.round(Math.random() * 100);
+      const OIN = Math.round(Math.random() * 100);
+      const IP = Math.round(Math.random() * 100);
+      const Imp = Math.round(Math.random() * 100);
+      const IN = Math.round(Math.random() * 100);
+      const Imn = Math.round(Math.random() * 100);
+      const IPP = Math.round(Math.random() * 100);
+
+      const contenedor = document.getElementById("informeAlumno");
+      contenedor.innerHTML = `
+        <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+        <canvas id="graficoAlumno${i}"></canvas>
+        <div class="leyenda">
+          NP: Nivel medio de popularidad, NN: Rechazo, EP: Sociabilidad,
+          PP/Pap: Expectativa y acierto de aceptación, OIP: Oposición aceptación/rechazo,
+          EN: Antipatía, PN/Pan: Expectativa y acierto de rechazo, OIN: Oposición rechazo/aceptación,
+          IP: Impresión positiva, Imp: Nivel impresión positiva, IN: Impresión negativa, Imn: Nivel impresión negativa, IPP: Preferencia positiva.
+        </div>
+        <p><strong>Posición sociométrica:</strong> ${(SP === 0 && SN >= 3) ? "Rechazado" : (SP === 0) ? "Olvidado" : (SN >= 3) ? "Polémico" : "Integrado"}</p>
+        <p><strong>Amistades:</strong> ${EP} (${alumno.elecciones.join(", ")})</p>
+        <p><strong>Enemistades:</strong> ${EN} (${alumno.rechazos.join(", ")})</p>
+        <p><strong>Oposición de sentimientos:</strong> ${
+          datosSimulados.alumnos
+            .filter(a =>
+              (a.elecciones.includes(alumno.nombre) && alumno.rechazos.includes(a.nombre)) ||
+              (a.rechazos.includes(a
 
 
 
