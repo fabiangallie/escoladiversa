@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pregunta 7</title>
+  <title>Pregunta 1</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .nombres-container {
@@ -23,6 +23,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      user-select: none;
     }
 
     .nombre-item img {
@@ -31,6 +32,7 @@
 
     .drop-zona {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
       margin-bottom: 20px;
@@ -62,16 +64,17 @@
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">Pregunta 4</h1>
-      <h2 class="title-secundario">¿A qué personas de la clase crees que les pareces simpático?</h2>
-<img src="a7.png" alt="traduccion pregunta" style="max-width: 300px; height: auto; margin: 10px auto;">
+      <h1 class="title-grande">Pregunta 1</h1>
+      <h2 class="title-secundario">¿Con quién te gusta jugar en el recreo?</h2>
+<img src="a1.png" alt="traduccion pregunta" style="max-width: 300px; height: auto; margin: 10px auto;">
     </div>
 
     <div class="nombres-container" id="nombres">
-      <!-- Aquí se cargarán los nombres -->
+      <!-- Nombres se cargarán aquí -->
     </div>
 
     <div class="drop-zona" id="zona-eleccion">
+      <!-- Casillas numeradas -->
       <div class="casilla" data-pos="1"><span>1º</span></div>
       <div class="casilla" data-pos="2"><span>2º</span></div>
       <div class="casilla" data-pos="3"><span>3º</span></div>
@@ -88,48 +91,54 @@
     const nombres = JSON.parse(localStorage.getItem("nombresGrupo") || "[]");
     const contenedor = document.getElementById("nombres");
 
-    nombres.forEach(nombre => {
-      const item = crearItem(nombre);
-      contenedor.appendChild(item);
-    });
-
     function crearItem(nombre) {
       const item = document.createElement("div");
       item.className = "nombre-item";
+      item.textContent = nombre;
       item.dataset.nombre = nombre;
 
       const img = document.createElement("img");
       img.src = "silueta1.png";
       img.alt = "icono";
+      item.prepend(img);
 
-      const texto = document.createElement("span");
-      texto.textContent = nombre;
-
-      item.appendChild(img);
-      item.appendChild(texto);
-
+      // Click en móvil o PC
       item.addEventListener("click", () => {
-        colocarEnCasilla(nombre);
+        // Evita duplicados
+        if (yaSeleccionado(nombre)) return;
+
+        // Encuentra la primera casilla vacía
+        const libre = [...document.querySelectorAll(".casilla")].find(c => !c.querySelector(".nombre-item"));
+        if (libre) {
+          const nuevo = crearItem(nombre);
+          libre.appendChild(nuevo);
+        }
+
+        // Elimina de la lista
+        item.remove();
       });
 
       return item;
     }
 
-    function colocarEnCasilla(nombre) {
-      document.querySelectorAll(".casilla").forEach(c => {
-        const n = c.querySelector(".nombre-item");
-        if (n && n.dataset.nombre === nombre) {
-          c.innerHTML = `<span>${c.dataset.pos}º</span>`;
+    function yaSeleccionado(nombre) {
+      return [...document.querySelectorAll(".casilla .nombre-item")].some(n => n.dataset.nombre === nombre);
+    }
+
+    nombres.forEach(nombre => {
+      const item = crearItem(nombre);
+      contenedor.appendChild(item);
+    });
+
+    document.querySelectorAll(".casilla").forEach(casilla => {
+      casilla.addEventListener("click", () => {
+        const item = casilla.querySelector(".nombre-item");
+        if (item) {
+          contenedor.appendChild(crearItem(item.dataset.nombre));
+          item.remove();
         }
       });
-
-      const vacía = [...document.querySelectorAll(".casilla")].find(c => !c.querySelector(".nombre-item"));
-      if (!vacía) return;
-
-      const nuevoItem = crearItem(nombre);
-      vacía.innerHTML = `<span>${vacía.dataset.pos}º</span>`;
-      vacía.appendChild(nuevoItem);
-    }
+    });
 
     function siguiente() {
       const elecciones = [];
@@ -137,8 +146,8 @@
         const n = c.querySelector(".nombre-item");
         elecciones.push(n ? n.dataset.nombre : null);
       });
-      localStorage.setItem("respuesta7", JSON.stringify(elecciones));
-      window.location.href = "a9.html";
+      localStorage.setItem("respuesta1", JSON.stringify(elecciones));
+      window.location.href = "a3.html";
     }
   </script>
 </body>
