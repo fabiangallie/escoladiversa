@@ -285,7 +285,8 @@
       <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones,
       <em>IPP</em>: Preferencia social positiva.
     </div>
-
+    
+    <br>
     <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
     <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
     <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
