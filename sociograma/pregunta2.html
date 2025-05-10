@@ -90,22 +90,34 @@
       contenedor.appendChild(item);
     });
 
-    function crearItem(nombre) {
-      const item = document.createElement("div");
-      item.className = "nombre-item";
-      item.dataset.nombre = nombre;
+  function crearItem(nombre, esDeCasilla = false) {
+  const item = document.createElement("div");
+  item.className = "nombre-item";
+  item.dataset.nombre = nombre;
 
-      const img = document.createElement("img");
-      img.src = "silueta1.png";
-      img.alt = "icono";
-      item.appendChild(img);
+  const img = document.createElement("img");
+  img.src = "silueta1.png";
+  img.alt = "icono";
+  item.appendChild(img);
 
-      const texto = document.createTextNode(nombre);
-      item.appendChild(texto);
+  const texto = document.createTextNode(nombre);
+  item.appendChild(texto);
 
-      item.addEventListener("click", () => moverACasilla(nombre));
-      return item;
+  item.addEventListener("click", () => {
+    if (esDeCasilla) {
+      // Eliminar de casilla
+      const padre = item.parentElement;
+      padre.innerHTML = `<span>${padre.dataset.pos}º</span>`;
+      // Devolver al listado
+      contenedor.appendChild(crearItem(nombre));
+    } else {
+      moverACasilla(nombre);
     }
+  });
+
+  return item;
+}
+
 
     function moverACasilla(nombre) {
       // Eliminar si está en otra casilla
