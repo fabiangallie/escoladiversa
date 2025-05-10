@@ -292,7 +292,21 @@
     <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
     <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
     <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
-    ${alumno.intervencion ? `<div class="bloque"><strong>Propuesta de intervención:</strong> ${alumno.intervencion}</div>` : ""}
+    ${(() => {
+  const i = alumno.indices;
+  let propuestas = [];
+
+  if (i.np < 30) propuestas.push("Fomentar habilidades sociales y mejora de la autoimagen.");
+  if (i.nn > 60) propuestas.push("Trabajar el rechazo, empatía y regulación emocional.");
+  if (i.ipp < 40) propuestas.push("Realizar actividades cooperativas para reforzar vínculos.");
+  if (i.imn > 60) propuestas.push("Abordar la percepción negativa grupal mediante dinámicas de inclusión.");
+  if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
+
+  return propuestas.length
+    ? `<div class="bloque"><strong>Propuesta de intervención:</strong> ${propuestas.join(" ")}</div>`
+    : "";
+})()}
+
   `;
 
   document.getElementById("btnDescargarAlumno").style.display = "inline-block";
