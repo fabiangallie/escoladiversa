@@ -200,7 +200,32 @@
         amistades: [],
         enemistades: [],
         oposiciones: [],
-        resumen: "Participación med  function mostrarSeccion(seccion) {
+        resumen: "Participación media sin conflictos significativos.",
+        intervencion: ""
+      },
+      {
+        nombre: "Ana",
+        posicion: "Preferida",
+        indices: { np: 82, nn: 15, ep: "Alta", pp: 85, pap: 90, oip: 0, en: "Baja", pn: 10, pan: 85, oin: 0, ip: "Sí", imp: 87, in: "No", imn: 12, ipp: 84 },
+        amistades: [{ nombre: "Marta", valor: "4/4" }],
+        enemistades: [],
+        oposiciones: [],
+        resumen: "Alta integración, relaciones positivas.",
+        intervencion: ""
+      },
+      {
+        nombre: "Luis",
+        posicion: "Ignorado",
+        indices: { np: 10, nn: 5, ep: "Baja", pp: 20, pap: 20, oip: 1, en: "Baja", pn: 10, pan: 15, oin: 1, ip: "No", imp: 10, in: "No", imn: 8, ipp: 15 },
+        amistades: [],
+        enemistades: [],
+        oposiciones: [],
+        resumen: "Poco reconocido, necesita mayor inclusión.",
+        intervencion: "Incluirlo en dinámicas cooperativas."
+      }
+    ]
+  };
+  function mostrarSeccion(seccion) {
     document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
     document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
   }
@@ -295,32 +320,6 @@
       }
     });
   }
-ia sin conflictos significativos.",
-        intervencion: ""
-      },
-      {
-        nombre: "Ana",
-        posicion: "Preferida",
-        indices: { np: 82, nn: 15, ep: "Alta", pp: 85, pap: 90, oip: 0, en: "Baja", pn: 10, pan: 85, oin: 0, ip: "Sí", imp: 87, in: "No", imn: 12, ipp: 84 },
-        amistades: [{ nombre: "Marta", valor: "4/4" }],
-        enemistades: [],
-        oposiciones: [],
-        resumen: "Alta integración, relaciones positivas.",
-        intervencion: ""
-      },
-      {
-        nombre: "Luis",
-        posicion: "Ignorado",
-        indices: { np: 10, nn: 5, ep: "Baja", pp: 20, pap: 20, oip: 1, en: "Baja", pn: 10, pan: 15, oin: 1, ip: "No", imp: 10, in: "No", imn: 8, ipp: 15 },
-        amistades: [],
-        enemistades: [],
-        oposiciones: [],
-        resumen: "Poco reconocido, necesita mayor inclusión.",
-        intervencion: "Incluirlo en dinámicas cooperativas."
-      }
-    ]
-  };
-
   function descargarPDF(idElemento, nombreArchivo) {
     const elemento = document.getElementById(idElemento);
     html2pdf()
@@ -342,6 +341,7 @@ ia sin conflictos significativos.",
 
 </body>
 </html>
+
 
 
 
