@@ -270,56 +270,64 @@
     });
   }
 
-  function mostrarInformeAlumno(i) {
-    const alumno = datosSimulados.alumnos[i];
-    const contenedor = document.getElementById("informeAlumno");
-    contenedor.innerHTML = `
-      <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-      <p><strong>Posición Sociométrica:</strong> ${alumno.posicion}</p>
-      <canvas id="graficoAlumno${i}"></canvas>
-      <div class="leyenda">
-        <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad, <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto,
-        <em>EN</em>: Antipatía, <em>PN/Pan</em>: Expectativa negativa/porcentaje, <em>OIP/OIN</em>: Oposición sentimiento,
-        <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones, <em>IPP</em>: Preferencia social positiva.
-      </div>
-      <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
-      ${alumno.intervencion ? `<div class="bloque"><strong>Propuesta de intervención:</strong> ${alumno.intervencion}</div>` : ""}
-    `;
-    document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+ function mostrarInformeAlumno(i) {
+  const alumno = datosSimulados.alumnos[i];
+  const contenedor = document.getElementById("informeAlumno");
 
-    const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-    const valores = alumno.indices;
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(valores),
-        datasets: [{
-          label: 'Índices',
-          data: Object.values(valores).map(v => typeof v === 'number' ? v : 0),
-          backgroundColor: Object.values(valores).map(v => {
-            if (typeof v === 'number') {
-              if (v >= 70) return '#2196f3'; // bueno
-              if (v <= 30) return '#f44336'; // malo
-              return '#ffc107'; // medio
-            }
-            return '#ddd';
-          })
+  contenedor.innerHTML = `
+    <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+    <canvas id="graficoAlumno${i}"></canvas>
+
+    <div class="leyenda">
+      <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
+      <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto, <em>EN</em>: Antipatía,
+      <em>PN/Pan</em>: Expectativa negativa/porcentaje, <em>OIP/OIN</em>: Oposición sentimiento,
+      <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones,
+      <em>IPP</em>: Preferencia social positiva.
+    </div>
+
+    <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
+    <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
+    ${alumno.intervencion ? `<div class="bloque"><strong>Propuesta de intervención:</strong> ${alumno.intervencion}</div>` : ""}
+  `;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  const valores = alumno.indices;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(valores),
+      datasets: [{
+        label: 'Índices',
+        data: Object.values(valores).map(v => typeof v === 'number' ? v : 0),
+        backgroundColor: Object.values(valores).map(v => {
+          if (typeof v === 'number') {
+            if (v >= 70) return '#4caf50'; // verde bueno
+            if (v <= 30) return '#f44336'; // rojo malo
+            return '#ffc107';             // amarillo medio
+          }
+          return '#ccc';
+        })
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        yAxes: [{
+          ticks: { beginAtZero: true, max: 100 }
         }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          yAxes: [{
-            ticks: { beginAtZero: true, max: 100 }
-          }]
-        }
       }
-    });
-  }
+    }
+  });
+}
+
   function descargarPDF(idElemento, nombreArchivo) {
     const elemento = document.getElementById(idElemento);
     html2pdf()
