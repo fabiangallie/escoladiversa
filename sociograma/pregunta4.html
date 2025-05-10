@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pregunta 1</title>
+  <title>Pregunta 4</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .nombres-container {
@@ -64,8 +64,8 @@
 <body>
   <div class="container">
     <div class="title-box azul">
-      <h1 class="title-grande">Pregunta 1</h1>
-      <h2 class="title-secundario">¿Con qué personas prefieres jugar en el recreo?</h2>
+      <h1 class="title-grande">Pregunta 4</h1>
+      <h2 class="title-secundario">¿Qué compañeros o compañeras NO te parecen simpáticos?</h2>
     </div>
 
     <div class="nombres-container" id="nombres">
@@ -146,7 +146,7 @@
         elecciones.push(n ? n.dataset.nombre : null);
       });
       localStorage.setItem("respuesta1", JSON.stringify(elecciones));
-      window.location.href = "pregunta2.html";
+      window.location.href = "pregunta5.html";
     }
   </script>
 </body>
