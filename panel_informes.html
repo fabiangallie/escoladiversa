@@ -4,21 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes Sociométricos</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
     header {
       background-color: #e0f0ff;
       padding: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    header h1 {
-      margin: 0;
-      font-size: 1.8em;
-      color: #007acc;
-    }
+    header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
     nav {
       display: flex;
       justify-content: center;
@@ -60,9 +56,9 @@
       cursor: pointer;
     }
     canvas {
-      max-width: 100%;
-      height: 220px !important;
-      margin-bottom: 10px;
+      display: block;
+      margin: 0 auto 15px auto;
+      max-width: 90%;
     }
     .boton-descargar {
       margin: 10px 0;
@@ -78,6 +74,10 @@
       font-size: 0.8em;
       color: #666;
       margin-top: 10px;
+      text-align: left;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
     }
     .bloque {
       margin-bottom: 15px;
@@ -96,12 +96,12 @@
   <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
-      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión media, con vínculos positivos estables y algunos focos de disociación. Figuras como Irene y Lucía facilitan la cohesión, mientras que Daniel y Carla requieren acompañamiento social.</p>
+      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión media. Existen relaciones positivas predominantes, aunque se observan focos de disociación que deben abordarse.</p>
       <h3>Propuesta de Intervención</h3>
       <ul>
-        <li><strong>Educación emocional:</strong> Desarrollo de empatía, habilidades sociales, escucha activa.</li>
-        <li><strong>Educación en valores:</strong> Cooperación, inclusión, gestión de la diversidad.</li>
-        <li><strong>Grupo y aula:</strong> Actividades cooperativas, trabajo por equipos heterogéneos, dinámicas de integración.</li>
+        <li><strong>Educación emocional:</strong> Empatía, comunicación no violenta.</li>
+        <li><strong>Educación en valores:</strong> Inclusión, respeto a la diversidad.</li>
+        <li><strong>Grupo y aula:</strong> Actividades cooperativas, reforzar vínculos débiles.</li>
       </ul>
     </div>
     <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
@@ -117,60 +117,90 @@
 <script>
   const datosSimulados = {
     aula: {
-      cohesion: 62,
-      disociacion: 38,
-      lap: 71,
-      lan: 29
+      cohesion: 65,
+      disociacion: 35,
+      lap: 70,
+      lan: 30
     },
     alumnos: [
       {
         nombre: "Lucía",
+        posicion: "Preferida",
         indices: { np: 78, nn: 12, ep: "Alta", pp: 75, pap: 90, oip: 0, en: "Baja", pn: 10, pan: 80, oin: 0, ip: "Sí", imp: 85, in: "No", imn: 10, ipp: 88 },
         amistades: [{ nombre: "Irene", valor: "5/4" }],
         enemistades: [],
         oposiciones: [],
-        resumen: "Figura de referencia positiva. Alta aceptación y coherencia entre expectativas y realidad.",
+        resumen: "Figura positiva con fuerte integración.",
         intervencion: ""
       },
       {
         nombre: "Pedro",
+        posicion: "Rechazado",
         indices: { np: 25, nn: 68, ep: "Baja", pp: 30, pap: 40, oip: 2, en: "Alta", pn: 90, pan: 20, oin: 3, ip: "No", imp: 20, in: "Sí", imn: 75, ipp: 15 },
         amistades: [],
         enemistades: [{ nombre: "Juan", valor: "2/3" }],
         oposiciones: [{ nombre: "Marta", valor: "1/3" }],
-        resumen: "Alumno con rechazo significativo, gran discrepancia entre expectativas positivas y realidad.",
-        intervencion: "Necesita acompañamiento en habilidades sociales y autoestima."
+        resumen: "Necesita intervención por rechazo significativo.",
+        intervencion: "Desarrollo de habilidades sociales y autoestima."
       },
       {
         nombre: "Sofía",
+        posicion: "Controvertida",
         indices: { np: 54, nn: 51, ep: "Media", pp: 60, pap: 70, oip: 1, en: "Media", pn: 55, pan: 65, oin: 1, ip: "Sí", imp: 58, in: "Sí", imn: 59, ipp: 56 },
         amistades: [{ nombre: "Lucía", valor: "3/3" }],
         enemistades: [{ nombre: "Pedro", valor: "1/2" }],
         oposiciones: [],
-        resumen: "Controvertida. Aceptada por algunos y rechazada por otros. Expectativas parcialmente acertadas.",
+        resumen: "Aceptada por algunos, rechazada por otros.",
         intervencion: ""
       },
       {
         nombre: "Daniel",
+        posicion: "Ignorado",
         indices: { np: 12, nn: 9, ep: "Baja", pp: 20, pap: 30, oip: 1, en: "Baja", pn: 15, pan: 25, oin: 1, ip: "No", imp: 15, in: "No", imn: 12, ipp: 20 },
         amistades: [],
         enemistades: [],
         oposiciones: [],
-        resumen: "Alumno con escasa participación afectiva. No destaca ni positiva ni negativamente.",
-        intervencion: "Potenciar su visibilidad en el grupo y motivación para integrarse."
+        resumen: "Escasa participación afectiva.",
+        intervencion: "Fomentar su visibilidad y participación."
       },
       {
         nombre: "Irene",
+        posicion: "Líder sociométrica",
         indices: { np: 80, nn: 10, ep: "Alta", pp: 88, pap: 95, oip: 0, en: "Baja", pn: 5, pan: 95, oin: 0, ip: "Sí", imp: 92, in: "No", imn: 5, ipp: 91 },
         amistades: [{ nombre: "Lucía", valor: "5/4" }],
         enemistades: [],
         oposiciones: [],
-        resumen: "Líder sociométrica. Claramente integrada, con fuerte influencia positiva.",
+        resumen: "Alta influencia y aceptación.",
         intervencion: ""
-      }
-    ]
-  };
-  function mostrarSeccion(seccion) {
+      },
+      {
+        nombre: "Carla",
+        posicion: "Rechazada",
+        indices: { np: 20, nn: 60, ep: "Baja", pp: 40, pap: 35, oip: 2, en: "Alta", pn: 85, pan: 25, oin: 3, ip: "No", imp: 30, in: "Sí", imn: 70, ipp: 20 },
+        amistades: [],
+        enemistades: [{ nombre: "Irene", valor: "2/2" }],
+        oposiciones: [{ nombre: "Sofía", valor: "1/3" }],
+        resumen: "Conflictos sociales persistentes.",
+        intervencion: "Atención individual y mediación social."
+      },
+      {
+        nombre: "Marta",
+        posicion: "Ambivalente",
+        indices: { np: 55, nn: 50, ep: "Media", pp: 60, pap: 60, oip: 1, en: "Media", pn: 60, pan: 60, oin: 1, ip: "Sí", imp: 50, in: "Sí", imn: 55, ipp: 52 },
+        amistades: [{ nombre: "Sofía", valor: "3/3" }],
+        enemistades: [{ nombre: "Pedro", valor: "1/3" }],
+        oposiciones: [],
+        resumen: "Relaciones ambivalentes y contradictorias.",
+        intervencion: ""
+      },
+      {
+        nombre: "Juan",
+        posicion: "Neutral",
+        indices: { np: 40, nn: 30, ep: "Media", pp: 45, pap: 50, oip: 0, en: "Media", pn: 40, pan: 55, oin: 0, ip: "Sí", imp: 45, in: "No", imn: 30, ipp: 43 },
+        amistades: [],
+        enemistades: [],
+        oposiciones: [],
+        resumen: "Participación med  function mostrarSeccion(seccion) {
     document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
     document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
   }
@@ -182,6 +212,7 @@
       data: {
         labels: ['Cohesión', 'Disociación', 'Act. Positiva', 'Act. Negativa'],
         datasets: [{
+          label: 'Índices Sociométricos',
           data: [
             datosSimulados.aula.cohesion,
             datosSimulados.aula.disociacion,
@@ -205,6 +236,7 @@
 
   function generarSelectorAlumnos() {
     const contenedor = document.getElementById("selectorAlumnos");
+    contenedor.innerHTML = "";
     datosSimulados.alumnos.forEach((alumno, i) => {
       const btn = document.createElement("button");
       btn.textContent = alumno.nombre;
@@ -218,38 +250,12 @@
     const contenedor = document.getElementById("informeAlumno");
     contenedor.innerHTML = `
       <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+      <p><strong>Posición Sociométrica:</strong> ${alumno.posicion}</p>
       <canvas id="graficoAlumno${i}"></canvas>
-      <div class="bloque"><strong>Índices ATOPA:</strong>
-        <ul>
-          <li>NP: ${alumno.indices.np}%</li>
-          <li>NN: ${alumno.indices.nn}%</li>
-          <li>EP: ${alumno.indices.ep}</li>
-          <li>PP: ${alumno.indices.pp}% – Pap: ${alumno.indices.pap}%</li>
-          <li>OIP: ${alumno.indices.oip}</li>
-          <li>EN: ${alumno.indices.en}</li>
-          <li>PN: ${alumno.indices.pn}% – Pan: ${alumno.indices.pan}%</li>
-          <li>OIN: ${alumno.indices.oin}</li>
-          <li>IP: ${alumno.indices.ip} – Imp: ${alumno.indices.imp}%</li>
-          <li>IN: ${alumno.indices.in} – Imn: ${alumno.indices.imn}%</li>
-          <li>IPP: ${alumno.indices.ipp}%</li>
-        </ul>
-      </div>
       <div class="leyenda">
-        <em>NP</em>: Nivel medio de popularidad, 
-        <em>NN</em>: Nivel medio de rechazo, 
-        <em>EP</em>: Sociabilidad, 
-        <em>PP</em>: Expectativa positiva, 
-        <em>Pap</em>: Acierto positivo,
-        <em>OIP</em>: Oposición positiva, 
-        <em>EN</em>: Antipatía, 
-        <em>PN</em>: Expectativa negativa, 
-        <em>Pan</em>: Acierto negativo,
-        <em>OIN</em>: Oposición negativa, 
-        <em>IP</em>: Impresión positiva, 
-        <em>Imp</em>: Nivel positivo, 
-        <em>IN</em>: Impresión negativa, 
-        <em>Imn</em>: Nivel negativo, 
-        <em>IPP</em>: Preferencia social positiva
+        <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad, <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto,
+        <em>EN</em>: Antipatía, <em>PN/Pan</em>: Expectativa negativa/porcentaje, <em>OIP/OIN</em>: Oposición sentimiento,
+        <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones, <em>IPP</em>: Preferencia social positiva.
       </div>
       <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
       <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
@@ -260,19 +266,27 @@
     document.getElementById("btnDescargarAlumno").style.display = "inline-block";
 
     const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+    const valores = alumno.indices;
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: Object.keys(alumno.indices),
+        labels: Object.keys(valores),
         datasets: [{
-          label: "Índices %",
-          data: Object.values(alumno.indices).map(v => typeof v === 'number' ? v : 0),
-          backgroundColor: '#2196f3'
+          label: 'Índices',
+          data: Object.values(valores).map(v => typeof v === 'number' ? v : 0),
+          backgroundColor: Object.values(valores).map(v => {
+            if (typeof v === 'number') {
+              if (v >= 70) return '#2196f3'; // bueno
+              if (v <= 30) return '#f44336'; // malo
+              return '#ffc107'; // medio
+            }
+            return '#ddd';
+          })
         }]
       },
       options: {
         responsive: true,
-        legend: { display: false },
+        plugins: { legend: { display: false } },
         scales: {
           yAxes: [{
             ticks: { beginAtZero: true, max: 100 }
@@ -281,6 +295,32 @@
       }
     });
   }
+ia sin conflictos significativos.",
+        intervencion: ""
+      },
+      {
+        nombre: "Ana",
+        posicion: "Preferida",
+        indices: { np: 82, nn: 15, ep: "Alta", pp: 85, pap: 90, oip: 0, en: "Baja", pn: 10, pan: 85, oin: 0, ip: "Sí", imp: 87, in: "No", imn: 12, ipp: 84 },
+        amistades: [{ nombre: "Marta", valor: "4/4" }],
+        enemistades: [],
+        oposiciones: [],
+        resumen: "Alta integración, relaciones positivas.",
+        intervencion: ""
+      },
+      {
+        nombre: "Luis",
+        posicion: "Ignorado",
+        indices: { np: 10, nn: 5, ep: "Baja", pp: 20, pap: 20, oip: 1, en: "Baja", pn: 10, pan: 15, oin: 1, ip: "No", imp: 10, in: "No", imn: 8, ipp: 15 },
+        amistades: [],
+        enemistades: [],
+        oposiciones: [],
+        resumen: "Poco reconocido, necesita mayor inclusión.",
+        intervencion: "Incluirlo en dinámicas cooperativas."
+      }
+    ]
+  };
+
   function descargarPDF(idElemento, nombreArchivo) {
     const elemento = document.getElementById(idElemento);
     html2pdf()
@@ -302,7 +342,6 @@
 
 </body>
 </html>
-
 
 
 
