@@ -260,15 +260,21 @@
   }
 
   function generarSelectorAlumnos() {
-    const contenedor = document.getElementById("selectorAlumnos");
-    contenedor.innerHTML = "";
-    datosSimulados.alumnos.forEach((alumno, i) => {
-      const btn = document.createElement("button");
-      btn.textContent = alumno.nombre;
-      btn.onclick = () => mostrarInformeAlumno(i);
-      contenedor.appendChild(btn);
-    });
-  }
+  const contenedor = document.getElementById("selectorAlumnos");
+  contenedor.innerHTML = "";
+  datosSimulados.alumnos.forEach((alumno, i) => {
+    const ixs = alumno.indices;
+    const necesitaIntervencion = (
+      ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja"
+    );
+
+    const btn = document.createElement("button");
+    btn.textContent = necesitaIntervencion ? `⚠️ ${alumno.nombre}` : alumno.nombre;
+    btn.onclick = () => mostrarInformeAlumno(i);
+    contenedor.appendChild(btn);
+  });
+}
+
 
  function mostrarInformeAlumno(i) {
   const alumno = datosSimulados.alumnos[i];
