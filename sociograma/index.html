@@ -37,6 +37,8 @@
 
     <div class="title-box">
       <h1 class="title-grande">Bienvenido al Sociograma</h1>
+      <p id="nombre-usuario" style="font-weight: bold; font-size: 1.2em; color: #444;"></p>
+
     </div>
 
      <div class="consignas">
@@ -56,6 +58,13 @@
       <a href="a1.html">Test Adaptado</a>
     </div>
   </div>
+  <script>
+  const nombre = localStorage.getItem("nombreAlumno");
+  if (nombre) {
+    document.getElementById("nombre-usuario").textContent = `Alumno/a: ${nombre}`;
+  }
+</script>
+
 </body>
 </html>
 
