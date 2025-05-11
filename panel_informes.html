@@ -368,6 +368,46 @@
   };
 </script>
 
+
+<script>
+function guardarGrupo() {
+  const data = JSON.stringify(datosSimulados, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "grupo_sociometrico.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function cargarGrupo() {
+  const input = document.getElementById("archivoJson");
+  if (input.files.length === 0) return;
+
+  const file = input.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      datosSimulados.alumnos = data.alumnos;
+      datosSimulados.aula = data.aula || {};
+      generarSelectorAlumnos();
+      cargarGraficoAula();
+      diagnosticoAutomatico();
+      alert("Grupo cargado correctamente.");
+    } catch (error) {
+      alert("Error al cargar el archivo JSON.");
+    }
+  };
+
+  reader.readAsText(file);
+}
+</script>
+
 </body>
 </html>
 
