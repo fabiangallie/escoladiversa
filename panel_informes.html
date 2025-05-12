@@ -10,7 +10,7 @@
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
     header { background-color: #e0f0ff; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
-    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px; display: none; }
+    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px; }
     nav button { padding: 10px 20px; background: #007acc; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
     nav button:hover { background: #005fa3; }
     section { padding: 20px; display: none; }
@@ -33,7 +33,7 @@
   </header>
 
   <div style="text-align:center; margin:20px;">
-    <div id="selectorGrupoContainer" style="display:none;">
+    <div id="selectorGrupoContainer">
       <label for="selectorGrupo">Seleccionar grupo:</label>
       <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
     </div>
@@ -43,7 +43,7 @@
     <button onclick="volverASeleccionarGrupo()">🔁 Cambiar grupo</button>
   </div>
 
-  <nav id="menuInformes">
+  <nav id="menuInformes" style="display:none">
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
@@ -83,6 +83,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+>
 
 
 
