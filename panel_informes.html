@@ -1,87 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Informes Sociométricos</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
-    header {
-      background-color: #e0f0ff;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+    header { background-color: #e0f0ff; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
-    nav {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px;
-    }
-    nav button {
-      padding: 10px 20px;
-      background: #007acc;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px; display: none; }
+    nav button { padding: 10px 20px; background: #007acc; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
     nav button:hover { background: #005fa3; }
-    section { padding: 20px; }
-    .cuadro-titulo {
-      background: #f2f8ff;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .alumnos-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .alumnos-selector button {
-      flex: 1;
-      min-width: 100px;
-      background: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px;
-      cursor: pointer;
-    }
-    canvas {
-      display: block;
-      margin: 0 auto 15px auto;
-      max-width: 90%;
-    }
-    .boton-descargar {
-      margin: 10px 0;
-      padding: 8px 16px;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .boton-descargar:hover { background-color: #3e8e41; }
-    .leyenda {
-      font-size: 0.60em;
-      color: #666;
-      margin-top: 10px;
-      text-align: left;
-      max-width: 90%;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .bloque {
-      margin-bottom: 15px;
-    }
+    section { padding: 20px; display: none; }
+    .cuadro-titulo { background: #f2f8ff; border: 1px solid #aaa; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
+    .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .alumnos-selector button { flex: 1; min-width: 100px; background: #2196f3; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer; }
+    canvas { display: block; margin: 0 auto 15px auto; max-width: 90%; }
+    .bloque { margin-bottom: 15px; }
+    .volver-seleccion { margin: 20px auto; text-align: center; display: none; }
+    .volver-seleccion button { background: #888; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
+    .volver-seleccion button:hover { background: #666; }
   </style>
 </head>
 <body>
@@ -89,90 +28,89 @@
     <h1>Informes Sociométricos</h1>
   </header>
 
-  <nav>
+  <div style="text-align:center; margin:20px;">
+    <div id="selectorGrupoContainer" style="display:none;">
+      <label for="selectorGrupo">Seleccionar grupo:</label>
+      <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
+    </div>
+  </div>
+
+  <div class="volver-seleccion" id="volverSeleccion">
+    <button onclick="volverASeleccionarGrupo()">🔁 Cambiar grupo</button>
+  </div>
+
+  <nav id="menuInformes">
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
 
-  <div id="selectorGrupo" style="text-align:center; margin:20px;">
-    <h2>Selecciona un grupo para comenzar</h2>
-    <select id="listaGrupos" onchange="seleccionarGrupo(this.value)" style="padding:8px; font-size:16px;">
-      <option value="">-- Selecciona un grupo --</option>
-    </select>
-    <br/><br/>
-    <input type="file" id="archivoJson" accept=".json" onchange="cargarGrupoDesdeArchivo(this)" />
-  </div>
-  <section id="aula" style="display:none;">
+  <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
-      <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión media. Existen relaciones positivas predominantes, aunque se observan focos de disociación que deben abordarse.</p>
-      <h3>Propuesta de Intervención</h3>
-      <ul>
-        <li><strong>Educación emocional:</strong> Empatía, comunicación no violenta.</li>
-        <li><strong>Educación en valores:</strong> Inclusión, respeto a la diversidad.</li>
-        <li><strong>Grupo y aula:</strong> Actividades cooperativas, reforzar vínculos débiles.</li>
-      </ul>
-    </div>
-    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-
-    <div id="resumenEstadistico" style="padding:10px; border:1px solid #ccc; background:#f9f9f9; margin:15px 0;">
-      <h3>🧠 Resumen sociométrico del grupo</h3>
-      <div id="diagnosticoGrupo"></div>
-    </div>
-
-    <textarea class="observaciones-docente" placeholder="✏️ Observaciones del docente..." style="width:95%; height:100px; display:block; margin:10px auto; font-size:14px;"></textarea>
-
-    <div style="text-align: center; margin: 15px 0;">
-      <button class="boton-descargar" onclick="descargarTodoEnPDF()">📄 Exportar TODO en PDF</button>
-      <button onclick="guardarGrupo()">💾 Guardar grupo</button>
+      <div id="resumenAula"></div>
     </div>
   </section>
 
-  <section id="individual" style="display:none;">
+  <section id="individual">
     <div class="alumnos-selector" id="selectorAlumnos"></div>
     <div id="informeAlumnoContainer">
       <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
     </div>
   </section>
+
 <script>
-const datosSimulados = {
-  aula: {
-    cohesion: 60,
-    disociacion: 40,
-    lap: 65,
-    lan: 35
-  },
-  alumnos: [
-    {
-      nombre: "Carlos",
-      posicion: "Rechazado",
-      resumen: "Rechazo frecuente por parte de varios compañeros.",
-      intervencion: "Trabajar habilidades sociales y autorregulación emocional."
-    },
-    {
-      nombre: "Lucía",
-      posicion: "Preferida",
-      resumen: "Alta aceptación y liderazgo positivo.",
-      intervencion: ""
-    },
-    {
-      nombre: "Miguel",
-      posicion: "Ignorado",
-      resumen: "Bajo nivel de participación en el grupo.",
-      intervencion: "Incluir en actividades grupales cooperativas."
-    }
-  ]
+let todosLosGrupos = {};
+let datosSimulados = null;
+let graficoAula = null;
+let graficosAlumnos = {};
+
+// Cargar automáticamente un archivo JSON de ejemplo
+window.onload = function() {
+  fetch('grupos1.json')
+    .then(response => response.json())
+    .then(data => {
+      todosLosGrupos = data;
+      const selector = document.getElementById("selectorGrupo");
+      selector.innerHTML = "";
+      for (const grupo in todosLosGrupos) {
+        const option = document.createElement("option");
+        option.value = grupo;
+        option.textContent = grupo;
+        selector.appendChild(option);
+      }
+      document.getElementById("selectorGrupoContainer").style.display = "block";
+    })
+    .catch(() => alert("No se pudo cargar el archivo grupos.json"));
 };
+
+function cargarGrupoSeleccionado() {
+  const grupoSeleccionado = document.getElementById("selectorGrupo").value;
+  datosSimulados = todosLosGrupos[grupoSeleccionado];
+  document.getElementById("menuInformes").style.display = "flex";
+  document.getElementById("volverSeleccion").style.display = "block";
+  document.getElementById("selectorGrupoContainer").style.display = "none";
+  mostrarSeccion('aula');
+}
+
+function volverASeleccionarGrupo() {
+  document.getElementById("menuInformes").style.display = "none";
+  document.getElementById("volverSeleccion").style.display = "none";
+  document.getElementById("selectorGrupoContainer").style.display = "block";
+  document.getElementById("aula").style.display = "none";
+  document.getElementById("individual").style.display = "none";
+}
 
 function mostrarSeccion(seccion) {
   document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
   document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+  if (seccion === 'aula') cargarGraficoAula();
+  if (seccion === 'individual') generarSelectorAlumnos();
 }
 
 function cargarGraficoAula() {
   const ctx = document.getElementById('graficoCohesion').getContext('2d');
-  new Chart(ctx, {
+  if (graficoAula) graficoAula.destroy();
+  graficoAula = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Cohesión', 'Disociación', 'Act. Positiva', 'Act. Negativa'],
@@ -190,24 +128,17 @@ function cargarGraficoAula() {
     options: {
       responsive: true,
       plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, max: 100 }
-      }
+      scales: { y: { beginAtZero: true, max: 100 } }
     }
   });
-}
-
-function diagnosticoAutomatico() {
-  const resumen = `
+  document.getElementById("resumenAula").innerHTML = `
+    <p><strong>Resumen:</strong> Informe automático generado.</p>
+    <h3>Propuesta de Intervención</h3>
     <ul>
-      <li><strong>Cohesión:</strong> media (65%)</li>
-      <li><strong>Disociación:</strong> moderada (35%)</li>
-      <li><strong>Actitudes positivas:</strong> altas (70%)</li>
-      <li><strong>Actitudes negativas:</strong> bajas (30%)</li>
-    </ul>
-    <p>Requiere intervención en subgrupos con vínculos débiles e inclusión de alumnos ignorados.</p>
-  `;
-  document.getElementById("diagnosticoGrupo").innerHTML = resumen;
+      <li><strong>Educación emocional:</strong> Empatía, comunicación no violenta.</li>
+      <li><strong>Educación en valores:</strong> Inclusión, respeto a la diversidad.</li>
+      <li><strong>Grupo y aula:</strong> Actividades cooperativas, reforzar vínculos débiles.</li>
+    </ul>`;
 }
 
 function generarSelectorAlumnos() {
@@ -215,135 +146,60 @@ function generarSelectorAlumnos() {
   contenedor.innerHTML = "";
   datosSimulados.alumnos.forEach((alumno, i) => {
     const btn = document.createElement("button");
-    const necesitaIntervencion = (
-      alumno.posicion === "Rechazado" ||
-      alumno.posicion === "Ignorado" ||
-      (alumno.intervencion && alumno.intervencion.trim() !== "")
-    );
-    btn.textContent = necesitaIntervencion ? `⚠️ ${alumno.nombre}` : alumno.nombre;
+    const riesgo = alumno.indices.np < 30 || alumno.indices.nn > 60 || alumno.indices.ipp < 40 || alumno.indices.imn > 60;
+    btn.textContent = riesgo ? `⚠️ ${alumno.nombre}` : alumno.nombre;
     btn.onclick = () => mostrarInformeAlumno(i);
     contenedor.appendChild(btn);
   });
 }
+
 function mostrarInformeAlumno(i) {
   const alumno = datosSimulados.alumnos[i];
   const contenedor = document.getElementById("informeAlumno");
+
+  const amistades = alumno.amistades?.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna";
+  const enemistades = alumno.enemistades?.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna";
+  const oposiciones = alumno.oposiciones?.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna";
+
+  let propuestas = [];
+  const ixs = alumno.indices;
+  if (ixs.np < 30 || ixs.ipp < 40) propuestas.push(`<strong>Educación emocional:</strong> Habilidades sociales, autoestima, empatía.`);
+  if (ixs.nn > 60 || ixs.imn > 60) propuestas.push(`<strong>Educación en valores:</strong> Inclusión, respeto, normas de convivencia.`);
+  if (ixs.ep === "Baja") propuestas.push(`<strong>Grupo y aula:</strong> Dinámicas cooperativas, participación grupal.`);
+
   contenedor.innerHTML = `
     <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+    <canvas id="graficoAlumno${i}"></canvas>
     <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
+    <div class="bloque"><strong>Amistades:</strong> ${amistades}</div>
+    <div class="bloque"><strong>Enemistades:</strong> ${enemistades}</div>
+    <div class="bloque"><strong>Oposición de sentimientos:</strong> ${oposiciones}</div>
     <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
-    <div class="bloque"><strong>Propuesta de intervención:</strong> ${alumno.intervencion || "Ninguna específica"}</div>
+    <div class="bloque"><strong>Propuesta de intervención:</strong><br>${propuestas.join('<br>') || "No requerida"}</div>
   `;
-  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-}
 
-function descargarPDF(idElemento, nombreArchivo) {
-  const elemento = document.getElementById(idElemento);
-  html2pdf().from(elemento).set({
-    margin: 10,
-    filename: nombreArchivo,
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4' }
-  }).save();
-}
-
-function descargarTodoEnPDF() {
-  const contenido = document.getElementById("aula");
-  html2pdf().from(contenido).set({
-    margin: 10,
-    filename: "Informe_Completo.pdf",
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "mm", format: "a4" }
-  }).save();
-}
-
-function guardarGrupo() {
-  const data = JSON.stringify(datosSimulados, null, 2);
-  const blob = new Blob([data], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "grupo_sociometrico.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function cargarGrupoDesdeArchivo(input) {
-  if (!input.files.length) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const datos = JSON.parse(e.target.result);
-      const nombreGrupo = prompt("¿Qué nombre deseas asignar a este grupo?");
-      if (nombreGrupo) {
-        localStorage.setItem(nombreGrupo, JSON.stringify(datos));
-        actualizarSelectorGrupos();
-        document.getElementById("listaGrupos").value = nombreGrupo;
-        seleccionarGrupo(nombreGrupo);
-      }
-    } catch {
-      alert("Archivo inválido");
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext("2d");
+  if (graficosAlumnos[i]) graficosAlumnos[i].destroy();
+  graficosAlumnos[i] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(alumno.indices),
+      datasets: [{
+        data: Object.values(alumno.indices).map(v => typeof v === 'number' ? v : 0),
+        backgroundColor: Object.values(alumno.indices).map(v => v >= 70 ? '#4caf50' : v <= 30 ? '#f44336' : '#ffc107')
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: 100 } }
     }
-  };
-  reader.readAsText(input.files[0]);
+  });
 }
-
-function seleccionarGrupo(nombre) {
-  if (!nombre) return;
-  const grupo = localStorage.getItem(nombre);
-  if (grupo) {
-    const datos = JSON.parse(grupo);
-    datosSimulados.aula = datos.aula || {};
-    datosSimulados.alumnos = datos.alumnos || [];
-    mostrarPanel();
-  }
-}
-
-function actualizarSelectorGrupos() {
-  const lista = document.getElementById("listaGrupos");
-  lista.innerHTML = '<option value="">-- Selecciona un grupo --</option>';
-  for (let i = 0; i < localStorage.length; i++) {
-    const clave = localStorage.key(i);
-    try {
-      const datos = JSON.parse(localStorage.getItem(clave));
-      if (datos.aula && Array.isArray(datos.alumnos)) {
-        const option = document.createElement("option");
-        option.value = clave;
-        option.textContent = clave;
-        lista.appendChild(option);
-      }
-    } catch (e) {
-      // ignorar entradas no válidas
-    }
-  }
-}
-
-function mostrarPanel() {
-  document.getElementById("selectorGrupo").style.display = "none";
-  document.getElementById("aula").style.display = "block";
-  cargarGraficoAula();
-  diagnosticoAutomatico();
-  generarSelectorAlumnos();
-}
-
-window.onload = () => {
-  if (!localStorage.getItem("Grupo de prueba")) {
-    localStorage.setItem("Grupo de prueba", JSON.stringify(datosSimulados));
-  }
-  actualizarSelectorGrupos();
-
-  // Selecciona automáticamente el grupo de prueba
-  const selector = document.getElementById("listaGrupos");
-  if (selector && selector.options.length > 1) {
-    selector.value = "Grupo de prueba";
-    seleccionarGrupo("Grupo de prueba");
-  }
-};
 </script>
 </body>
 </html>
+
 
 
 
