@@ -36,7 +36,6 @@
     <div id="selectorGrupoContainer">
       <label for="selectorGrupo">Seleccionar grupo:</label>
       <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
-      <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)" />
     </div>
   </div>
 
@@ -66,35 +65,53 @@
   </section>
 
 <script>
-let todosLosGrupos = {};
-
-function leerArchivoGrupo(event) {
-  const archivo = event.target.files[0];
-  if (!archivo) return;
-
-  const lector = new FileReader();
-  lector.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      todosLosGrupos = data;
-      const selector = document.getElementById("selectorGrupo");
-      selector.innerHTML = "";
-      for (const grupo in todosLosGrupos) {
-        const option = document.createElement("option");
-        option.value = grupo;
-        option.textContent = grupo;
-        selector.appendChild(option);
+let todosLosGrupos = {
+  "Grupo de Prueba": {
+    "aula": {
+      "cohesion": 65,
+      "disociacion": 35,
+      "lap": 70,
+      "lan": 30
+    },
+    "alumnos": [
+      {
+        "nombre": "Lucía",
+        "posicion": "Preferida",
+        "indices": { "np": 78, "nn": 12, "ep": "Alta", "pp": 75, "pap": 90, "oip": 0, "en": "Baja", "pn": 10, "pan": 80, "oin": 0, "ip": "Sí", "imp": 85, "in": "No", "imn": 10, "ipp": 88 },
+        "amistades": [{ "nombre": "Irene", "valor": "5/4" }],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Figura positiva con fuerte integración.",
+        "intervencion": ""
+      },
+      {
+        "nombre": "Pedro",
+        "posicion": "Rechazado",
+        "indices": { "np": 25, "nn": 68, "ep": "Baja", "pp": 30, "pap": 40, "oip": 2, "en": "Alta", "pn": 90, "pan": 20, "oin": 3, "ip": "No", "imp": 20, "in": "Sí", "imn": 75, "ipp": 15 },
+        "amistades": [],
+        "enemistades": [{ "nombre": "Juan", "valor": "2/3" }],
+        "oposiciones": [{ "nombre": "Marta", "valor": "1/3" }],
+        "resumen": "Necesita intervención por rechazo significativo.",
+        "intervencion": "Desarrollo de habilidades sociales y autoestima."
       }
-      if (Object.keys(todosLosGrupos).length > 0) {
-        selector.selectedIndex = 0;
-        cargarGrupoSeleccionado();
-      }
-    } catch (err) {
-      alert("Error al leer el archivo JSON");
-    }
-  };
-  lector.readAsText(archivo);
-}
+    ]
+  }
+};
+
+window.onload = () => {
+  const selector = document.getElementById("selectorGrupo");
+  selector.innerHTML = "";
+  for (const grupo in todosLosGrupos) {
+    const option = document.createElement("option");
+    option.value = grupo;
+    option.textContent = grupo;
+    selector.appendChild(option);
+  }
+  if (Object.keys(todosLosGrupos).length > 0) {
+    selector.selectedIndex = 0;
+    cargarGrupoSeleccionado();
+  }
+};
 
 function descargarPDF(idElemento, nombreArchivo) {
   const elemento = document.getElementById(idElemento);
@@ -111,6 +128,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+
 
 
 
