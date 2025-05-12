@@ -8,31 +8,10 @@
     },
     "alumnos": [
       {
-        "nombre": "Mar\u00eda",
+        "nombre": "María",
         "posicion": "Preferida",
-        "indices": {
-          "np": 85,
-          "nn": 10,
-          "ep": "Alta",
-          "pp": 80,
-          "pap": 90,
-          "oip": 0,
-          "en": "Baja",
-          "pn": 10,
-          "pan": 85,
-          "oin": 0,
-          "ip": "S\u00ed",
-          "imp": 90,
-          "in": "No",
-          "imn": 10,
-          "ipp": 88
-        },
-        "amistades": [
-          {
-            "nombre": "Luc\u00eda",
-            "valor": "5/4"
-          }
-        ],
+        "indices": { "np": 85, "nn": 10, "ep": "Alta", "pp": 80, "pap": 90, "oip": 0, "en": "Baja", "pn": 10, "pan": 85, "oin": 0, "ip": "Sí", "imp": 90, "in": "No", "imn": 10, "ipp": 88 },
+        "amistades": [{ "nombre": "Lucía", "valor": "5/4" }],
         "enemistades": [],
         "oposiciones": [],
         "resumen": "Figura muy positiva en el grupo.",
@@ -41,27 +20,71 @@
       {
         "nombre": "Carlos",
         "posicion": "Neutral",
-        "indices": {
-          "np": 50,
-          "nn": 20,
-          "ep": "Media",
-          "pp": 60,
-          "pap": 65,
-          "oip": 0,
-          "en": "Baja",
-          "pn": 25,
-          "pan": 70,
-          "oin": 1,
-          "ip": "S\u00ed",
-          "imp": 60,
-          "in": "No",
-          "imn": 20,
-          "ipp": 58
-        },
+        "indices": { "np": 50, "nn": 20, "ep": "Media", "pp": 60, "pap": 65, "oip": 0, "en": "Baja", "pn": 25, "pan": 70, "oin": 1, "ip": "Sí", "imp": 60, "in": "No", "imn": 20, "ipp": 58 },
         "amistades": [],
         "enemistades": [],
         "oposiciones": [],
-        "resumen": "Participaci\u00f3n estable y sin conflictos.",
+        "resumen": "Participación estable y sin conflictos.",
+        "intervencion": ""
+      }
+    ]
+  },
+  "Grupo B": {
+    "aula": {
+      "cohesion": 50,
+      "disociacion": 50,
+      "lap": 60,
+      "lan": 40
+    },
+    "alumnos": [
+      {
+        "nombre": "Andrés",
+        "posicion": "Rechazado",
+        "indices": { "np": 20, "nn": 65, "ep": "Baja", "pp": 35, "pap": 30, "oip": 1, "en": "Alta", "pn": 80, "pan": 20, "oin": 2, "ip": "No", "imp": 30, "in": "Sí", "imn": 70, "ipp": 25 },
+        "amistades": [],
+        "enemistades": [{ "nombre": "Sara", "valor": "3/3" }],
+        "oposiciones": [],
+        "resumen": "Necesita intervención urgente.",
+        "intervencion": ""
+      },
+      {
+        "nombre": "Sara",
+        "posicion": "Controvertida",
+        "indices": { "np": 60, "nn": 60, "ep": "Media", "pp": 65, "pap": 70, "oip": 1, "en": "Media", "pn": 60, "pan": 55, "oin": 1, "ip": "Sí", "imp": 62, "in": "Sí", "imn": 60, "ipp": 59 },
+        "amistades": [{ "nombre": "Lucía", "valor": "3/4" }],
+        "enemistades": [{ "nombre": "Andrés", "valor": "3/3" }],
+        "oposiciones": [],
+        "resumen": "Aceptada por algunos, rechazada por otros.",
+        "intervencion": ""
+      }
+    ]
+  },
+  "Grupo C": {
+    "aula": {
+      "cohesion": 40,
+      "disociacion": 60,
+      "lap": 45,
+      "lan": 55
+    },
+    "alumnos": [
+      {
+        "nombre": "Isabel",
+        "posicion": "Ignorada",
+        "indices": { "np": 10, "nn": 5, "ep": "Baja", "pp": 15, "pap": 20, "oip": 1, "en": "Baja", "pn": 10, "pan": 25, "oin": 0, "ip": "No", "imp": 15, "in": "No", "imn": 10, "ipp": 18 },
+        "amistades": [],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Escasa visibilidad en el grupo.",
+        "intervencion": ""
+      },
+      {
+        "nombre": "David",
+        "posicion": "Preferida",
+        "indices": { "np": 78, "nn": 12, "ep": "Alta", "pp": 82, "pap": 85, "oip": 0, "en": "Baja", "pn": 10, "pan": 80, "oin": 0, "ip": "Sí", "imp": 88, "in": "No", "imn": 10, "ipp": 84 },
+        "amistades": [{ "nombre": "Isabel", "valor": "4/4" }],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Bien integrado y con buena imagen grupal.",
         "intervencion": ""
       }
     ]
