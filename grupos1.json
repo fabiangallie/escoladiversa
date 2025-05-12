@@ -1,0 +1,69 @@
+{
+  "Grupo A": {
+    "aula": {
+      "cohesion": 70,
+      "disociacion": 30,
+      "lap": 75,
+      "lan": 25
+    },
+    "alumnos": [
+      {
+        "nombre": "Mar\u00eda",
+        "posicion": "Preferida",
+        "indices": {
+          "np": 85,
+          "nn": 10,
+          "ep": "Alta",
+          "pp": 80,
+          "pap": 90,
+          "oip": 0,
+          "en": "Baja",
+          "pn": 10,
+          "pan": 85,
+          "oin": 0,
+          "ip": "S\u00ed",
+          "imp": 90,
+          "in": "No",
+          "imn": 10,
+          "ipp": 88
+        },
+        "amistades": [
+          {
+            "nombre": "Luc\u00eda",
+            "valor": "5/4"
+          }
+        ],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Figura muy positiva en el grupo.",
+        "intervencion": ""
+      },
+      {
+        "nombre": "Carlos",
+        "posicion": "Neutral",
+        "indices": {
+          "np": 50,
+          "nn": 20,
+          "ep": "Media",
+          "pp": 60,
+          "pap": 65,
+          "oip": 0,
+          "en": "Baja",
+          "pn": 25,
+          "pan": 70,
+          "oin": 1,
+          "ip": "S\u00ed",
+          "imp": 60,
+          "in": "No",
+          "imn": 20,
+          "ipp": 58
+        },
+        "amistades": [],
+        "enemistades": [],
+        "oposiciones": [],
+        "resumen": "Participaci\u00f3n estable y sin conflictos.",
+        "intervencion": ""
+      }
+    ]
+  }
+}
