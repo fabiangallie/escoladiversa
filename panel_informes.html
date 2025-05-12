@@ -36,6 +36,7 @@
     <div id="selectorGrupoContainer">
       <label for="selectorGrupo">Seleccionar grupo:</label>
       <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
+      <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)" />
     </div>
   </div>
 
@@ -65,9 +66,36 @@
   </section>
 
 <script>
-// El mismo código JavaScript anterior permanece igual
-</script>
-<script>
+let todosLosGrupos = {};
+
+function leerArchivoGrupo(event) {
+  const archivo = event.target.files[0];
+  if (!archivo) return;
+
+  const lector = new FileReader();
+  lector.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      todosLosGrupos = data;
+      const selector = document.getElementById("selectorGrupo");
+      selector.innerHTML = "";
+      for (const grupo in todosLosGrupos) {
+        const option = document.createElement("option");
+        option.value = grupo;
+        option.textContent = grupo;
+        selector.appendChild(option);
+      }
+      if (Object.keys(todosLosGrupos).length > 0) {
+        selector.selectedIndex = 0;
+        cargarGrupoSeleccionado();
+      }
+    } catch (err) {
+      alert("Error al leer el archivo JSON");
+    }
+  };
+  lector.readAsText(archivo);
+}
+
 function descargarPDF(idElemento, nombreArchivo) {
   const elemento = document.getElementById(idElemento);
   html2pdf()
@@ -83,7 +111,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
->
+
 
 
 
