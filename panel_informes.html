@@ -3,150 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Informes</title>
+  <title>Informe de Grupo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 30px;
+      background-color: #f7f7f7;
     }
-    #panelInicial, #panelGrupos, #informe {
-      display: none;
+
+    h1, h2 {
+      color: #333;
     }
+
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    select, input[type="file"] {
+      margin-bottom: 20px;
+      padding: 5px;
+    }
+
+    .informe {
+      margin-top: 20px;
+    }
+
+    .alumno {
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
     .icono-atencion {
       color: red;
       font-weight: bold;
       margin-left: 5px;
     }
-    .boton {
-      margin-top: 10px;
-      padding: 10px;
+
+    .propuesta ul {
+      padding-left: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
       background-color: #007BFF;
       color: white;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    .boton:hover {
+
+    button:hover {
       background-color: #0056b3;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Informe de Grupo</h1>
 
-  <h1>Generador de Informes</h1>
+    <div class="section">
+      <label for="fileInput">Cargar archivo de grupos (.json):</label>
+      <input type="file" id="fileInput" accept=".json" />
+    </div>
 
-  <!-- Pantalla inicial -->
-  <div id="pantallaInicial">
-    <input type="file" id="cargarJSON" accept=".json">
-    <button class="boton" id="botonCargar">Seleccionar grupo</button>
+    <div class="section hidden" id="grupoSelectorSection">
+      <label for="grupoSelect">Seleccionar grupo:</label>
+      <select id="grupoSelect"></select>
+      <button onclick="mostrarInforme()">Ver Informe</button>
+    </div>
+
+    <div class="section" id="informeContainer"></div>
   </div>
-
-  <!-- Panel selección de grupo -->
-  <div id="panelGrupos">
-    <h2>Selecciona un grupo</h2>
-    <select id="selectorGrupo"></select>
-    <button class="boton" id="verInforme">Ver Informe</button>
-  </div>
-
-  <!-- Panel informe -->
-  <div id="informe"></div>
 
   <script>
-    let datos = {};
-    let grupoSeleccionado = "";
+    let gruposData = {};
 
-    document.getElementById("botonCargar").addEventListener("click", () => {
-      const fileInput = document.getElementById("cargarJSON");
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Por favor, selecciona un archivo JSON.");
-        return;
-      }
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
-        datos = JSON.parse(e.target.result);
-        mostrarSelectorGrupos();
+        try {
+          gruposData = JSON.parse(e.target.result);
+          const select = document.getElementById('grupoSelect');
+          select.innerHTML = '';
+          Object.keys(gruposData).forEach(grupo => {
+            const option = document.createElement('option');
+            option.value = grupo;
+            option.textContent = grupo;
+            select.appendChild(option);
+          });
+          document.getElementById('grupoSelectorSection').classList.remove('hidden');
+        } catch (err) {
+          alert('Error al leer el archivo JSON');
+        }
       };
       reader.readAsText(file);
     });
 
-    function mostrarSelectorGrupos() {
-      const selector = document.getElementById("selectorGrupo");
-      selector.innerHTML = "";
-      Object.keys(datos).forEach(grupo => {
-        const option = document.createElement("option");
-        option.value = grupo;
-        option.textContent = grupo;
-        selector.appendChild(option);
-      });
-
-      document.getElementById("pantallaInicial").style.display = "none";
-      document.getElementById("panelGrupos").style.display = "block";
-    }
-
-    document.getElementById("verInforme").addEventListener("click", () => {
-      grupoSeleccionado = document.getElementById("selectorGrupo").value;
-      mostrarInforme();
-    });
-
     function mostrarInforme() {
-      const grupo = datos[grupoSeleccionado];
-      const contenedor = document.getElementById("informe");
-      contenedor.innerHTML = `<h2>Informe del grupo: ${grupoSeleccionado}</h2>`;
+      const grupoNombre = document.getElementById('grupoSelect').value;
+      const grupo = gruposData[grupoNombre];
+      const contenedor = document.getElementById('informeContainer');
+      contenedor.innerHTML = '';
 
-      grupo.alumnos.forEach(alumno => {
-        contenedor.innerHTML += `
-          <h3>${alumno.nombre} ${alumno.atencion ? '<span class="icono-atencion">⚠️</span>' : ''}</h3>
-          <p><strong>Observaciones:</strong> ${alumno.observaciones || "Ninguna"}</p>
-          <p><strong>Necesidades:</strong> ${alumno.necesidades || "No especificadas"}</p>
-        `;
-      });
-
-      contenedor.innerHTML += `
-        <h3>Resumen del grupo</h3>
-        <p>${grupo.resumen || "Sin resumen disponible."}</p>
-
-        <h3>Propuesta de intervención</h3>
-        <p>
-          Se sugiere trabajar los siguientes aspectos:
-          <ul>
-            <li><strong>Educación emocional:</strong> Reconocimiento y gestión de emociones.</li>
-            <li><strong>Educación en valores:</strong> Respeto, empatía, cooperación.</li>
-            <li><strong>Dinámicas de grupo y aula:</strong> Actividades que fomenten la cohesión grupal y resolución de conflictos.</li>
-          </ul>
-        </p>
+      const resumen = document.createElement('div');
+      resumen.classList.add('informe');
+      resumen.innerHTML = `
+        <h2>Resumen del grupo</h2>
+        <p>${grupo.resumen || 'No disponible'}</p>
       `;
+      contenedor.appendChild(resumen);
 
-      document.getElementById("panelGrupos").style.display = "none";
-      contenedor.style.display = "block";
+      const propuesta = document.createElement('div');
+      propuesta.classList.add('informe', 'propuesta');
+      propuesta.innerHTML = `
+        <h2>Propuesta de intervención</h2>
+        <ul>
+          <li><strong>Educación emocional:</strong> Autoconocimiento, gestión emocional, empatía.</li>
+          <li><strong>Educación en valores:</strong> Respeto, responsabilidad, solidaridad.</li>
+          <li><strong>Grupo y aula:</strong> Normas, resolución de conflictos, cohesión grupal.</li>
+        </ul>
+      `;
+      contenedor.appendChild(propuesta);
+
+      const alumnos = grupo.alumnos || [];
+      alumnos.forEach(alumno => {
+        const div = document.createElement('div');
+        div.classList.add('alumno');
+        div.innerHTML = `
+          <h3>${alumno.nombre}
+            ${alumno.atencion ? '<span class="icono-atencion">⚠️</span>' : ''}
+          </h3>
+          <p><strong>Observaciones:</strong> ${alumno.observaciones || 'No disponible'}</p>
+          <p><strong>Necesidades:</strong> ${alumno.necesidades || 'No disponible'}</p>
+        `;
+        contenedor.appendChild(div);
+      });
     }
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
