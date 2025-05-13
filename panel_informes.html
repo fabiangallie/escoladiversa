@@ -112,6 +112,126 @@
   </style>
 </head>
 <body>
+  <header>
+    <h1>Informes Sociométricos</h1>
+  </header>
+
+  <section>
+    <div class="alumnos-selector" id="alumnosSelector"></div>
+
+    <div id="informeAlumno">
+      <div class="cuadro-titulo"><h2>Informe del Alumno</h2></div>
+      <div id="contenidoInforme">
+        <p>Selecciona un alumno para ver su informe.</p>
+      </div>
+      <button class="boton-descargar" onclick="descargarPDF()">Descargar PDF</button>
+    </div>
+  </section>
+
+  <script>
+    // Simulación de grupos1.json embebido
+    const data = {
+      "alumnos": [
+        {
+          "nombre": "Juan Pérez",
+          "aceptacion": 8,
+          "rechazo": 2,
+          "sociograma": {
+            "amistades": ["Ana López", "Luis Torres"],
+            "rechazos": ["Pedro Ruiz"]
+          }
+        },
+        {
+          "nombre": "Ana López",
+          "aceptacion": 10,
+          "rechazo": 1,
+          "sociograma": {
+            "amistades": ["Juan Pérez"],
+            "rechazos": []
+          }
+        },
+        {
+          "nombre": "Luis Torres",
+          "aceptacion": 5,
+          "rechazo": 5,
+          "sociograma": {
+            "amistades": ["Ana López"],
+            "rechazos": ["Juan Pérez"]
+          }
+        }
+      ]
+    };
+
+    function crearBotonesAlumnos() {
+      const contenedor = document.getElementById("alumnosSelector");
+      data.alumnos.forEach((alumno, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = alumno.nombre;
+        btn.onclick = () => mostrarInforme(index);
+        contenedor.appendChild(btn);
+      });
+    }
+
+    function mostrarInforme(index) {
+      const alumno = data.alumnos[index];
+      const contenedor = document.getElementById("contenidoInforme");
+      contenedor.innerHTML = `
+        <div class="bloque"><strong>Nombre:</strong> ${alumno.nombre}</div>
+        <div class="bloque"><strong>Aceptación:</strong> ${alumno.aceptacion}</div>
+        <div class="bloque"><strong>Rechazo:</strong> ${alumno.rechazo}</div>
+        <div class="bloque"><strong>Amistades:</strong> ${alumno.sociograma.amistades.join(", ")}</div>
+        <div class="bloque"><strong>Rechazos:</strong> ${alumno.sociograma.rechazos.join(", ") || "Ninguno"}</div>
+        <canvas id="graficoAlumno" width="400" height="400"></canvas>
+      `;
+
+      // Generar gráfico
+      const ctx = document.getElementById('graficoAlumno').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Aceptación', 'Rechazo'],
+          datasets: [{
+            label: alumno.nombre,
+            data: [alumno.aceptacion, alumno.rechazo],
+            backgroundColor: ['#4caf50', '#f44336']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: true
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function descargarPDF() {
+      const element = document.getElementById('informeAlumno');
+      const opt = {
+        margin: 0.5,
+        filename: 'informe_alumno.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    crearBotonesAlumnos();
+  </script>
+</body>
+</html>
+
 
 
 
