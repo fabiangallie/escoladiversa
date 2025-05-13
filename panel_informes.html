@@ -27,9 +27,24 @@
   </style>
 </head>
 <body>
-  <!-- El resto permanece igual hasta mostrarInformeAlumno -->
+
+  <!-- Contenedor de selección de alumnos -->
+  <div id="selectorAlumnos" class="alumnos-selector"></div>
+
+  <!-- Contenedor de informe individual -->
+  <section id="informeAlumno"></section>
+
+  <!-- Botón de descarga del informe individual -->
+  <div style="text-align: center;">
+    <button id="btnDescargarAlumno" class="boton-descargar" style="display:none" onclick="descargarInformeIndividual()">Descargar PDF</button>
+  </div>
+
   <script>
+    let grupoActivo = {
+      alumnos: [] // Este se llenará con los datos reales del JSON
+    };
     let alumnoSeleccionado = null;
+
     function generarSelectorAlumnos() {
       const contenedor = document.getElementById("selectorAlumnos");
       contenedor.innerHTML = "";
@@ -51,10 +66,22 @@
     function mostrarInformeAlumno(i) {
       const alumno = grupoActivo.alumnos[i];
       const cont = document.getElementById("informeAlumno");
+      const valores = alumno.indices;
+      const etiquetas = ["NP", "NN", "EP", "PP", "Pap", "EN", "PN", "Pan", "OIP", "OIN", "IP", "IN", "IMP", "IMN", "IPP"];
+      const datos = [
+        valores.np, valores.nn, valores.ep === "Alta" ? 100 : valores.ep === "Media" ? 50 : 0,
+        valores.pp, valores.pap, valores.en, valores.pn, valores.pan,
+        valores.oip, valores.oin, valores.ip, valores["in"], valores.imp, valores.imn, valores.ipp
+      ];
       cont.innerHTML = `
         <canvas id="graficoAlumno${i}"></canvas>
         <div class="leyenda">
-          <em>NP</em>, <em>NN</em>, <em>EP</em>, <em>PP</em>, <em>Pap</em>, <em>EN</em>, <em>PN</em>, <em>Pan</em>, <em>OIP</em>, <em>OIN</em>, <em>IP</em>, <em>IN</em>, <em>IMP</em>, <em>IMN</em>, <em>IPP</em>
+          <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad, 
+          <em>PP</em>/<em>Pap</em>: Expectativa positiva/porcentaje de acierto, 
+          <em>EN</em>: Antipatía, <em>PN</em>/<em>Pan</em>: Expectativa negativa/porcentaje, 
+          <em>OIP</em>/<em>OIN</em>: Oposición sentimiento, 
+          <em>IP</em>/<em>IN</em>: Impresiones grupo, <em>IMP</em>/<em>IMN</em>: Nivel impresiones, 
+          <em>IPP</em>: Preferencia social positiva.
         </div>
         <br>
         <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
@@ -71,19 +98,18 @@
           if (i.imn > 60) propuestas.push("Abordar la percepción negativa grupal mediante dinámicas de inclusión.");
           if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
           return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
-        })()}`;
-
+        })()}
+      `;
       document.getElementById("btnDescargarAlumno").style.display = "inline-block";
       const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-      const valores = alumno.indices;
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Object.keys(valores),
+          labels: etiquetas,
           datasets: [{
             label: 'Índices',
-            data: Object.values(valores).map(v => typeof v === 'number' ? v : 0),
-            backgroundColor: Object.values(valores).map(v => {
+            data: datos,
+            backgroundColor: datos.map(v => {
               if (typeof v === 'number') {
                 if (v >= 70) return '#4caf50';
                 if (v <= 30) return '#f44336';
@@ -100,9 +126,49 @@
         }
       });
     }
+
+    function descargarInformeIndividual() {
+      const element = document.getElementById("informeAlumno");
+      const opt = {
+        margin:       0.3,
+        filename:     'informe_individual.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Carga de ejemplo (puedes quitar esto si usas carga desde JSON)
+    window.onload = () => {
+      grupoActivo = {
+        alumnos: [
+          {
+            nombre: "Lucía",
+            indices: { np: 28, nn: 65, ep: "Baja", pp: 40, pap: 70, en: 30, pn: 60, pan: 50, oip: 40, oin: 30, ip: 50, "in": 45, imp: 35, imn: 70, ipp: 25 },
+            posicion: "Aislada",
+            amistades: [],
+            enemistades: [],
+            oposiciones: [],
+            resumen: "Lucía muestra dificultades en la integración grupal y es percibida negativamente."
+          },
+          {
+            nombre: "Carlos",
+            indices: { np: 75, nn: 10, ep: "Alta", pp: 80, pap: 90, en: 10, pn: 20, pan: 15, oip: 10, oin: 10, ip: 85, "in": 15, imp: 90, imn: 10, ipp: 88 },
+            posicion: "Líder positivo",
+            amistades: [{ nombre: "Lucía", valor: 90 }],
+            enemistades: [],
+            oposiciones: [],
+            resumen: "Carlos tiene una alta aceptación social y liderazgo positivo."
+          }
+        ]
+      };
+      generarSelectorAlumnos();
+    };
   </script>
 </body>
 </html>
+
 
 
 
