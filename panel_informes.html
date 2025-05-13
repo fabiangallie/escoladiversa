@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panel de Informes Sociométricos</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
-    header { background-color: #e0f0ff; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    header { background-color: #e0f0ff; padding: 20px; text-align: center; }
     header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
-    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px; }
-    nav button { padding: 10px 20px; background: #007acc; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    nav { display: flex; justify-content: center; gap: 10px; margin: 10px; flex-wrap: wrap; }
+    nav button { padding: 10px 20px; background: #007acc; color: white; border: none; border-radius: 5px; cursor: pointer; }
     nav button:hover { background: #005fa3; }
     section { padding: 20px; display: none; }
+    .volver-seleccion { text-align: center; margin: 10px; display: none; }
+    .volver-seleccion button { background: #888; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
     .cuadro-titulo { background: #f2f8ff; border: 1px solid #aaa; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
     .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
     .alumnos-selector button { flex: 1; min-width: 100px; background: #2196f3; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer; }
     canvas { display: block; margin: 0 auto 15px auto; max-width: 90%; }
-    .bloque { margin-bottom: 15px; }
-    .volver-seleccion { margin: 20px auto; text-align: center; display: none; }
-    .volver-seleccion button { background: #888; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
-    .volver-seleccion button:hover { background: #666; }
     .leyenda { font-size: 0.6em; color: #555; text-align: left; margin-top: 10px; max-width: 90%; margin-left: auto; margin-right: auto; }
     .boton-descargar { margin: 10px 0; padding: 8px 16px; background-color: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .boton-descargar:hover { background-color: #3e8e41; }
@@ -33,11 +31,9 @@
   </header>
 
   <div style="text-align:center; margin:20px;">
-    <div id="selectorGrupoContainer">
-      <label for="selectorGrupo">Seleccionar grupo:</label>
-      <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
-      <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)">
-    </div>
+    <label for="selectorGrupo">Seleccionar grupo:</label>
+    <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
+    <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)">
   </div>
 
   <div class="volver-seleccion" id="volverSeleccion">
@@ -61,15 +57,6 @@
     <div class="alumnos-selector" id="selectorAlumnos"></div>
     <div id="informeAlumnoContainer">
       <div id="informeAlumno"></div>
-      <div class="leyenda">
-        <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
-        <em>PP/PAP</em>: Preferencia positiva / porcentaje acierto positivo,
-        <em>EN</em>: Antipatía, <em>PN/PAN</em>: Preferencia negativa / porcentaje acierto negativo,
-        <em>OIP/OIN</em>: Oposición de sentimiento positivo/negativo,
-        <em>IP/IN</em>: Impresión positiva/negativa del grupo,
-        <em>IMP/IMN</em>: Nivel de impresión positiva/negativa,
-        <em>IPP</em>: Índice de preferencia positiva.
-      </div>
       <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
     </div>
   </section>
@@ -127,9 +114,13 @@ function descargarPDF(idElemento, nombreArchivo) {
     .from(elemento)
     .save();
 }
+
+// Aquí puedes reintegrar las funciones cargarGraficoAula y generarSelectorAlumnos como estaban cuando todo funcionaba bien.
+
 </script>
 </body>
 </html>
+
 
 
 
