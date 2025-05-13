@@ -107,13 +107,16 @@
           scales: { y: { beginAtZero: true } }
         }
       });
-      document.getElementById("resumenAula").innerHTML = `<div class="bloque">${info.resumen}</div><div class="bloque">${info.propuesta}</div>`;
+      document.getElementById("resumenAula").innerHTML = `
+        <div><strong>Resumen:</strong> ${info.resumen}</div>
+        <div><strong>Propuesta de intervención:</strong> ${info.propuesta}</div>
+      `;
     }
 
     function generarSelectorAlumnos(lista) {
       const contenedor = document.getElementById("selectorAlumnos");
       contenedor.innerHTML = "";
-      lista.forEach((alumno, i) => {
+      lista.forEach((alumno) => {
         const boton = document.createElement("button");
         boton.textContent = alumno.nombre;
         boton.onclick = () => mostrarInformeAlumno(alumno);
@@ -124,10 +127,10 @@
     function mostrarInformeAlumno(alumno) {
       const contenedor = document.getElementById("informeAlumno");
       contenedor.innerHTML = `
-        <div class="bloque"><strong>${alumno.nombre}</strong></div>
-        <div class="bloque">${alumno.resumen}</div>
-        <div class="bloque">${alumno.sentimientos}</div>
-        <div class="bloque">${alumno.propuesta}</div>
+        <div><strong>${alumno.nombre}</strong></div>
+        <div>${alumno.resumen}</div>
+        <div>${alumno.sentimientos}</div>
+        <div>${alumno.propuesta}</div>
       `;
       document.getElementById("btnDescargarAlumno").style.display = "inline-block";
     }
@@ -139,6 +142,7 @@
   </script>
 </body>
 </html>
+
 
 
 
