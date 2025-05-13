@@ -1,236 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Informes Sociométricos</title>
+  <meta charset="UTF-8">
+  <title>Informe de Grupos</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-      color: #333;
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f4;
     }
-
-    header {
-      background-color: #1976d2;
-      color: white;
-      padding: 1em;
+    #contenido {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1 {
       text-align: center;
     }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      background-color: #e3f2fd;
-      padding: 0.5em;
-    }
-
-    nav button {
-      margin: 0 1em;
-      padding: 0.5em 1em;
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    nav button:hover {
-      background-color: #1976d2;
-    }
-
-    section {
-      padding: 2em;
-    }
-
     canvas {
       max-width: 600px;
-      margin: 2em auto;
+      margin: auto;
       display: block;
     }
-
-    .boton-descargar {
-      margin-top: 1em;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      padding: 0.5em 1em;
-      border-radius: 4px;
-      cursor: pointer;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
     }
-
-    .boton-descargar:hover {
-      background-color: #388e3c;
-    }
-
-    .alumnos-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 1em;
-    }
-
-    .alumnos-selector button {
-      padding: 0.5em;
-      border: none;
-      border-radius: 4px;
-      background-color: #90caf9;
-      color: #0d47a1;
-      cursor: pointer;
-    }
-
-    .alumnos-selector button:hover {
-      background-color: #64b5f6;
-    }
-
-    #informeAlumno {
-      background-color: #ffffff;
+    th, td {
       border: 1px solid #ccc;
-      padding: 1em;
-      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
     }
-
-    .cuadro-titulo {
-      background-color: #e3f2fd;
-      padding: 0.5em;
-      border-left: 6px solid #2196f3;
-      margin-bottom: 1em;
+    th {
+      background-color: #eee;
     }
-
-    .leyenda {
-      font-size: 0.9em;
-      color: #555;
+    .botones {
+      text-align: center;
+      margin-top: 20px;
     }
-
-    .bloque {
-      margin: 1em 0;
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Informes Sociométricos</h1>
-  </header>
 
-  <section>
-    <div class="alumnos-selector" id="alumnosSelector"></div>
+<div class="botones">
+  <button onclick="cargarDatos()">📂 Cargar grupos1.json</button>
+  <button onclick="descargarPDF()">⬇️ Descargar PDF</button>
+</div>
 
-    <div id="informeAlumno">
-      <div class="cuadro-titulo"><h2>Informe del Alumno</h2></div>
-      <div id="contenidoInforme">
-        <p>Selecciona un alumno para ver su informe.</p>
-      </div>
-      <button class="boton-descargar" onclick="descargarPDF()">Descargar PDF</button>
-    </div>
-  </section>
+<div id="contenido">
+  <h1>Informe de Grupos</h1>
+  <canvas id="grafico"></canvas>
+  <div id="tabla"></div>
+</div>
 
-  <script>
-    // Simulación de grupos1.json embebido
-    const data = {
-      "alumnos": [
-        {
-          "nombre": "Juan Pérez",
-          "aceptacion": 8,
-          "rechazo": 2,
-          "sociograma": {
-            "amistades": ["Ana López", "Luis Torres"],
-            "rechazos": ["Pedro Ruiz"]
-          }
-        },
-        {
-          "nombre": "Ana López",
-          "aceptacion": 10,
-          "rechazo": 1,
-          "sociograma": {
-            "amistades": ["Juan Pérez"],
-            "rechazos": []
-          }
-        },
-        {
-          "nombre": "Luis Torres",
-          "aceptacion": 5,
-          "rechazo": 5,
-          "sociograma": {
-            "amistades": ["Ana López"],
-            "rechazos": ["Juan Pérez"]
-          }
-        }
-      ]
-    };
+<script>
+  let chartInstance;
 
-    function crearBotonesAlumnos() {
-      const contenedor = document.getElementById("alumnosSelector");
-      data.alumnos.forEach((alumno, index) => {
-        const btn = document.createElement("button");
-        btn.textContent = alumno.nombre;
-        btn.onclick = () => mostrarInforme(index);
-        contenedor.appendChild(btn);
+  function cargarDatos() {
+    fetch('grupos1.json')
+      .then(response => {
+        if (!response.ok) throw new Error('No se pudo cargar grupos1.json');
+        return response.json();
+      })
+      .then(data => {
+        mostrarGrafico(data);
+        mostrarTabla(data);
+      })
+      .catch(err => {
+        alert("Error: " + err.message);
       });
-    }
+  }
 
-    function mostrarInforme(index) {
-      const alumno = data.alumnos[index];
-      const contenedor = document.getElementById("contenidoInforme");
-      contenedor.innerHTML = `
-        <div class="bloque"><strong>Nombre:</strong> ${alumno.nombre}</div>
-        <div class="bloque"><strong>Aceptación:</strong> ${alumno.aceptacion}</div>
-        <div class="bloque"><strong>Rechazo:</strong> ${alumno.rechazo}</div>
-        <div class="bloque"><strong>Amistades:</strong> ${alumno.sociograma.amistades.join(", ")}</div>
-        <div class="bloque"><strong>Rechazos:</strong> ${alumno.sociograma.rechazos.join(", ") || "Ninguno"}</div>
-        <canvas id="graficoAlumno" width="400" height="400"></canvas>
-      `;
+  function mostrarGrafico(datos) {
+    const ctx = document.getElementById('grafico').getContext('2d');
+    const etiquetas = datos.map(grupo => grupo.nombre);
+    const valores = datos.map(grupo => grupo.valor);
 
-      // Generar gráfico
-      const ctx = document.getElementById('graficoAlumno').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Aceptación', 'Rechazo'],
-          datasets: [{
-            label: alumno.nombre,
-            data: [alumno.aceptacion, alumno.rechazo],
-            backgroundColor: ['#4caf50', '#f44336']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              enabled: true
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: etiquetas,
+        datasets: [{
+          label: 'Valor por Grupo',
+          data: valores,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
         }
-      });
-    }
+      }
+    });
+  }
 
-    function descargarPDF() {
-      const element = document.getElementById('informeAlumno');
-      const opt = {
-        margin: 0.5,
-        filename: 'informe_alumno.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    }
+  function mostrarTabla(datos) {
+    let html = `<table>
+      <thead><tr><th>Grupo</th><th>Valor</th></tr></thead><tbody>`;
+    datos.forEach(grupo => {
+      html += `<tr><td>${grupo.nombre}</td><td>${grupo.valor}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('tabla').innerHTML = html;
+  }
 
-    crearBotonesAlumnos();
-  </script>
+  function descargarPDF() {
+    const element = document.getElementById('contenido');
+    html2pdf().from(element).save('informe.pdf');
+  }
+</script>
+
 </body>
 </html>
+
 
 
 
