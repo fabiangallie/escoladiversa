@@ -8,166 +8,287 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
-    header { background-color: #e0f0ff; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    header {
+      background-color: #e0f0ff;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
     header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
-    nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px; }
-    nav button { padding: 10px 20px; background: #007acc; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px;
+    }
+    nav button {
+      padding: 10px 20px;
+      background: #007acc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     nav button:hover { background: #005fa3; }
     section { padding: 20px; display: none; }
-    .cuadro-titulo { background: #f2f8ff; border: 1px solid #aaa; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
-    .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .alumnos-selector button { flex: 1; min-width: 100px; border: none; border-radius: 5px; padding: 10px; cursor: pointer; background: #2196f3; color: white; }
-    .alumnos-selector button.selected { background-color: #4caf50 !important; }
-    canvas { display: block; margin: 0 auto 15px auto; max-width: 90%; }
-    .boton-descargar { margin: 10px 0; padding: 8px 16px; background-color: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .alumnos-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .alumnos-selector button {
+      flex: 1;
+      min-width: 100px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .alumnos-selector button.seleccionado {
+      background: #2196f3;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto 15px auto;
+      max-width: 90%;
+    }
+    .boton-descargar {
+      margin: 10px 0;
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     .boton-descargar:hover { background-color: #3e8e41; }
-    .leyenda { font-size: 0.60em; color: #666; margin-top: 10px; text-align: left; max-width: 90%; margin-left: auto; margin-right: auto; }
-    .bloque { margin-bottom: 15px; }
-    #cargaInicial { text-align: center; margin-top: 30px; }
+    .leyenda {
+      font-size: 0.60em;
+      color: #666;
+      margin-top: 10px;
+      text-align: left;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .bloque {
+      margin-bottom: 15px;
+    }
+    #cargaInicial {
+      text-align: center;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Informes Sociométricos</h1>
+  </header>
 
-  <!-- Contenedor de selección de alumnos -->
-  <div id="selectorAlumnos" class="alumnos-selector"></div>
-
-  <!-- Contenedor de informe individual -->
-  <section id="informeAlumno"></section>
-
-  <!-- Botón de descarga del informe individual -->
-  <div style="text-align: center;">
-    <button id="btnDescargarAlumno" class="boton-descargar" style="display:none" onclick="descargarInformeIndividual()">Descargar PDF</button>
+  <div id="cargaInicial">
+    <p><strong>Cargar archivo de grupo:</strong></p>
+    <input type="file" accept="application/json" id="inputJSON">
+    <br><br>
+    <label for="selectorGrupo">Seleccionar grupo:</label>
+    <select id="selectorGrupo"></select>
   </div>
 
-  <script>
-    let grupoActivo = {
-      alumnos: [] // Este se llenará con los datos reales del JSON
-    };
-    let alumnoSeleccionado = null;
+  <nav id="menuNav" style="display:none;">
+    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
+    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+  </nav>
 
-    function generarSelectorAlumnos() {
-      const contenedor = document.getElementById("selectorAlumnos");
-      contenedor.innerHTML = "";
-      grupoActivo.alumnos.forEach((alumno, i) => {
-        const ixs = alumno.indices;
-        const necesita = ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja";
-        const btn = document.createElement("button");
-        btn.textContent = necesita ? `⚠️ ${alumno.nombre}` : alumno.nombre;
-        btn.classList.toggle("selected", i === alumnoSeleccionado);
-        btn.onclick = () => {
-          alumnoSeleccionado = i;
-          mostrarInformeAlumno(i);
-          generarSelectorAlumnos();
-        };
-        contenedor.appendChild(btn);
+  <section id="aula">
+    <div id="contenidoAula">
+      <canvas id="graficoCohesion"></canvas>
+      <div id="resumenAula"></div>
+      <h3>Propuesta de Intervención</h3>
+      <ul id="listaIntervencion"></ul>
+      <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
+    </div>
+  </section>
+
+  <section id="individual">
+    <div class="alumnos-selector" id="selectorAlumnos"></div>
+    <div id="informeAlumnoContainer">
+      <div id="informeAlumno"></div>
+      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
+    </div>
+  </section>
+
+<script>
+let grupos = {};
+let grupoActivo = null;
+let alumnoSeleccionadoIndex = null;
+
+inputJSON.onchange = e => {
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      grupos = JSON.parse(evt.target.result);
+      const selector = document.getElementById("selectorGrupo");
+      selector.innerHTML = "<option disabled selected>Selecciona un grupo</option>";
+      Object.keys(grupos).forEach(g => {
+        const opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        selector.appendChild(opt);
       });
+    } catch (err) {
+      alert("Archivo no válido");
     }
+  }
+  reader.readAsText(e.target.files[0]);
+};
 
-    function mostrarInformeAlumno(i) {
-      const alumno = grupoActivo.alumnos[i];
-      const cont = document.getElementById("informeAlumno");
-      const valores = alumno.indices;
-      const etiquetas = ["NP", "NN", "EP", "PP", "Pap", "EN", "PN", "Pan", "OIP", "OIN", "IP", "IN", "IMP", "IMN", "IPP"];
-      const datos = [
-        valores.np, valores.nn, valores.ep === "Alta" ? 100 : valores.ep === "Media" ? 50 : 0,
-        valores.pp, valores.pap, valores.en, valores.pn, valores.pan,
-        valores.oip, valores.oin, valores.ip, valores["in"], valores.imp, valores.imn, valores.ipp
-      ];
-      cont.innerHTML = `
-        <canvas id="graficoAlumno${i}"></canvas>
-        <div class="leyenda">
-          <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad, 
-          <em>PP</em>/<em>Pap</em>: Expectativa positiva/porcentaje de acierto, 
-          <em>EN</em>: Antipatía, <em>PN</em>/<em>Pan</em>: Expectativa negativa/porcentaje, 
-          <em>OIP</em>/<em>OIN</em>: Oposición sentimiento, 
-          <em>IP</em>/<em>IN</em>: Impresiones grupo, <em>IMP</em>/<em>IMN</em>: Nivel impresiones, 
-          <em>IPP</em>: Preferencia social positiva.
-        </div>
-        <br>
-        <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
-        <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades?.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
-        <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades?.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
-        <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones?.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
-        <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
-        ${(() => {
-          const i = alumno.indices;
-          let propuestas = [];
-          if (i.np < 30) propuestas.push("Fomentar habilidades sociales y mejora de la autoimagen.");
-          if (i.nn > 60) propuestas.push("Trabajar el rechazo, empatía y regulación emocional.");
-          if (i.ipp < 40) propuestas.push("Realizar actividades cooperativas para reforzar vínculos.");
-          if (i.imn > 60) propuestas.push("Abordar la percepción negativa grupal mediante dinámicas de inclusión.");
-          if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
-          return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
-        })()}
-      `;
-      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-      const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: 'Índices',
-            data: datos,
-            backgroundColor: datos.map(v => {
-              if (typeof v === 'number') {
-                if (v >= 70) return '#4caf50';
-                if (v <= 30) return '#f44336';
-                return '#ffc107';
-              }
-              return '#ccc';
-            })
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, max: 100 } }
+selectorGrupo.onchange = () => {
+  grupoActivo = grupos[selectorGrupo.value];
+  if (!grupoActivo) return;
+  document.getElementById("menuNav").style.display = 'flex';
+  mostrarSeccion('aula');
+  cargarGraficoAula();
+  generarSelectorAlumnos();
+};
+
+function mostrarSeccion(seccion) {
+  document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+  document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+}
+
+function cargarGraficoAula() {
+  const ctx = document.getElementById("graficoCohesion").getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Cohesión", "Disociación", "Act. Positiva", "Act. Negativa"],
+      datasets: [{
+        label: "Índices Sociométricos",
+        data: [
+          grupoActivo.aula.cohesion,
+          grupoActivo.aula.disociacion,
+          grupoActivo.aula.lap,
+          grupoActivo.aula.lan
+        ],
+        backgroundColor: ["#4caf50", "#f44336", "#2196f3", "#ff9800"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
         }
-      });
+      }
     }
+  });
 
-    function descargarInformeIndividual() {
-      const element = document.getElementById("informeAlumno");
-      const opt = {
-        margin:       0.3,
-        filename:     'informe_individual.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    }
+  document.getElementById("resumenAula").innerHTML = `
+    <p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
+  document.getElementById("listaIntervencion").innerHTML = (grupoActivo.aula.intervenciones || []).map(item => `<li>${item}</li>`).join('');
+}
 
-    // Carga de ejemplo (puedes quitar esto si usas carga desde JSON)
-    window.onload = () => {
-      grupoActivo = {
-        alumnos: [
-          {
-            nombre: "Lucía",
-            indices: { np: 28, nn: 65, ep: "Baja", pp: 40, pap: 70, en: 30, pn: 60, pan: 50, oip: 40, oin: 30, ip: 50, "in": 45, imp: 35, imn: 70, ipp: 25 },
-            posicion: "Aislada",
-            amistades: [],
-            enemistades: [],
-            oposiciones: [],
-            resumen: "Lucía muestra dificultades en la integración grupal y es percibida negativamente."
-          },
-          {
-            nombre: "Carlos",
-            indices: { np: 75, nn: 10, ep: "Alta", pp: 80, pap: 90, en: 10, pn: 20, pan: 15, oip: 10, oin: 10, ip: 85, "in": 15, imp: 90, imn: 10, ipp: 88 },
-            posicion: "Líder positivo",
-            amistades: [{ nombre: "Lucía", valor: 90 }],
-            enemistades: [],
-            oposiciones: [],
-            resumen: "Carlos tiene una alta aceptación social y liderazgo positivo."
-          }
-        ]
-      };
+function generarSelectorAlumnos() {
+  const contenedor = document.getElementById("selectorAlumnos");
+  contenedor.innerHTML = "";
+  grupoActivo.alumnos.forEach((alumno, i) => {
+    const ixs = alumno.indices;
+    const necesita = ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja";
+    const btn = document.createElement("button");
+    btn.textContent = necesita ? `⚠️ ${alumno.nombre}` : alumno.nombre;
+    btn.className = "alumno-btn" + (i === alumnoSeleccionadoIndex ? " seleccionado" : "");
+    btn.onclick = () => {
+      alumnoSeleccionadoIndex = i;
+      mostrarInformeAlumno(i);
       generarSelectorAlumnos();
     };
-  </script>
+    contenedor.appendChild(btn);
+  });
+}
+
+function mostrarInformeAlumno(i) {
+  const alumno = grupoActivo.alumnos[i];
+  const cont = document.getElementById("informeAlumno");
+  cont.innerHTML = `
+    <canvas id="graficoAlumno${i}"></canvas>
+    <div class="leyenda">
+      <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
+      <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto, <em>EN</em>: Antipatía,
+      <em>PN/Pan</em>: Expectativa negativa/porcentaje, <em>OIP/OIN</em>: Oposición sentimiento,
+      <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones,
+      <em>IPP</em>: Preferencia social positiva.
+    </div>
+    <br>
+    <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
+    <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades?.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades?.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones?.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
+    <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
+    ${(() => {
+      const i = alumno.indices;
+      let propuestas = [];
+      if (i.np < 30) propuestas.push("Fomentar habilidades sociales y mejora de la autoimagen.");
+      if (i.nn > 60) propuestas.push("Trabajar el rechazo, empatía y regulación emocional.");
+      if (i.ipp < 40) propuestas.push("Realizar actividades cooperativas para reforzar vínculos.");
+      if (i.imn > 60) propuestas.push("Abordar la percepción negativa grupal mediante dinámicas de inclusión.");
+      if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
+      return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
+    })()}`;
+
+  document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+
+  const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
+  const valores = alumno.indices;
+  const etiquetas = ["np", "nn", "ep", "pp", "pap", "en", "pn", "pan", "oip", "oin", "ip", "in", "imp", "imn", "ipp"];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: etiquetas.map(e => e.toUpperCase()),
+      datasets: [{
+        label: 'Índices',
+        data: etiquetas.map(k => valores[k] ?? 0),
+        backgroundColor: etiquetas.map(k => {
+          const v = valores[k];
+          if (typeof v === 'number') {
+            if (v >= 70) return '#4caf50';
+            if (v <= 30) return '#f44336';
+            return '#ffc107';
+          }
+          return '#ccc';
+        })
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+}
+
+function descargarPDF(idElemento, nombreArchivo) {
+  const elemento = document.getElementById(idElemento);
+  html2pdf().set({
+    margin: 10,
+    filename: nombreArchivo,
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4' }
+  }).from(elemento).save();
+}
+</script>
 </body>
 </html>
+
 
 
 
