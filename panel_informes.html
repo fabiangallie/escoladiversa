@@ -7,211 +7,112 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    /* ... (el CSS lo mantengo igual por brevedad, pero incluye el tuyo completo) ... */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 1em;
+      text-align: center;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #e3f2fd;
+      padding: 0.5em;
+    }
+
+    nav button {
+      margin: 0 1em;
+      padding: 0.5em 1em;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    nav button:hover {
+      background-color: #1976d2;
+    }
+
+    section {
+      padding: 2em;
+    }
+
+    canvas {
+      max-width: 600px;
+      margin: 2em auto;
+      display: block;
+    }
+
+    .boton-descargar {
+      margin-top: 1em;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.5em 1em;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .boton-descargar:hover {
+      background-color: #388e3c;
+    }
+
+    .alumnos-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1em;
+    }
+
+    .alumnos-selector button {
+      padding: 0.5em;
+      border: none;
+      border-radius: 4px;
+      background-color: #90caf9;
+      color: #0d47a1;
+      cursor: pointer;
+    }
+
+    .alumnos-selector button:hover {
+      background-color: #64b5f6;
+    }
+
+    #informeAlumno {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      padding: 1em;
+      border-radius: 8px;
+    }
+
+    .cuadro-titulo {
+      background-color: #e3f2fd;
+      padding: 0.5em;
+      border-left: 6px solid #2196f3;
+      margin-bottom: 1em;
+    }
+
+    .leyenda {
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .bloque {
+      margin: 1em 0;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Informes Sociométricos</h1>
-  </header>
 
-  <nav>
-    <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
-    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
-  </nav>
-
-  <section id="aula">
-    <div id="contenidoAula">
-      <canvas id="graficoCohesion"></canvas>
-      <div id="resumenAula"></div>
-    </div>
-    <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-  </section>
-
-  <section id="individual" style="display:none;">
-    <div class="alumnos-selector" id="selectorAlumnos"></div>
-    <div id="informeAlumnoContainer">
-      <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
-    </div>
-  </section>
-
-<script>
-  let datosSimulados;
-
-  function mostrarSeccion(seccion) {
-    document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
-    document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
-  }
-
-  function cargarDatos() {
-    fetch('grupos1.json')
-      .then(response => {
-        if (!response.ok) throw new Error("No se pudo cargar el archivo grupos1.json");
-        return response.json();
-      })
-      .then(data => {
-        datosSimulados = data;
-        cargarGraficoAula();
-        generarSelectorAlumnos();
-        document.getElementById("resumenAula").innerHTML = `
-          <p><strong>Resumen:</strong> El grupo presenta un nivel de cohesión media. Existen relaciones positivas predominantes, aunque se observan focos de disociación que deben abordarse.</p>
-          <h3>Propuesta de Intervención</h3>
-          <ul>
-            <li><strong>Educación emocional:</strong> Empatía, comunicación no violenta.</li>
-            <li><strong>Educación en valores:</strong> Inclusión, respeto a la diversidad.</li>
-            <li><strong>Grupo y aula:</strong> Actividades cooperativas, reforzar vínculos débiles.</li>
-          </ul>
-        `;
-      })
-      .catch(error => {
-        console.error("Error al cargar datos:", error);
-        alert("Error cargando datos del archivo grupos1.json. Asegúrate de estar usando un servidor.");
-      });
-  }
-
-  function cargarGraficoAula() {
-    const ctx = document.getElementById('graficoCohesion').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Cohesión', 'Disociación', 'Act. Positiva', 'Act. Negativa'],
-        datasets: [{
-          label: 'Índices Sociométricos',
-          data: [
-            datosSimulados.aula.cohesion,
-            datosSimulados.aula.disociacion,
-            datosSimulados.aula.lap,
-            datosSimulados.aula.lan
-          ],
-          backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, max: 100 } }
-      }
-    });
-  }
-
-  function generarSelectorAlumnos() {
-    const contenedor = document.getElementById("selectorAlumnos");
-    contenedor.innerHTML = "";
-    datosSimulados.alumnos.forEach((alumno, i) => {
-      const ixs = alumno.indices;
-      const necesitaIntervencion = (
-        ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja"
-      );
-
-      const btn = document.createElement("button");
-      btn.textContent = necesitaIntervencion ? `⚠️ ${alumno.nombre}` : alumno.nombre;
-      btn.onclick = () => mostrarInformeAlumno(i);
-      contenedor.appendChild(btn);
-    });
-  }
-
-  function mostrarInformeAlumno(i) {
-    const alumno = datosSimulados.alumnos[i];
-    const contenedor = document.getElementById("informeAlumno");
-
-    contenedor.innerHTML = `
-      <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
-      <canvas id="graficoAlumno${i}"></canvas>
-
-      <div class="leyenda">
-        <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
-        <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto, <em>EN</em>: Antipatía,
-        <em>PN/Pan</em>: Expectativa negativa/porcentaje, <em>OIP/OIN</em>: Oposición sentimiento,
-        <em>IP/IN</em>: Impresiones grupo, <em>IMP/IMN</em>: Nivel impresiones,
-        <em>IPP</em>: Preferencia social positiva.
-      </div>
-      <br>
-      <div class="bloque"><strong>Posición Sociométrica:</strong> ${alumno.posicion}</div>
-      <div class="bloque"><strong>Amistades:</strong> ${alumno.amistades.map(a => `${a.nombre} (${a.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Enemistades:</strong> ${alumno.enemistades.map(e => `${e.nombre} (${e.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Oposición de sentimientos:</strong> ${alumno.oposiciones.map(o => `${o.nombre} (${o.valor})`).join(', ') || "Ninguna"}</div>
-      <div class="bloque"><strong>Resumen:</strong> ${alumno.resumen}</div>
-      ${(() => {
-        const i = alumno.indices;
-        let propuestas = [];
-        if (i.np < 30) propuestas.push("Fomentar habilidades sociales y mejora de la autoimagen.");
-        if (i.nn > 60) propuestas.push("Trabajar el rechazo, empatía y regulación emocional.");
-        if (i.ipp < 40) propuestas.push("Realizar actividades cooperativas para reforzar vínculos.");
-        if (i.imn > 60) propuestas.push("Abordar la percepción negativa grupal mediante dinámicas de inclusión.");
-        if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
-        return propuestas.length
-          ? `<div class="bloque"><strong>Propuesta de intervención:</strong> ${propuestas.join(" ")}</div>`
-          : "";
-      })()}
-    `;
-
-    document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
-    const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
-    const valores = alumno.indices;
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(valores),
-        datasets: [{
-          label: 'Índices',
-          data: Object.values(valores).map(v => typeof v === 'number' ? v : 0),
-          backgroundColor: Object.values(valores).map(v => {
-            if (typeof v === 'number') {
-              if (v >= 70) return '#4caf50';
-              if (v <= 30) return '#f44336';
-              return '#ffc107';
-            }
-            return '#ccc';
-          })
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, max: 100 } }
-      }
-    });
-  }
-
-  function descargarPDF(idElemento, nombreArchivo) {
-    const elemento = document.getElementById(idElemento);
-    html2pdf().set({ margin: 1, filename: nombreArchivo, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } })
-      .from(elemento)
-      .save();
-  }
-
-  // Iniciar
-  window.onload = cargarDatos;
-</script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</body>
-</html>
 
 
 
