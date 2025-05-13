@@ -48,7 +48,7 @@
     .alumnos-selector button {
       flex: 1;
       min-width: 100px;
-      background: #007acc;
+      background: #2196f3;
       color: white;
       border: none;
       border-radius: 5px;
@@ -61,13 +61,8 @@
     canvas {
       display: block;
       margin: 0 auto 15px auto;
-      max-width: 90%;
-    }
-    .grafico-individual {
-      width: 100%;
-      max-width: 800px;
-      height: 300px;
-      margin: auto;
+      max-width: 100%;
+      height: 260px;
     }
     .boton-descargar {
       margin: 10px 0;
@@ -200,7 +195,9 @@ function cargarGraficoAula() {
       }
     }
   });
-  document.getElementById("resumenAula").innerHTML = `<p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
+
+  document.getElementById("resumenAula").innerHTML = `
+    <p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
   document.getElementById("listaIntervencion").innerHTML = (grupoActivo.aula.intervenciones || []).map(item => `<li>${item}</li>`).join('');
 }
 
@@ -226,7 +223,7 @@ function mostrarInformeAlumno(i) {
   const alumno = grupoActivo.alumnos[i];
   const cont = document.getElementById("informeAlumno");
   cont.innerHTML = `
-    <canvas id="graficoAlumno${i}" class="grafico-individual"></canvas>
+    <canvas id="graficoAlumno${i}"></canvas>
     <div class="leyenda">
       <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
       <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto, <em>EN</em>: Antipatía,
@@ -250,7 +247,6 @@ function mostrarInformeAlumno(i) {
       if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
       return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
     })()}`;
-
   document.getElementById("btnDescargarAlumno").style.display = "inline-block";
 
   const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
@@ -279,7 +275,10 @@ function mostrarInformeAlumno(i) {
       plugins: { legend: { display: false } },
       scales: {
         x: {
-          ticks: { font: { size: 10 } }
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45
+          }
         },
         y: {
           beginAtZero: true,
@@ -302,32 +301,6 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
