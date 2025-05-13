@@ -154,12 +154,15 @@ selectorGrupo.onchange = () => {
   document.getElementById("menuNav").style.display = 'flex';
   mostrarSeccion('aula');
   cargarGraficoAula();
-  generarSelectorAlumnos();
+  generarSelectorAlumnos(); // <-- aseguramos carga de botones
 };
 
 function mostrarSeccion(seccion) {
   document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
   document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+  if (seccion === "individual") {
+    generarSelectorAlumnos(); // <-- recarga alumnos si se va a individuales
+  }
 }
 
 function cargarGraficoAula() {
@@ -199,6 +202,8 @@ function cargarGraficoAula() {
 function generarSelectorAlumnos() {
   const contenedor = document.getElementById("selectorAlumnos");
   contenedor.innerHTML = "";
+  if (!grupoActivo || !grupoActivo.alumnos) return;
+
   grupoActivo.alumnos.forEach((alumno, i) => {
     const ixs = alumno.indices;
     const necesita = ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja";
@@ -284,6 +289,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+
 
 
 
