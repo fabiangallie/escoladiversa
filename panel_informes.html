@@ -7,20 +7,16 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     header { background-color: #e0f0ff; padding: 20px; text-align: center; }
-    header h1 { margin: 0; font-size: 1.8em; color: #007acc; }
-    nav { display: flex; justify-content: center; gap: 10px; margin: 10px; flex-wrap: wrap; }
+    header h1 { margin: 0; color: #007acc; }
+    nav { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
     nav button { padding: 10px 20px; background: #007acc; color: white; border: none; border-radius: 5px; cursor: pointer; }
     nav button:hover { background: #005fa3; }
     section { padding: 20px; display: none; }
-    .volver-seleccion { text-align: center; margin: 10px; display: none; }
-    .volver-seleccion button { background: #888; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
-    .cuadro-titulo { background: #f2f8ff; border: 1px solid #aaa; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
     .alumnos-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .alumnos-selector button { flex: 1; min-width: 100px; background: #2196f3; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer; }
-    canvas { display: block; margin: 0 auto 15px auto; max-width: 90%; }
-    .leyenda { font-size: 0.6em; color: #555; text-align: left; margin-top: 10px; max-width: 90%; margin-left: auto; margin-right: auto; }
+    .alumnos-selector button { background: #2196f3; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+    .leyenda { font-size: 0.6em; color: #555; text-align: center; margin-top: 10px; }
     .boton-descargar { margin: 10px 0; padding: 8px 16px; background-color: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .boton-descargar:hover { background-color: #3e8e41; }
   </style>
@@ -33,91 +29,114 @@
   <div style="text-align:center; margin:20px;">
     <label for="selectorGrupo">Seleccionar grupo:</label>
     <select id="selectorGrupo" onchange="cargarGrupoSeleccionado()"></select>
-    <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)">
+    <input type="file" id="inputArchivo" accept="application/json" onchange="leerArchivoGrupo(event)" />
   </div>
 
-  <div class="volver-seleccion" id="volverSeleccion">
-    <button onclick="volverASeleccionarGrupo()">🔁 Cambiar grupo</button>
-  </div>
-
-  <nav id="menuInformes" style="display:none">
+  <nav id="menuInformes" style="display:none;">
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
-    <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
+    <button onclick="mostrarSeccion('individual')">Informe Individual</button>
   </nav>
 
   <section id="aula">
-    <div id="contenidoAula">
-      <canvas id="graficoCohesion"></canvas>
-      <div id="resumenAula"></div>
-      <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
-    </div>
+    <canvas id="graficoCohesion"></canvas>
+    <div class="leyenda">* Índice de cohesión sociométrica por alumno</div>
+    <div id="resumenAula"></div>
+    <button class="boton-descargar" onclick="descargarPDF('aula', 'informe_aula.pdf')">Descargar Informe de Aula</button>
   </section>
 
   <section id="individual">
     <div class="alumnos-selector" id="selectorAlumnos"></div>
-    <div id="informeAlumnoContainer">
-      <div id="informeAlumno"></div>
-      <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
-    </div>
+    <div id="informeAlumno"></div>
+    <button class="boton-descargar" id="btnDescargarAlumno" style="display:none;" onclick="descargarPDF('informeAlumno', 'informe_individual.pdf')">Descargar Informe Alumno</button>
   </section>
 
-<script>
-let todosLosGrupos = {};
+  <script>
+    let todosLosGrupos = {};
 
-function leerArchivoGrupo(event) {
-  const archivo = event.target.files[0];
-  if (!archivo) return;
-  const lector = new FileReader();
-  lector.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      todosLosGrupos = data;
-      const selector = document.getElementById("selectorGrupo");
-      selector.innerHTML = "";
-      for (const grupo in todosLosGrupos) {
-        const option = document.createElement("option");
-        option.value = grupo;
-        option.textContent = grupo;
-        selector.appendChild(option);
-      }
-      if (Object.keys(todosLosGrupos).length > 0) {
-        selector.selectedIndex = 0;
-        cargarGrupoSeleccionado();
-      }
-    } catch (err) {
-      alert("Error al leer el archivo JSON");
+    function leerArchivoGrupo(event) {
+      const archivo = event.target.files[0];
+      if (!archivo) return;
+      const lector = new FileReader();
+      lector.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          todosLosGrupos = data;
+          const selector = document.getElementById("selectorGrupo");
+          selector.innerHTML = "";
+          for (const grupo in todosLosGrupos) {
+            const option = document.createElement("option");
+            option.value = grupo;
+            option.textContent = grupo;
+            selector.appendChild(option);
+          }
+          selector.selectedIndex = 0;
+          cargarGrupoSeleccionado();
+        } catch {
+          alert("Error al leer el archivo JSON.");
+        }
+      };
+      lector.readAsText(archivo);
     }
-  };
-  lector.readAsText(archivo);
-}
 
-function cargarGrupoSeleccionado() {
-  const grupoSeleccionado = document.getElementById("selectorGrupo").value;
-  const datosGrupo = todosLosGrupos[grupoSeleccionado];
-  if (!datosGrupo) return;
-  mostrarSeccion('aula');
-  document.getElementById("menuInformes").style.display = "flex";
-  document.getElementById("volverSeleccion").style.display = "block";
-  cargarGraficoAula(datosGrupo.aula);
-  generarSelectorAlumnos(datosGrupo.alumnos);
-}
+    function cargarGrupoSeleccionado() {
+      const grupo = document.getElementById("selectorGrupo").value;
+      const datos = todosLosGrupos[grupo];
+      if (!datos) return;
+      document.getElementById("menuInformes").style.display = "flex";
+      mostrarSeccion("aula");
+      cargarGrafico(datos.aula);
+      generarSelectorAlumnos(datos.alumnos);
+    }
 
-function mostrarSeccion(seccion) {
-  document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
-  document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
-}
+    function mostrarSeccion(seccion) {
+      document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
+      document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
+    }
 
-function descargarPDF(idElemento, nombreArchivo) {
-  const elemento = document.getElementById(idElemento);
-  html2pdf()
-    .set({ margin: 10, filename: nombreArchivo, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } })
-    .from(elemento)
-    .save();
-}
+    function cargarGrafico(info) {
+      const ctx = document.getElementById("graficoCohesion").getContext("2d");
+      if (window.chart) window.chart.destroy();
+      window.chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: info.labels,
+          datasets: [{ label: "Cohesión", data: info.data, backgroundColor: "#2196f3" }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+      document.getElementById("resumenAula").innerHTML = `<div class="bloque">${info.resumen}</div><div class="bloque">${info.propuesta}</div>`;
+    }
 
-// Aquí puedes reintegrar las funciones cargarGraficoAula y generarSelectorAlumnos como estaban cuando todo funcionaba bien.
+    function generarSelectorAlumnos(lista) {
+      const contenedor = document.getElementById("selectorAlumnos");
+      contenedor.innerHTML = "";
+      lista.forEach((alumno, i) => {
+        const boton = document.createElement("button");
+        boton.textContent = alumno.nombre;
+        boton.onclick = () => mostrarInformeAlumno(alumno);
+        contenedor.appendChild(boton);
+      });
+    }
 
-</script>
+    function mostrarInformeAlumno(alumno) {
+      const contenedor = document.getElementById("informeAlumno");
+      contenedor.innerHTML = `
+        <div class="bloque"><strong>${alumno.nombre}</strong></div>
+        <div class="bloque">${alumno.resumen}</div>
+        <div class="bloque">${alumno.sentimientos}</div>
+        <div class="bloque">${alumno.propuesta}</div>
+      `;
+      document.getElementById("btnDescargarAlumno").style.display = "inline-block";
+    }
+
+    function descargarPDF(id, nombre) {
+      const elemento = document.getElementById(id);
+      html2pdf().from(elemento).save(nombre);
+    }
+  </script>
 </body>
 </html>
 
