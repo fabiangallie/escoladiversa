@@ -61,8 +61,13 @@
     canvas {
       display: block;
       margin: 0 auto 15px auto;
-      max-width: 100%;
-      height: auto;
+      max-width: 90%;
+    }
+    .grafico-individual {
+      width: 95%;
+      max-width: 950px;
+      height: 450px;
+      margin: auto;
     }
     .boton-descargar {
       margin: 10px 0;
@@ -75,11 +80,11 @@
     }
     .boton-descargar:hover { background-color: #3e8e41; }
     .leyenda {
-      font-size: 0.65em;
+      font-size: 0.60em;
       color: #666;
       margin-top: 10px;
       text-align: left;
-      max-width: 95%;
+      max-width: 90%;
       margin-left: auto;
       margin-right: auto;
     }
@@ -188,7 +193,10 @@ function cargarGraficoAula() {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, max: 100 }
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
       }
     }
   });
@@ -220,7 +228,8 @@ function mostrarInformeAlumno(i) {
   const alumno = grupoActivo.alumnos[i];
   const cont = document.getElementById("informeAlumno");
   cont.innerHTML = `
-    <canvas id="graficoAlumno${i}"></canvas>
+    <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
+    <canvas id="graficoAlumno${i}" class="grafico-individual"></canvas>
     <div class="leyenda">
       <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
       <em>PP/Pap</em>: Expectativa positiva/porcentaje de acierto, <em>EN</em>: Antipatía,
@@ -244,7 +253,6 @@ function mostrarInformeAlumno(i) {
       if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
       return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
     })()}`;
-
   document.getElementById("btnDescargarAlumno").style.display = "inline-block";
 
   const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
@@ -272,6 +280,13 @@ function mostrarInformeAlumno(i) {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
+        x: {
+          ticks: {
+            font: {
+              size: 10
+            }
+          }
+        },
         y: {
           beginAtZero: true,
           max: 100
@@ -293,6 +308,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+
 
 
 
