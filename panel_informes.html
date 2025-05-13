@@ -48,7 +48,7 @@
     .alumnos-selector button {
       flex: 1;
       min-width: 100px;
-      background: #444;
+      background: #2196f3;
       color: white;
       border: none;
       border-radius: 5px;
@@ -56,7 +56,7 @@
       cursor: pointer;
     }
     .alumnos-selector button.seleccionado {
-      background: #2196f3;
+      background: #4caf50;
     }
     canvas {
       display: block;
@@ -95,7 +95,6 @@
   <header>
     <h1>Informes Sociométricos</h1>
   </header>
-
   <div id="cargaInicial">
     <p><strong>Cargar archivo de grupo:</strong></p>
     <input type="file" accept="application/json" id="inputJSON">
@@ -103,12 +102,10 @@
     <label for="selectorGrupo">Seleccionar grupo:</label>
     <select id="selectorGrupo"></select>
   </div>
-
   <nav id="menuNav" style="display:none;">
     <button onclick="mostrarSeccion('aula')">Informe de Aula</button>
     <button onclick="mostrarSeccion('individual')">Informes Individuales</button>
   </nav>
-
   <section id="aula">
     <div id="contenidoAula">
       <canvas id="graficoCohesion"></canvas>
@@ -118,7 +115,6 @@
       <button class="boton-descargar" onclick="descargarPDF('contenidoAula', 'Informe_Aula.pdf')">Descargar Informe de Aula</button>
     </div>
   </section>
-
   <section id="individual">
     <div class="alumnos-selector" id="selectorAlumnos"></div>
     <div id="informeAlumnoContainer">
@@ -126,15 +122,11 @@
       <button id="btnDescargarAlumno" class="boton-descargar" style="display:none;" onclick="descargarPDF('informeAlumno', 'Informe_Alumno.pdf')">Descargar Informe Alumno</button>
     </div>
   </section>
-
 <script>
-let grupos = {};
-let grupoActivo = null;
-let alumnoSeleccionadoIndex = null;
-
+let grupos = {}, grupoActivo = null, alumnoSeleccionadoIndex = null;
 inputJSON.onchange = e => {
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = evt => {
     try {
       grupos = JSON.parse(evt.target.result);
       const selector = document.getElementById("selectorGrupo");
@@ -145,13 +137,10 @@ inputJSON.onchange = e => {
         opt.textContent = g;
         selector.appendChild(opt);
       });
-    } catch (err) {
-      alert("Archivo no válido");
-    }
+    } catch { alert("Archivo no válido"); }
   }
   reader.readAsText(e.target.files[0]);
 };
-
 selectorGrupo.onchange = () => {
   grupoActivo = grupos[selectorGrupo.value];
   if (!grupoActivo) return;
@@ -160,12 +149,10 @@ selectorGrupo.onchange = () => {
   cargarGraficoAula();
   generarSelectorAlumnos();
 };
-
 function mostrarSeccion(seccion) {
   document.getElementById("aula").style.display = seccion === "aula" ? "block" : "none";
   document.getElementById("individual").style.display = seccion === "individual" ? "block" : "none";
 }
-
 function cargarGraficoAula() {
   const ctx = document.getElementById("graficoCohesion").getContext("2d");
   new Chart(ctx, {
@@ -174,12 +161,7 @@ function cargarGraficoAula() {
       labels: ["Cohesión", "Disociación", "Act. Positiva", "Act. Negativa"],
       datasets: [{
         label: "Índices Sociométricos",
-        data: [
-          grupoActivo.aula.cohesion,
-          grupoActivo.aula.disociacion,
-          grupoActivo.aula.lap,
-          grupoActivo.aula.lan
-        ],
+        data: [grupoActivo.aula.cohesion, grupoActivo.aula.disociacion, grupoActivo.aula.lap, grupoActivo.aula.lan],
         backgroundColor: ["#4caf50", "#f44336", "#2196f3", "#ff9800"]
       }]
     },
@@ -187,22 +169,16 @@ function cargarGraficoAula() {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
-          max: 100
-        }
+        y: { beginAtZero: true, max: 100 }
       }
     }
   });
-
-  document.getElementById("resumenAula").innerHTML = `
-    <p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
-  document.getElementById("listaIntervencion").innerHTML = (grupoActivo.aula.intervenciones || []).map(item => `<li>${item}</li>`).join('');
+  document.getElementById("resumenAula").innerHTML = `<p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
+  document.getElementById("listaIntervencion").innerHTML = (grupoActivo.aula.intervenciones || []).map(i => `<li>${i}</li>`).join('');
 }
-
 function generarSelectorAlumnos() {
-  const contenedor = document.getElementById("selectorAlumnos");
-  contenedor.innerHTML = "";
+  const cont = document.getElementById("selectorAlumnos");
+  cont.innerHTML = "";
   grupoActivo.alumnos.forEach((alumno, i) => {
     const ixs = alumno.indices;
     const necesita = ixs.np < 30 || ixs.nn > 60 || ixs.ipp < 40 || ixs.imn > 60 || ixs.ep === "Baja";
@@ -214,15 +190,13 @@ function generarSelectorAlumnos() {
       mostrarInformeAlumno(i);
       generarSelectorAlumnos();
     };
-    contenedor.appendChild(btn);
+    cont.appendChild(btn);
   });
 }
-
 function mostrarInformeAlumno(i) {
   const alumno = grupoActivo.alumnos[i];
   const cont = document.getElementById("informeAlumno");
   cont.innerHTML = `
-    <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
     <canvas id="graficoAlumno${i}"></canvas>
     <div class="leyenda">
       <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
@@ -248,7 +222,6 @@ function mostrarInformeAlumno(i) {
       return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
     })()}`;
   document.getElementById("btnDescargarAlumno").style.display = "inline-block";
-
   const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
   const valores = alumno.indices;
   const etiquetas = ["np", "nn", "ep", "pp", "pap", "en", "pn", "pan", "oip", "oin", "ip", "in", "imp", "imn", "ipp"];
@@ -274,15 +247,12 @@ function mostrarInformeAlumno(i) {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          beginAtZero: true,
-          max: 100
-        }
+        x: { ticks: { font: { size: 10 } } },
+        y: { beginAtZero: true, max: 100 }
       }
     }
   });
 }
-
 function descargarPDF(idElemento, nombreArchivo) {
   const elemento = document.getElementById(idElemento);
   html2pdf().set({
@@ -295,6 +265,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+
 
 
 
