@@ -64,9 +64,9 @@
       max-width: 90%;
     }
     .grafico-individual {
-      width: 95%;
-      max-width: 950px;
-      height: 450px;
+      width: 100%;
+      max-width: 800px;
+      height: 300px;
       margin: auto;
     }
     .boton-descargar {
@@ -200,9 +200,7 @@ function cargarGraficoAula() {
       }
     }
   });
-
-  document.getElementById("resumenAula").innerHTML = `
-    <p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
+  document.getElementById("resumenAula").innerHTML = `<p><strong>Resumen:</strong> ${grupoActivo.aula.resumen || 'Resumen no disponible.'}</p>`;
   document.getElementById("listaIntervencion").innerHTML = (grupoActivo.aula.intervenciones || []).map(item => `<li>${item}</li>`).join('');
 }
 
@@ -228,7 +226,6 @@ function mostrarInformeAlumno(i) {
   const alumno = grupoActivo.alumnos[i];
   const cont = document.getElementById("informeAlumno");
   cont.innerHTML = `
-    <div class="cuadro-titulo"><h3>${alumno.nombre}</h3></div>
     <canvas id="graficoAlumno${i}" class="grafico-individual"></canvas>
     <div class="leyenda">
       <em>NP</em>: Popularidad media, <em>NN</em>: Rechazo medio, <em>EP</em>: Sociabilidad,
@@ -253,6 +250,7 @@ function mostrarInformeAlumno(i) {
       if (i.ep === "Baja") propuestas.push("Proponer dinámicas para mejorar la integración y participación.");
       return propuestas.length ? `<div class='bloque'><strong>Propuesta de intervención:</strong><ul><li>${propuestas.join('</li><li>')}</li></ul></div>` : "";
     })()}`;
+
   document.getElementById("btnDescargarAlumno").style.display = "inline-block";
 
   const ctx = document.getElementById(`graficoAlumno${i}`).getContext('2d');
@@ -281,11 +279,7 @@ function mostrarInformeAlumno(i) {
       plugins: { legend: { display: false } },
       scales: {
         x: {
-          ticks: {
-            font: {
-              size: 10
-            }
-          }
+          ticks: { font: { size: 10 } }
         },
         y: {
           beginAtZero: true,
@@ -308,6 +302,7 @@ function descargarPDF(idElemento, nombreArchivo) {
 </script>
 </body>
 </html>
+
 
 
 
