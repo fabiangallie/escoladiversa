@@ -130,16 +130,47 @@
       });
     }
 
-    document.getElementById("grupo-form
+    document.getElementById("grupo-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const curso = document.getElementById("curso").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      if (!curso || !fecha || alumnos.length === 0) {
+        alert("Completa todos los campos y añade al menos un alumno.");
+        return;
+      }
+      const clave = `${curso} - ${fecha}`;
+      const grupo = { curso, fecha, alumnos };
+      localStorage.setItem(clave, JSON.stringify(grupo));
+      guardarGrupoEnServidor(grupo);
+      alert("Grupo guardado correctamente.");
+      this.reset();
+      alumnos = [];
+      actualizarListaAlumnos();
+    });
 
+    function cargarGruposGuardados() {
+      const select = document.getElementById("grupo-select");
+      select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
+        }
+      }
+    }
 
+    function cargarGrupoSeleccionado() {
+      const clave = document.getElementById("grupo-select").value;
+      if (!clave) return;
+      const grupo = JSON.parse(localStorage.getItem(clave));
 
+      const contenedor = document.getElementById("grupo-editable");
+      contenedor.innerHTML = "";
 
+      const form = document.createElement("form");
+      form.classList.add("form-edit");
 
-
-
-
-
-
-
-
+      form.inner
