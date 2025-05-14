@@ -19,7 +19,6 @@
     </div>
 
     <button onclick="guardarDesdeFormulario()">Guardar grupo</button>
-    <button onclick="eliminarGrupo()">Eliminar grupo</button>
 
     <script>
         function guardarGrupoEnServidor(grupo) {
@@ -61,11 +60,6 @@
             };
 
             guardarGrupoEnServidor(grupo);
-        }
-
-        function eliminarGrupo() {
-            document.getElementById("nombreGrupo").value = "";
-            document.getElementById("alumnos").value = "";
         }
     </script>
 </body>
