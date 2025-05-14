@@ -37,6 +37,29 @@
     <p class="mensaje-final">Has terminado el sociograma. ¡Gracias por tu colaboración!</p>
     <div class="emoji">🎉😊</div>
   </div>
+  <script>
+  const respuestas = {
+    grupo: sessionStorage.getItem("grupo") || "5ºB",
+    alumno: sessionStorage.getItem("alumno") || "Nombre del Alumno",
+    elecciones: JSON.parse(sessionStorage.getItem("elecciones") || "[]")
+  };
+
+  fetch("guardar_respuesta.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(respuestas)
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("Respuesta guardada:", data);
+  })
+  .catch(err => {
+    console.error("Error al guardar la respuesta", err);
+  });
+</script>
+
 </body>
 </html>
 
