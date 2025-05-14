@@ -1,25 +1,29 @@
 <?php
-// Archivo donde se guardarán los grupos
 $archivo = 'grupos.json';
 
-// Obtener los datos enviados por POST (JSON)
-$data = file_get_contents("php://input");
-$nuevoGrupo = json_decode($data, true);
+$datos = json_decode(file_get_contents('php://input'), true);
 
-// Si el archivo ya existe, lo leemos. Si no, empezamos con un array vacío.
-if (file_exists($archivo)) {
-    $grupos = json_decode(file_get_contents($archivo), true);
-} else {
-    $grupos = [];
+if (!$datos || !isset($datos['nombre']) || !isset($datos['alumnos'])) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'mensaje' => 'Datos inválidos']);
+    exit;
 }
 
-// Añadimos el nuevo grupo al array existente
-$grupos[] = $nuevoGrupo;
+if (file_exists($archivo)) {
+    $contenido = json_decode(file_get_contents($archivo), true);
+    if (!is_array($contenido)) {
+        $contenido = [];
+    }
+} else {
+    $contenido = [];
+}
 
-// Guardamos el nuevo contenido en el archivo
-file_put_contents($archivo, json_encode($grupos, JSON_PRETTY_PRINT));
+$contenido[$datos['nombre']] = $datos['alumnos'];
 
-// Devolvemos respuesta OK
-header("Content-Type: application/json");
-echo json_encode(["status" => "ok"]);
+if (file_put_contents($archivo, json_encode($contenido, JSON_PRETTY_PRINT))) {
+    echo json_encode(['status' => 'ok']);
+} else {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'mensaje' => 'No se pudo guardar el grupo']);
+}
 ?>
