@@ -133,25 +133,43 @@ let grupos = {};
 let grupoActivo = null;
 let alumnoSeleccionadoIndex = null;
 
-inputJSON.onchange = e => {
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    try {
-      grupos = JSON.parse(evt.target.result);
+window.addEventListener("DOMContentLoaded", () => {
+  fetch("index_resultados.json")
+    .then(res => res.json())
+    .then(lista => {
       const selector = document.getElementById("selectorGrupo");
       selector.innerHTML = "<option disabled selected>Selecciona un grupo</option>";
-      Object.keys(grupos).forEach(g => {
+      lista.forEach(gr => {
         const opt = document.createElement("option");
-        opt.value = g;
-        opt.textContent = g;
+        opt.value = gr.archivo;
+        opt.textContent = gr.grupo;
         selector.appendChild(opt);
       });
-    } catch (err) {
-      alert("Archivo no válido");
-    }
-  }
-  reader.readAsText(e.target.files[0]);
+    })
+    .catch(err => {
+      alert("No se pudo cargar el índice de grupos");
+      console.error(err);
+    });
+});
+
+selectorGrupo.onchange = () => {
+  const archivo = selectorGrupo.value;
+  fetch(archivo)
+    .then(res => res.json())
+    .then(datosGrupo => {
+      grupos = { [selectorGrupo.options[selectorGrupo.selectedIndex].text]: datosGrupo };
+      grupoActivo = datosGrupo;
+      document.getElementById("menuNav").style.display = 'flex';
+      mostrarSeccion('aula');
+      cargarGraficoAula();
+      generarSelectorAlumnos();
+    })
+    .catch(err => {
+      alert("No se pudo cargar el archivo del grupo seleccionado");
+      console.error(err);
+    });
 };
+
 
 selectorGrupo.onchange = () => {
   grupoActivo = grupos[selectorGrupo.value];
