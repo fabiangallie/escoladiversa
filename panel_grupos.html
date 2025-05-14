@@ -230,7 +230,31 @@
         document.getElementById("grupo-select").value = "";
       }
     }
-  </script>
+<script>
+// Esta función enviará el grupo al servidor (solo si ya tienes el objeto preparado)
+function guardarGrupoEnServidor(grupo) {
+    fetch("guardar_grupo.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(grupo)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "ok") {
+            alert("Grupo guardado correctamente");
+        } else {
+            alert("Error al guardar grupo");
+        }
+    })
+    .catch(err => {
+        alert("Error de conexión al servidor");
+        console.error(err);
+    });
+}
+</script>
+
 </body>
 </html>
 
