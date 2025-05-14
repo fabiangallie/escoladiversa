@@ -1,66 +1,188 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Panel de Grupos</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Grupos</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tabs { display: flex; justify-content: center; margin-bottom: 1em; }
+    .tab-btn { padding: 0.8em 1.5em; margin: 0 0.5em; border: none; background-color: #d0e4ff; cursor: pointer; border-radius: 8px; font-weight: bold; }
+    .tab-btn.active { background-color: #4285f4; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .alumnos-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; padding: 0; list-style: none; }
+    .alumnos-lista li { background-color: #f0f8ff; padding: 0.5em; border-radius: 8px; text-align: center; font-weight: bold; }
+    .edit-alumnos-container { max-height: 250px; overflow-y: auto; margin-top: 0.5em; margin-bottom: 1em; border: 1px solid #ccc; padding: 0.5em; border-radius: 8px; }
+    .btn-eliminar { margin-left: 5px; color: red; cursor: pointer; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <h1>Panel del Profesorado</h1>
-
-    <div>
-        <label for="nombreGrupo">Nombre del grupo:</label>
-        <input type="text" id="nombreGrupo" placeholder="Ej: 5ºB">
+  <div class="container">
+    <div class="title-box azul"><h1 class="title-grande">Gestión de Grupos</h1></div>
+    <div class="tabs">
+      <button class="tab-btn active" id="btn-crear">Crear grupo</button>
+      <button class="tab-btn" id="btn-editar">Editar grupo</button>
     </div>
 
-    <div>
-        <label for="alumnos">Listado de alumnos (separados por coma):</label><br>
-        <textarea id="alumnos" rows="5" cols="50" placeholder="Ej: Ana, Luis, Marta, Pablo"></textarea>
+    <!-- Crear grupo -->
+    <div id="crear" class="tab-content active">
+      <form class="form" id="grupo-form">
+        <label for="curso">Curso:</label>
+        <input type="text" id="curso" required />
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" required />
+        <label for="alumno">Nombre del alumno:</label>
+        <input type="text" id="alumno" />
+        <button type="button" class="btn" id="btn-añadir-alumno">Añadir alumno</button>
+        <button type="submit" class="btn">Guardar grupo</button>
+      </form>
+      <ul class="alumnos-lista" id="lista-alumnos"></ul>
     </div>
 
-    <button onclick="guardarDesdeFormulario()">Guardar grupo</button>
+    <!-- Editar grupo -->
+    <div id="editar" class="tab-content">
+      <form class="form">
+        <label for="grupo-select">Selecciona un grupo:</label>
+        <select id="grupo-select"></select>
+      </form>
+      <div id="grupo-editable" style="margin-top: 1em;"></div>
+    </div>
+  </div>
 
-    <script>
-        function guardarGrupoEnServidor(grupo) {
-            fetch("guardar_grupo.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(grupo)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    alert("Grupo guardado correctamente");
-                } else {
-                    alert("Error al guardar grupo");
-                }
-            })
-            .catch(err => {
-                alert("Error de conexión con el servidor.");
-                console.error(err);
-            });
+  <script>
+    let alumnos = [];
+    const crearTab = document.getElementById("crear");
+    const editarTab = document.getElementById("editar");
+    const btnCrear = document.getElementById("btn-crear");
+    const btnEditar = document.getElementById("btn-editar");
+
+    btnCrear.addEventListener("click", () => {
+      crearTab.classList.add("active");
+      editarTab.classList.remove("active");
+      btnCrear.classList.add("active");
+      btnEditar.classList.remove("active");
+    });
+
+    btnEditar.addEventListener("click", () => {
+      crearTab.classList.remove("active");
+      editarTab.classList.add("active");
+      btnCrear.classList.remove("active");
+      btnEditar.classList.add("active");
+      cargarGruposGuardados();
+    });
+
+    document.getElementById("btn-añadir-alumno").addEventListener("click", () => {
+      const input = document.getElementById("alumno");
+      const nombre = input.value.trim();
+      if (nombre) {
+        alumnos.push(nombre);
+        input.value = "";
+        actualizarListaAlumnos();
+      }
+    });
+
+    function actualizarListaAlumnos() {
+      const lista = document.getElementById("lista-alumnos");
+      lista.innerHTML = "";
+      alumnos.forEach(nombre => {
+        const li = document.createElement("li");
+        li.textContent = nombre;
+        lista.appendChild(li);
+      });
+    }
+
+    document.getElementById("grupo-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const curso = document.getElementById("curso").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      if (!curso || !fecha || alumnos.length === 0) {
+        alert("Completa todos los campos y añade al menos un alumno.");
+        return;
+      }
+      const clave = `${curso} - ${fecha}`;
+      const grupo = { curso, fecha, alumnos };
+      localStorage.setItem(clave, JSON.stringify(grupo));
+      guardarGrupoEnServidor(grupo);
+      alert("Grupo guardado correctamente.");
+      this.reset();
+      alumnos = [];
+      actualizarListaAlumnos();
+    });
+
+    function guardarGrupoEnServidor(grupo) {
+      fetch("guardar_grupo.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(grupo)
+      })
+      .then(res => res.json())
+      .then(data => console.log(data))
+      .catch(err => console.error(err));
+    }
+
+    function cargarGruposGuardados() {
+      const select = document.getElementById("grupo-select");
+      select.innerHTML = `<option value="">-- Elegir grupo --</option>`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave.includes(" - ")) {
+          const option = document.createElement("option");
+          option.value = clave;
+          option.textContent = clave;
+          select.appendChild(option);
         }
+      }
+      select.addEventListener("change", () => mostrarGrupo(select.value));
+    }
 
-        function guardarDesdeFormulario() {
-            const nombre = document.getElementById("nombreGrupo").value.trim();
-            const lista = document.getElementById("alumnos").value.trim();
+    function mostrarGrupo(clave) {
+      const contenedor = document.getElementById("grupo-editable");
+      contenedor.innerHTML = "";
+      if (!clave) return;
+      const grupo = JSON.parse(localStorage.getItem(clave));
 
-            if (!nombre || !lista) {
-                alert("Por favor, completa el nombre del grupo y al menos un alumno.");
-                return;
-            }
+      const inputCurso = document.createElement("input");
+      inputCurso.value = grupo.curso;
 
-            const alumnos = lista.split(",").map(nombre => nombre.trim()).filter(n => n !== "");
+      const inputFecha = document.createElement("input");
+      inputFecha.type = "date";
+      inputFecha.value = grupo.fecha;
 
-            const grupo = {
-                nombre: nombre,
-                alumnos: alumnos
-            };
+      const inputNuevo = document.createElement("input");
+      inputNuevo.placeholder = "Nuevo alumno";
 
-            guardarGrupoEnServidor(grupo);
+      const btnAdd = document.createElement("button");
+      btnAdd.textContent = "Añadir alumno";
+      btnAdd.className = "btn";
+      btnAdd.addEventListener("click", () => {
+        const nuevo = inputNuevo.value.trim();
+        if (nuevo) {
+          grupo.alumnos.push(nuevo);
+          localStorage.setItem(clave, JSON.stringify(grupo));
+          mostrarGrupo(clave);
         }
-    </script>
+      });
+
+      const lista = document.createElement("ul");
+      lista.className = "alumnos-lista";
+      grupo.alumnos.forEach((nombre, i) => {
+        const li = document.createElement("li");
+        li.textContent = nombre;
+        const del = document.createElement("span");
+        del.textContent = " x";
+        del.className = "btn-eliminar";
+        del.addEventListener("click", () => {
+          grupo.alumnos.splice(i, 1);
+          localStorage.setItem(clave, JSON.stringify(grupo));
+          mostrarGrupo(clave);
+        });
+        li.appendChild(del);
+        lista.appendChild(li);
+      });
+
+      contenedor.append("Curso:", inputCurso, "Fecha:", inputFecha, inputNuevo, btnAdd, lista);
+    }
+  </script>
 </body>
 </html>
