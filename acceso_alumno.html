@@ -47,115 +47,55 @@
   </div>
 
   <script>
-    const grupoSelect = document.getElementById("grupo");
-    const nombreSelect = document.getElementById("nombre");
-    const comenzarBtn = document.getElementById("comenzar");
     let grupos = {};
 
     fetch("grupos.json")
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         grupos = data;
-        for (const grupo in grupos) {
+        const select = document.getElementById("selectGrupo");
+        Object.keys(grupos).forEach(nombreGrupo => {
           const option = document.createElement("option");
-          option.value = grupo;
-          option.textContent = grupo;
-          grupoSelect.appendChild(option);
-        }
+          option.value = nombreGrupo;
+          option.textContent = nombreGrupo;
+          select.appendChild(option);
+        });
+      })
+      .catch(err => {
+        alert("No se pudieron cargar los grupos (esto es normal si estás en GitHub Pages)");
+        console.error(err);
       });
 
-    grupoSelect.addEventListener("change", () => {
-      const grupo = grupoSelect.value;
-      nombreSelect.innerHTML = "";
+    function cargarAlumnos() {
+      const grupoSeleccionado = document.getElementById("selectGrupo").value;
+      const selectAlumno = document.getElementById("selectAlumno");
+      selectAlumno.innerHTML = '<option value="">-- Elige tu nombre --</option>';
 
-      if (!grupo) {
-        nombreSelect.disabled = true;
-        comenzarBtn.disabled = true;
-        nombreSelect.innerHTML = `<option value="">Primero elige un grupo</option>`;
+      if (grupos[grupoSeleccionado]) {
+        grupos[grupoSeleccionado].forEach(nombre => {
+          const option = document.createElement("option");
+          option.value = nombre;
+          option.textContent = nombre;
+          selectAlumno.appendChild(option);
+        });
+        document.getElementById("seccionAlumnos").style.display = "block";
+      } else {
+        document.getElementById("seccionAlumnos").style.display = "none";
+      }
+    }
+
+    function acceder() {
+      const grupo = document.getElementById("selectGrupo").value;
+      const alumno = document.getElementById("selectAlumno").value;
+
+      if (!grupo || !alumno) {
+        alert("Selecciona un grupo y tu nombre.");
         return;
       }
 
-      const placeholder = document.createElement("option");
-      placeholder.value = "";
-      placeholder.textContent = "Selecciona tu nombre";
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      nombreSelect.appendChild(placeholder);
-
-      grupos[grupo].forEach(nombre => {
-        const option = document.createElement("option");
-        option.value = nombre;
-        option.textContent = nombre;
-        nombreSelect.appendChild(option);
-      });
-
-      nombreSelect.disabled = false;
-      comenzarBtn.disabled = true;
-    });
-
-    nombreSelect.addEventListener("change", () => {
-      comenzarBtn.disabled = !nombreSelect.value;
-    });
-
-    comenzarBtn.addEventListener("click", () => {
-      const grupo = grupoSelect.value;
-      const nombre = nombreSelect.value;
-      const nombresGrupo = grupos[grupo] || [];
-
-      localStorage.setItem("grupoSeleccionado", grupo);
-      localStorage.setItem("nombreAlumno", nombre);
-      localStorage.setItem("nombresGrupo", JSON.stringify(nombresGrupo.filter(n => n !== nombre)));
-
-      window.location.href = "sociograma/index.html";
-    });
+      alert(`Bienvenido/a, ${alumno} del grupo ${grupo}`);
+    }
   </script>
-  <script>
-    function guardarGrupoEnServidor(grupo) {
-        fetch("guardar_grupo.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(grupo)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "ok") {
-                alert("Grupo guardado correctamente");
-            } else {
-                alert("Error al guardar grupo");
-            }
-        })
-        .catch(err => {
-            alert("Error de conexión con el servidor.");
-            console.error(err);
-        });
-    }
-
-    function guardarDesdeFormulario() {
-        const nombre = document.getElementById("nombreGrupo").value.trim();
-        const lista = document.getElementById("alumnos").value.trim();
-
-        if (!nombre || !lista) {
-            alert("Por favor, completa el nombre del grupo y al menos un alumno.");
-            return;
-        }
-
-        const alumnos = lista.split(",").map(nombre => nombre.trim()).filter(n => n !== "");
-
-        const grupo = {
-            nombre: nombre,
-            alumnos: alumnos
-        };
-
-        guardarGrupoEnServidor(grupo);
-    }
-
-    function eliminarGrupo() {
-        document.getElementById("nombreGrupo").value = "";
-        document.getElementById("alumnos").value = "";
-    }
-</script>
 
 </body>
 </html>
